@@ -585,7 +585,8 @@ subroutine dumpbf(lunit,jdate,jdump) ! in dumpbf.f
     common /bufrbmiss/ bmiss
     common /quiet/ iprt
 end subroutine dumpbf
-subroutine dxdump(lunit,ldxot) ! in dxdump.f
+subroutine dxdump(fileout,lunit,ldxot) ! in dxdump.f
+    character*(*), intent(in) :: fileout
     integer :: lunit
     integer :: ldxot
     integer dimension(5,2) :: idnr
