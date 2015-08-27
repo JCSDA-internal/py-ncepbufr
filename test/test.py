@@ -19,7 +19,15 @@ else:
     raise ValueError('nonzero return code = %s from readmg' % iret)
 iret = ncepbufr.ireadsb(lunit)
 if iret == 0:
-    hdr,iret = ncepbufr.ufbint(lunit,mxmn,1,hdstr)
+    hdr,ilevs = ncepbufr.ufbint(lunit,mxmn,1,hdstr)
     station_id = hdr[0].tostring()
     print 'station_id, lon, lat, time, station_type =',\
     station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item())
+    obs, ilevs = ncepbufr.ufbint(lunit,mxmn,mxlv,obstr)
+    oer, ilevs = ncepbufr.ufbint(lunit,mxmn,mxlv,oestr)
+    qcf, ilevs = ncepbufr.ufbint(lunit,mxmn,mxlv,qcstr)
+    for k in xrange(ilevs):
+        print 'level',k+1
+        print 'obs',obs[0:9,k]
+        print 'oer',oer[0:7,k]
+        print 'qcf',qcf[0:7,k]
