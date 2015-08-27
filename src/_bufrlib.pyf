@@ -3110,11 +3110,11 @@ subroutine ufbin3(lunit,usr,i1,i2,i3,iret,jret,str) ! in ufbin3.f
 end subroutine ufbin3
 subroutine ufbint(lunin,usr,i1,i2,iret,str) ! in ufbint.f
     integer :: lunin
-    real*8 dimension(i1,i2) :: usr
-    integer, optional,check(shape(usr,0)==i1),depend(usr) :: i1=shape(usr,0)
-    integer, optional,check(shape(usr,1)==i2),depend(usr) :: i2=shape(usr,1)
-    integer :: iret
-    character*(*) :: str
+    real*8, intent(out), dimension(i1,i2) :: usr
+    integer, intent(in) :: i1
+    integer, intent(in) :: i2
+    integer, intent(out) :: iret
+    character*(*), intent(in) :: str
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
