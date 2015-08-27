@@ -21,4 +21,5 @@ iret = ncepbufr.ireadsb(lunit)
 if iret == 0:
     hdr,iret = ncepbufr.ufbint(lunit,mxmn,1,hdstr)
     station_id = hdr[0].tostring()
-    print 'station id =',station_id
+    print 'station_id, lon, lat, time, station_type =',\
+    station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item())
