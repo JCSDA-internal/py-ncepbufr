@@ -2994,13 +2994,11 @@ subroutine ufbdmp(lunin,luprt) ! in ufbdmp.f
     common /tables/ maxtab,ntab,tag,typ,knt,jump,link,jmpb,ibt,irf,isc,itp,vali,knti,iseq,jseq
 end subroutine ufbdmp
 subroutine ufbevn(lunit,usr,i1,i2,i3,iret,str) ! in ufbevn.f
-    integer :: lunit
-    real*8 dimension(i1,i2,i3) :: usr
-    integer, optional,check(shape(usr,0)==i1),depend(usr) :: i1=shape(usr,0)
-    integer, optional,check(shape(usr,1)==i2),depend(usr) :: i2=shape(usr,1)
-    integer, optional,check(shape(usr,2)==i3),depend(usr) :: i3=shape(usr,2)
-    integer :: iret
-    character*(*) :: str
+    integer,intent(in) :: lunit
+    real*8, intent(out), dimension(i1,i2,i3) :: usr
+    integer, intent(in) :: i1,i2,i3
+    integer, intent(out) :: iret
+    character*(*), intent(in) :: str
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
@@ -3109,10 +3107,9 @@ subroutine ufbin3(lunit,usr,i1,i2,i3,iret,jret,str) ! in ufbin3.f
     common /usrint/ nval,inv,val
 end subroutine ufbin3
 subroutine ufbint(lunin,usr,i1,i2,iret,str) ! in ufbint.f
-    integer :: lunin
+    integer,intent(in) :: lunin
     real*8, intent(out), dimension(i1,i2) :: usr
-    integer, intent(in) :: i1
-    integer, intent(in) :: i2
+    integer, intent(in) :: i1,i2
     integer, intent(out) :: iret
     character*(*), intent(in) :: str
     integer dimension(32) :: nmsg
@@ -3307,12 +3304,11 @@ subroutine ufbqcp(lunit,qcp,nemo) ! in ufbqcp.f
     character*(*) :: nemo
 end subroutine ufbqcp
 subroutine ufbrep(lunio,usr,i1,i2,iret,str) ! in ufbrep.f
-    integer :: lunio
-    real*8 dimension(i1,i2) :: usr
-    integer, optional,check(shape(usr,0)==i1),depend(usr) :: i1=shape(usr,0)
-    integer, optional,check(shape(usr,1)==i2),depend(usr) :: i2=shape(usr,1)
-    integer :: iret
-    character*(*) :: str
+    integer,intent(in) :: lunio
+    real*8, intent(out), dimension(i1,i2) :: usr
+    integer, intent(in) :: i1,i2
+    integer, intent(out) :: iret
+    character*(*),intent(in) :: str
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
@@ -3425,12 +3421,11 @@ subroutine ufbrw(lun,usr,i1,i2,io,iret) ! in ufbrw.f
     common /usrint/ nval,inv,val
 end subroutine ufbrw
 subroutine ufbseq(lunin,usr,i1,i2,iret,str) ! in ufbseq.f
-    integer :: lunin
-    real*8 dimension(i1,i2) :: usr
-    integer, optional,check(shape(usr,0)==i1),depend(usr) :: i1=shape(usr,0)
-    integer, optional,check(shape(usr,1)==i2),depend(usr) :: i2=shape(usr,1)
-    integer :: iret
-    character*(*) :: str
+    integer, intent(in) :: lunin
+    real*8, intent(out), dimension(i1,i2) :: usr
+    integer, intent(in) :: i1,i2
+    integer, intent(out) :: iret
+    character*(*), intent(in) :: str
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
