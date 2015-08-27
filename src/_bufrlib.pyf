@@ -1141,8 +1141,8 @@ function ipks(val,node) ! in ipks.f
 end function ipks
 function ireadmg(lunit,subset,idate) ! in ireadmg.f
     integer :: lunit
-    character*8 :: subset
-    integer :: idate
+    character*8, intent(out) :: subset
+    integer,intent(out) :: idate
     integer :: ireadmg
 end function ireadmg
 function ireadmm(imsg,subset,idate) ! in ireadmm.f
@@ -2390,9 +2390,9 @@ subroutine readlc(lunit,chr,str) ! in readlc.f
 end subroutine readlc
 subroutine readmg(lunxx,subset,jdate,iret) ! in readmg.f
     integer :: lunxx
-    character*8 :: subset
-    integer :: jdate
-    integer :: iret
+    character*8, intent(out) :: subset
+    integer,intent(out) :: jdate
+    integer,intent(out) :: iret
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
