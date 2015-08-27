@@ -1,5 +1,4 @@
 import ncepbufr
-import struct
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS'
 qcstr='PQM QQM TQM ZQM WQM NUL PWQ     '
