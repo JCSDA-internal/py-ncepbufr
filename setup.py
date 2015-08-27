@@ -9,7 +9,6 @@ ext = Extension(name          = '_bufrlib',
                 libraries     = ['bufr'],
                 library_dirs  = ['src'])
 
-
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
           version           = "0.0.1",
@@ -19,5 +18,4 @@ if __name__ == "__main__":
           url               = "http://github.com/jswhit/py-ncepbufr",
           ext_modules       = [ext],
           packages          = ['ncepbufr'],
-          package_dir       = {'ncepbufr':'Lib'}
           )
