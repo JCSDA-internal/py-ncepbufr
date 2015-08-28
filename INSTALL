@@ -2,3 +2,4 @@
    - cd src, sh makefile.sh
 2) build python module
    - python setup.py build
+   - python setup.py install
