@@ -49,6 +49,6 @@ for subset in bufr:
             obs = bufr.read_subset('TMBR',pivot=True)
             nchanl = obs.shape[-1]
             for k in xrange(nchanl):
-                print 'channel, tb =',k,obs[0,k]
+                print 'channel, tb =',k+1,obs[0,k]
             print_data = False
 bufr.close()
