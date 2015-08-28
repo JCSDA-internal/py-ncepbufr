@@ -5,7 +5,7 @@ obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
 oestr='POE QOE TOE NUL WOE NUL PWE     '
 
-bufr = ncepbufr.open('../test/prepbufr')
+bufr = ncepbufr.open('prepbufr')
 bufr.print_table()
 for subset in bufr:
     print bufr.subset_counter, bufr.subset_type, bufr.subset_date
