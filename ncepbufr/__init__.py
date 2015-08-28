@@ -29,6 +29,8 @@ class open(object):
         datelen(charlen)
     def dump_table(self,filename):
         dxdump(filename,self.lunit,random.choice(_funits))
+    def print_table(self):
+        dxdump('stdout',self.lunit,6)
     def close(self):
         closbf(self.lunit)
         # add fortran unit number back to pool
@@ -39,6 +41,7 @@ if __name__ == "__main__":
     print bufr.lunit
     print _funits
     bufr.dump_table('prepbufr.table')
+    bufr.print_table()
     subset, idate, iret = readmg(bufr.lunit)
     print 'subset, date, iret =',subset, idate, iret
     bufr.close()

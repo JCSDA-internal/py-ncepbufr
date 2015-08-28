@@ -97,7 +97,9 @@ C-----------------------------------------------------------------------
      .               (ADN.EQ.'360003').OR.(ADN.EQ.'360004'))
 C-----------------------------------------------------------------------
 
-      open(LDXOT,file=trim(FILEOUT),form='formatted')
+      if (ldxot .ne. 6) then
+          open(LDXOT,file=trim(FILEOUT),form='formatted')
+      endif
 
 C     DETERMINE LUN FROM LUNIT.
 
