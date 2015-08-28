@@ -87,7 +87,7 @@ class open(object):
         iret = ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonic,pivot=False,seq=True):
+    def read_subset(self,mnemonic,pivot=False,seq=False):
         """
         decode the data from the current subset
         using the specified mnemonic
