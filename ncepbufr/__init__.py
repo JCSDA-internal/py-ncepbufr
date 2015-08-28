@@ -9,7 +9,7 @@ _funits = list(xrange(1,100))
 _funits.remove(5)
 _funits.remove(6)
 missing_value = 1.e11
-_mxlvs = 255
+_mxlvs = 500
 
 class open(object):
     """
@@ -87,7 +87,7 @@ class open(object):
         iret = ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonic,pivot=False):
+    def read_subset(self,mnemonic,pivot=False,seq=True):
         """
         decode the data from the current subset
         using the specified mnemonic
@@ -97,7 +97,12 @@ class open(object):
         is intrepreted as a "pivot".  Effectively, this
         means ufbrep instead of ufbint is used to decode
         the message.  See the comments in ufbrep.f for
-        more details.
+        more details. Used for radiance data.
+
+        if seq=True, ufbseq is used to read a sequence
+        of mnemonics. Used for gps data.
+
+        Both seq and pivot cannot be True.
 
         returns a numpy masked array with decoded values
         (missing values are masked)
@@ -108,8 +113,12 @@ class open(object):
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
         ndim = len(mnemonic.split())
+        if pivot and seq:
+            raise ValueError('both pivot and seq cannot be True')
         if not pivot:
             data,levs = ufbint(self.lunit,ndim,_mxlvs,mnemonic)
+        elif seq:
+            data,levs = ufbseq(self.lunit,50,_mxlvs,mnemonic)
         else:
             data,levs = ufbrep(self.lunit,ndim,_mxlvs,mnemonic)
         return np.ma.masked_values(data[:,:levs],missing_value)
