@@ -1,4 +1,4 @@
-      SUBROUTINE RDUSDX(LUNDX,LUN)
+      SUBROUTINE RDUSDX(FILEIN,LUNDX,LUN)
 
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
@@ -109,6 +109,7 @@ C$$$
      .                TABA(MAXTBA,NFILES),TABB(MAXTBB,NFILES),
      .                TABD(MAXTBD,NFILES)
 
+      CHARACTER*(*), intent(in) :: filein
       CHARACTER*600 TABD
       CHARACTER*128 BORT_STR1
       CHARACTER*156 BORT_STR2
@@ -125,6 +126,7 @@ C  INITIALIZE THE DICTIONARY TABLE CONTROL WORD PARTITION ARRAYS
 C  WITH APRIORI TABLE B AND D ENTRIES
 C  --------------------------------------------------------------
 
+      open(lundx,file=filein,form='formatted')
       CALL DXINIT(LUN,1)
       REWIND LUNDX
 
