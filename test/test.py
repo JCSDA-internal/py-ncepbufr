@@ -5,6 +5,8 @@ obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
 oestr='POE QOE TOE NUL WOE NUL PWE     '
 
+# read prepbufr file.
+
 bufr = ncepbufr.open('prepbufr')
 bufr.print_table()
 for subset in bufr:
@@ -25,4 +27,10 @@ for subset in bufr:
                 print 'obs',obs[:,k]
                 print 'oer',oer[:,k]
                 print 'qcf',qcf[:,k]
+bufr.close()
+
+# read radiance file.
+bufr = ncepbufr.open('prepbufr')
+bufr.print_table()
+# TODO
 bufr.close()
