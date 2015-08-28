@@ -2294,10 +2294,9 @@ subroutine rdtree(lun) ! in rdtree.f
     common /usrbit/ nbit,mbit
     common /usrint/ nval,inv,val
 end subroutine rdtree
-subroutine rdusdx(filein,lundx,lun) ! in rdusdx.f
-    character*(*), intent(in) :: filein
-    integer,intent(in) :: lundx
-    integer,intent(in) :: lun
+subroutine rdusdx(lundx,lun) ! in rdusdx.f
+    integer :: lundx
+    integer :: lun
     real*8 :: bmiss
     integer dimension(33) :: ntba
     integer dimension(33) :: ntbb
