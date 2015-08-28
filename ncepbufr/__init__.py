@@ -8,12 +8,8 @@ _funits = list(xrange(1,100))
 _funits.remove(5)
 _funits.remove(6)
 
-class table(object):
-    def __init__(filename):
-        pass
-
 class open(object):
-    def __init__(self,filename,mode='r',table=None,datelen=10):
+    def __init__(self,filename,mode='r',datelen=10):
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
         _funits.remove(self.lunit)
@@ -25,12 +21,8 @@ class open(object):
             ioflag = 'OUT'
         else:
             raise ValueError("mode must be 'r' or 'w'")
-        if table is not None:
-            # use existing table instance
-            openbf(filename,self.lunit,ioflag,table.lunit)
-        else:
-            # table embedded in bufr file
-            openbf(filename,self.lunit,ioflag,self.lunit)
+        # table embedded in bufr file
+        openbf(filename,self.lunit,ioflag,self.lunit)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
     def set_datelength(self,charlen=10):
