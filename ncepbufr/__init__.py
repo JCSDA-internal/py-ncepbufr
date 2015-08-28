@@ -115,10 +115,10 @@ class open(object):
         ndim = len(mnemonic.split())
         if pivot and seq:
             raise ValueError('both pivot and seq cannot be True')
-        if not pivot:
-            data,levs = ufbint(self.lunit,ndim,_mxlvs,mnemonic)
-        elif seq:
+        if seq:
             data,levs = ufbseq(self.lunit,50,_mxlvs,mnemonic)
-        else:
+        elif pivot:
             data,levs = ufbrep(self.lunit,ndim,_mxlvs,mnemonic)
+        else:
+            data,levs = ufbint(self.lunit,ndim,_mxlvs,mnemonic)
         return np.ma.masked_values(data[:,:levs],missing_value)
