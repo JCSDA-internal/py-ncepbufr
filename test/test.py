@@ -29,8 +29,26 @@ for subset in bufr:
                 print 'qcf',qcf[:,k]
 bufr.close()
 
+hdstr1 ='SAID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
+hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
+
 # read radiance file.
-bufr = ncepbufr.open('prepbufr')
+
+bufr = ncepbufr.open('../test/1bamua')
 bufr.print_table()
-# TODO
+print_data = True
+for subset in bufr:
+    print bufr.subset_counter, bufr.subset_type, bufr.subset_date
+    while (bufr.load_subset() == 0):
+        hdr1 = bufr.read_subset(hdstr1)
+        hdr2 = bufr.read_subset(hdstr2)
+        yyyymmddhhss ='%04i%02i%02i%02i%02i%02i' % tuple(hdr1[2:8])
+        print 'satid, lat, lon, yyyymmddhhmmss =',int(hdr1[0].item()),\
+        hdr1[8].item(),hdr1[9].item(),yyyymmddhhss
+        if print_data: # print data from first subset with data
+            obs = bufr.read_subset('TMBR',pivot=True)
+            nchanl = obs.shape[-1]
+            for k in xrange(nchanl):
+                print 'channel, tb =',k,obs[0,k]
+            print_data = False
 bufr.close()

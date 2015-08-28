@@ -9,6 +9,7 @@ _funits = list(xrange(1,100))
 _funits.remove(5)
 _funits.remove(6)
 missing_value = 1.e11
+_mxlvs = 255
 
 class open(object):
     """
@@ -86,11 +87,17 @@ class open(object):
         iret = ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonic):
+    def read_subset(self,mnemonic,pivot=False):
         """
         decode the data from the current subset
         using the specified mnemonic
         (load_subset must be called first)
+
+        if pivot = True, the first mnemonic in the string
+        is intrepreted as a "pivot".  Effectively, this
+        means ufbrep instead of ufbint is used to decode
+        the message.  See the comments in ufbrep.f for
+        more details.
 
         returns a numpy masked array with decoded values
         (missing values are masked)
@@ -101,10 +108,14 @@ class open(object):
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
         ndim = len(mnemonic.split())
-        data,levs = ufbint(self.lunit,ndim,255,mnemonic)
+        if not pivot:
+            data,levs = ufbint(self.lunit,ndim,_mxlvs,mnemonic)
+        else:
+            data,levs = ufbrep(self.lunit,ndim,_mxlvs,mnemonic)
         return np.ma.masked_values(data[:,:levs],missing_value)
 
 if __name__ == "__main__":
+    # read prepbufr file
     hdstr='SID XOB YOB DHR TYP ELV SAID T29'
     obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
     qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
@@ -132,3 +143,25 @@ if __name__ == "__main__":
                     print 'qcf',qcf[:,k]
     bufr.close()
     print _funits
+
+    # read radiance file.
+    hdstr1 ='SAID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
+    hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
+    bufr = open('../test/1bamua')
+    bufr.print_table()
+    print_data = True
+    for subset in bufr:
+        print bufr.subset_counter, bufr.subset_type, bufr.subset_date
+        while (bufr.load_subset() == 0):
+            hdr1 = bufr.read_subset(hdstr1)
+            hdr2 = bufr.read_subset(hdstr2)
+            yyyymmddhhss ='%04i%02i%02i%02i%02i%02i' % tuple(hdr1[2:8])
+            print 'satid, lat, lon, yyyymmddhhmmss =',int(hdr1[0].item()),\
+            hdr1[8].item(),hdr1[9].item(),yyyymmddhhss
+            if print_data: # print data from first subset with data
+                obs = bufr.read_subset('TMBR',pivot=True)
+                nchanl = obs.shape[-1]
+                for k in xrange(nchanl):
+                    print 'channel, tb =',k,obs[0,k]
+                print_data = False
+    bufr.close()
