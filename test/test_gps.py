@@ -2,7 +2,7 @@ import ncepbufr
 
 hdrstr ='YEAR MNTH DAYS HOUR MINU PCCF ELRC SAID PTID GEODU'
 
-# read amsua radiance file.
+# read gpsro file.
 
 bufr = ncepbufr.open('../test/gpsbufr')
 bufr.print_table()
