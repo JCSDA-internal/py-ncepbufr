@@ -8,8 +8,11 @@ _funits = list(xrange(1,100))
 # remove unit numbers used for stdin and stdout
 _funits.remove(5)
 _funits.remove(6)
+# missing value in decoded data.
+# (if equal to missing_value, data is masked)
 missing_value = 1.e11
-_mxlvs = 500
+# max size of decoded data array.
+maxdim = 500 
 
 class open(object):
     """
@@ -116,9 +119,9 @@ class open(object):
         if pivot and seq:
             raise ValueError('both pivot and seq cannot be True')
         if seq:
-            data,levs = ufbseq(self.lunit,50,_mxlvs,mnemonic)
+            data,levs = ufbseq(self.lunit,50,maxdim,mnemonic)
         elif pivot:
-            data,levs = ufbrep(self.lunit,ndim,_mxlvs,mnemonic)
+            data,levs = ufbrep(self.lunit,ndim,maxdim,mnemonic)
         else:
-            data,levs = ufbint(self.lunit,ndim,_mxlvs,mnemonic)
+            data,levs = ufbint(self.lunit,ndim,maxdim,mnemonic)
         return np.ma.masked_values(data[:,:levs],missing_value)
