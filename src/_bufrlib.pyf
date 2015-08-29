@@ -3294,9 +3294,9 @@ subroutine ufbpos(lunit,irec,isub,subset,jdate) ! in ufbpos.f
     common /bitbuf/ maxbyt,ibit,ibay,mbyt,mbay
 end subroutine ufbpos
 subroutine ufbqcd(lunit,nemo,qcd) ! in ufbqcd.f
-    integer :: lunit
-    character*(*) :: nemo
-    real :: qcd
+    integer, intent(in) :: lunit
+    character*(*), intent(in) :: nemo
+    real, intent(out) :: qcd
 end subroutine ufbqcd
 subroutine ufbqcp(lunit,qcp,nemo) ! in ufbqcp.f
     integer :: lunit
