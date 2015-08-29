@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ncepbufr
 
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
@@ -7,11 +8,11 @@ oestr='POE QOE TOE NUL WOE NUL PWE     '
 
 # read prepbufr file.
 
-print 'the following lines should be the same'
+print('the following lines should be the same')
 bufr = ncepbufr.open('prepbufr')
 nmsg = 0
 while bufr.advance() == 0:
-    #print nmsg, bufr.msg_counter, bufr.msg_type, bufr.msg_date
+    #print(nmsg, bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0:
         hdr = bufr.read_subset(hdstr)
         station_id = hdr[0].tostring()
@@ -20,8 +21,8 @@ while bufr.advance() == 0:
         oer = bufr.read_subset(oestr)
         qcf = bufr.read_subset(qcstr)
         if nmsg == 10:
-            print 'station_id, lon, lat, time, station_type, levels =',\
-            station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs
+            print('station_id, lon, lat, time, station_type, levels =',\
+            station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs)
             bufr.checkpoint()
     if nmsg == 15: break
     nmsg += 1
@@ -33,6 +34,6 @@ obs = bufr.read_subset(obstr)
 nlevs = obs.shape[-1]
 oer = bufr.read_subset(oestr)
 qcf = bufr.read_subset(qcstr)
-print 'station_id, lon, lat, time, station_type, levels =',\
-station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs
+print('station_id, lon, lat, time, station_type, levels =',\
+station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs)
 bufr.close()
