@@ -7,7 +7,6 @@ hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
 
 bufr = ncepbufr.open('../test/1bamua')
 bufr.print_table()
-print_data = True
 for subset in bufr:
     print bufr.subset_counter, bufr.subset_type, bufr.subset_date
     while (bufr.load_subset() == 0):
@@ -20,10 +19,10 @@ for subset in bufr:
         # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
         print 'sat id,sensor id lat, lon, yyyymmddhhmmss =',int(hdr1[0].item()),\
         int(hdr1[1].item()),hdr1[9].item(),hdr1[10].item(),yyyymmddhhss
-        if print_data: # print data from first subset with data
-            obs = bufr.read_subset('TMBR',pivot=True)
-            nchanl = obs.shape[-1]
-            for k in xrange(nchanl):
-                print 'channel, tb =',k+1,obs[0,k]
-            print_data = False
+        obs = bufr.read_subset('TMBR',pivot=True)
+        nchanl = obs.shape[-1]
+        for k in xrange(nchanl):
+            print 'channel, tb =',k+1,obs[0,k]
+    # only loop over first 4 subsets
+    if bufr.subset_counter == 4: break
 bufr.close()

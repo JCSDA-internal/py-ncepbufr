@@ -21,10 +21,11 @@ for subset in bufr:
         qcf = bufr.read_subset(qcstr)
         print 'station_id, lon, lat, time, station_type, levels =',\
         station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs
-        if bufr.subset_counter == 1: # print data from first subset
-            for k in xrange(nlevs):
-                print 'level',k+1
-                print 'obs',obs[:,k]
-                print 'oer',oer[:,k]
-                print 'qcf',qcf[:,k]
+        for k in xrange(nlevs):
+            print 'level',k+1
+            print 'obs',obs[:,k]
+            print 'oer',oer[:,k]
+            print 'qcf',qcf[:,k]
+    # only loop over first 2 subsets
+    if bufr.subset_counter == 2: break
 bufr.close()
