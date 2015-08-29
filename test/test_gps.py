@@ -16,7 +16,7 @@ for subset in bufr:
         ptid = int(hdr[8].item())
         nreps_this_ROSEQ2 = bufr.read_subset('{ROSEQ2}').squeeze()
         nreps_this_ROSEQ1 = len(nreps_this_ROSEQ2)
-        data1b = bufr.read_subset('ROSEQ1',seq=True)
+        data1b = bufr.read_subset('ROSEQ1',seq=True) # bending angle
         data2a = bufr.read_subset('ROSEQ3',seq=True) # refractivity
         levs_bend = data1b.shape[1]
         levs_ref = data2a.shape[1]
