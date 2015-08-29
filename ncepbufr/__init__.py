@@ -13,6 +13,7 @@ _funits.remove(6)
 missing_value = 1.e11
 # max size of decoded data array.
 maxdim = 5000
+maxevents = 255
 
 class open(object):
     """
@@ -90,7 +91,7 @@ class open(object):
         iret = ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonic,pivot=False,seq=False):
+    def read_subset(self,mnemonic,pivot=False,seq=False,events=False):
         """
         decode the data from the current subset
         using the specified mnemonic
@@ -105,7 +106,10 @@ class open(object):
         if seq=True, ufbseq is used to read a sequence
         of mnemonics. Used for gps data.
 
-        Both seq and pivot cannot be True.
+        if events=True, ufbevn is used to read prepbufr
+        'events', and a 3-d array is returned.
+
+        Only one of seq, pivot and events cannot be True.
 
         returns a numpy masked array with decoded values
         (missing values are masked)
@@ -116,12 +120,17 @@ class open(object):
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
         ndim = len(mnemonic.split())
-        if pivot and seq:
-            raise ValueError('both pivot and seq cannot be True')
+        if np.array([pivot,seq,events]).sum() > 1:
+            raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
             data,levs = ufbseq(self.lunit,50,maxdim,mnemonic)
         elif pivot:
             data,levs = ufbrep(self.lunit,ndim,maxdim,mnemonic)
+        elif events:
+            data,levs = ufbevn(self.lunit,ndim,maxdim,maxevents,mnemonic)
         else:
             data,levs = ufbint(self.lunit,ndim,maxdim,mnemonic)
-        return np.ma.masked_values(data[:,:levs],missing_value)
+        if events:
+            return np.ma.masked_values(data[:,:levs,:],missing_value)
+        else:
+            return np.ma.masked_values(data[:,:levs],missing_value)
