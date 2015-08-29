@@ -7,9 +7,9 @@ hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
 
 bufr = ncepbufr.open('../test/1bamua')
 bufr.print_table()
-for subset in bufr:
-    print bufr.subset_counter, bufr.subset_type, bufr.subset_date
-    while (bufr.load_subset() == 0):
+while bufr.advance() == 0:
+    print bufr.msg_counter, bufr.msg_type, bufr.msg_date
+    while bufr.load_subset() == 0:
         hdr1 = bufr.read_subset(hdstr1)
         hdr2 = bufr.read_subset(hdstr2)
         yyyymmddhhss ='%04i%02i%02i%02i%02i%02i' % tuple(hdr1[3:9])
@@ -24,5 +24,5 @@ for subset in bufr:
         for k in xrange(nchanl):
             print 'channel, tb =',k+1,obs[0,k]
     # only loop over first 4 subsets
-    if bufr.subset_counter == 4: break
+    if bufr.msg_counter == 4: break
 bufr.close()

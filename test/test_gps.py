@@ -6,9 +6,9 @@ hdrstr ='YEAR MNTH DAYS HOUR MINU PCCF ELRC SAID PTID GEODU'
 
 bufr = ncepbufr.open('../test/gpsbufr')
 bufr.print_table()
-for subset in bufr:
-    print bufr.subset_counter, bufr.subset_type, bufr.subset_date
-    while (bufr.load_subset() == 0):
+while bufr.advance() == 0:
+    print bufr.msg_counter, bufr.msg_type, bufr.msg_date
+    while bufr.load_subset() == 0:
         hdr = bufr.read_subset(hdrstr)
         yyyymmddhh ='%04i%02i%02i%02i%02i' % tuple(hdr[0:5])
         satid = int(hdr[7].item())
@@ -38,5 +38,5 @@ for subset in bufr:
                 if int(freq) == 0: break
             print k,rlat,rlon,height,ref,bend
     # only loop over first 6 subsets
-    if bufr.subset_counter == 6: break
+    if bufr.msg_counter == 6: break
 bufr.close()

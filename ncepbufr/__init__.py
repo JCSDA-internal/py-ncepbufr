@@ -19,7 +19,7 @@ class open(object):
     """
     open bufr file.
 
-    resulting object can iterated to retrieve subsets.
+    'advance' method can be used step through bufr messages.
     """
     def __init__(self,filename,mode='r',datelen=10):
         """
@@ -44,9 +44,9 @@ class open(object):
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
         # initialized message number counter
-        self.subset_counter = 0
-        self.subset_type = None
-        self.subset_date = None
+        self.msg_counter = 0
+        self.msg_type = None
+        self.msg_date = None
     def set_datelength(self,charlen=10):
         """
         reset number of digits for date specification (10 gives YYYYMMDDHH)
@@ -69,38 +69,68 @@ class open(object):
         closbf(self.lunit)
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
-    def __iter__(self):
-        return self
-    def next(self):
+    def advance(self):
         """
-        get the next subset in the bufr file
+        advance to the next msg in the bufr file
+        returns 0 if advance was sucessful,
+        1 if not (presumably because the end
+        of the file was reached).
+        To loop through all the bufr messages in a file:
+
+        bufr = ncepbufr.open(filename)
+        while bufr.advance() == 0:
+            <processing code for each message here>
+
         """
         subset, idate, iret = readmg(self.lunit)
         if iret:
-            raise StopIteration
+            return iret
         else:
-            self.subset_type = subset
-            self.subset_date = idate
-            self.subset_counter += 1
+            self.msg_type = subset
+            self.msg_date = idate
+            self.msg_counter += 1
             self.subset_loaded = False
-    def get_program_code(self, mnemonic):
+            return 0
         """
         return prepbufr event program code
         associated with specified mnemonic
         (see ufbqcd.f for more details)
         """
         return ufbqcd(self.lunit, mnemonic)
+    def checkpoint(self):
+        """
+        mark where we are in the bufr file,
+        and rewind the file.
+        The 'restore' method can then be
+        used to go back to this state.
+        """
+        rewnbf(self.lunit,0)
+    def restore(self):
+        """
+        restore the state of the bufr
+        file that recorded by a previous call
+        to 'checkpoint'.
+        """
+        rewnbf(self.lunit,1)
     def load_subset(self):
         """
-        load data from the current subset
-        (must be called before read_subset)
+        load subset data from the current message
+        (must be called before read_subset).
+        To loop through all messages in a file, and 
+        all subsets in each message:
+
+        bufr = ncepbufr.open(filename)
+        while bufr.advance() == 0:
+            while bufr.load_subset() == 0:
+                <processing code for each subset here>
+
         """
         iret = ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
     def read_subset(self,mnemonic,pivot=False,seq=False,events=False):
         """
-        decode the data from the current subset
+        decode the data from the currently loaded message subset
         using the specified mnemonic
         (load_subset must be called first)
 

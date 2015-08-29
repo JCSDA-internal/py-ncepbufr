@@ -8,9 +8,9 @@ qcstr = 'OGCE GNAP PCCF'
 
 bufr = ncepbufr.open('../test/satwndbufr')
 bufr.print_table()
-for subset in bufr:
-    print bufr.subset_counter, bufr.subset_type, bufr.subset_date
-    while (bufr.load_subset() == 0):
+while bufr.advance() == 0:
+    print bufr.msg_counter, bufr.msg_type, bufr.msg_date
+    while bufr.load_subset() == 0:
         hdr = bufr.read_subset(hdrstr)
         yyyymmddhh ='%04i%02i%02i%02i%02i' % tuple(hdr[3:8])
         satid = int(hdr[0].item())
@@ -21,5 +21,5 @@ for subset in bufr:
         print 'satid, wind type, lat, lon, press, qcflg, time, speed, dir =',\
         satid,windtype,lat,lon,obdata[1].item(),qm,yyyymmddhh,obdata[3].item(),obdata[2].item()
     # only loop over first 4 subsets
-    if bufr.subset_counter == 4: break
+    if bufr.msg_counter == 4: break
 bufr.close()
