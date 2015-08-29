@@ -8,11 +8,11 @@ oestr='POE QOE TOE NUL WOE NUL PWE     '
 # read prepbufr file.
 
 bufr = ncepbufr.open('prepbufr')
-bufr.print_table()
-while bufr.advance() == 0:
+bufr.print_table() # print embedded table
+while bufr.advance() == 0: # loop over messages.
     print bufr.msg_counter, bufr.msg_type, bufr.msg_date
     #bufr.read_subset(obstr) # should raise subset not loaded error
-    while bufr.load_subset() == 0:
+    while bufr.load_subset() == 0: # loop over subsets in message.
         hdr = bufr.read_subset(hdstr)
         station_id = hdr[0].tostring()
         obs = bufr.read_subset(obstr)
@@ -26,6 +26,6 @@ while bufr.advance() == 0:
             print 'obs',obs[:,k]
             print 'oer',oer[:,k]
             print 'qcf',qcf[:,k]
-    # only loop over first 2 messages.
+    # stop after first 2 messages.
     if bufr.msg_counter == 2: break
 bufr.close()
