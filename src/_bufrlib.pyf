@@ -2524,8 +2524,8 @@ subroutine readsb(lunit,iret) ! in readsb.f
     common /bitbuf/ maxbyt,ibit,ibay,mbyt,mbay
 end subroutine readsb
 subroutine rewnbf(lunit,isr) ! in rewnbf.f
-    integer :: lunit
-    integer :: isr
+    integer,intent(in) :: lunit
+    integer,intent(in) :: isr
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
