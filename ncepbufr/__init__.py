@@ -12,7 +12,7 @@ _funits.remove(6)
 # (if equal to missing_value, data is masked)
 missing_value = 1.e11
 # max size of decoded data array.
-maxdim = 500 
+maxdim = 5000
 
 class open(object):
     """
