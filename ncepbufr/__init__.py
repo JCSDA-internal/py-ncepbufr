@@ -83,6 +83,13 @@ class open(object):
             self.subset_date = idate
             self.subset_counter += 1
             self.subset_loaded = False
+    def get_program_code(self, mnemonic):
+        """
+        return prepbufr event program code
+        associated with specified mnemonic
+        (see ufbqcd.f for more details)
+        """
+        return ncepbufr.ufbqcd(self.lunit, mnemonic)
     def load_subset(self):
         """
         load data from the current subset
