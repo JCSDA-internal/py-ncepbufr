@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 
 # create list of allowed fortran unit numbers
-_funits = list(xrange(1,100))
+_funits = list(range(1,100))
 # remove unit numbers used for stdin and stdout
 _funits.remove(5)
 _funits.remove(6)
