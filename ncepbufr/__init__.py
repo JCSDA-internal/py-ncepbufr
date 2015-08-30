@@ -50,8 +50,10 @@ class open(object):
                 raise IOError(msg)
             openbf(self.lunit,ioflag,self.lunit)
             self.lundx = None
+            self.table = None
         else:
             self.lundx = random.choice(_funits)
+            self.table = table
             iret = fortran_open(table,self.lundx,"formatted")
             if iret != 0:
                 msg='error opening %s' % table
@@ -74,12 +76,21 @@ class open(object):
         """
         dump embedded bufr table to a file
         """
-        dxdump(filename,self.lunit,random.choice(_funits))
+        lundx = random.choice(_funits)
+        iret = fortran_open(filename,lundx,'formatted')
+        if iret != 0:
+            msg='error opening %s' % filename
+        dxdump(self.lunit,lundx)
+        iret = fortran_close(lundx)
+        if iret == 0:
+            bisect.insort_left(_funits,self.lundx)
+        else:
+            raise IOError('error closing %s' % filename)
     def print_table(self):
         """
         print embedded bufr table to stdout
         """
-        dxdump('stdout',self.lunit,6)
+        dxdump(self.lunit,6)
     def close(self):
         """
         close the bufr file
@@ -89,7 +100,10 @@ class open(object):
         bisect.insort_left(_funits,self.lunit)
         if self.lundx is not None:
             fortran_close(self.lundx)
-            bisect.insort_left(_funits,self.lundx)
+            if iret == 0:
+                bisect.insort_left(_funits,self.lundx)
+            else:
+                raise IOError('error closing %s' % self.table)
     def advance(self):
         """
         advance to the next msg in the bufr file

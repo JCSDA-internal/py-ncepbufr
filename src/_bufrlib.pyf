@@ -3947,8 +3947,9 @@ subroutine fortran_open(filename, lunit, format, iret)
       integer,intent(in) :: lunit
       integer,intent(out) :: iret
 end subroutine fortran_open
-subroutine fortran_close(lunit)
+subroutine fortran_close(lunit,iret)
       integer,intent(in) :: lunit
+      integer,intent(out) :: iret
 end subroutine fortran_close
 
     end interface 

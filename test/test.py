@@ -9,6 +9,7 @@ oestr='POE QOE TOE NUL WOE NUL PWE     '
 # read prepbufr file.
 
 bufr = ncepbufr.open('prepbufr')
+bufr.dump_table('prepbufr.table')
 bufr.print_table() # print embedded table
 while bufr.advance() == 0: # loop over messages.
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)

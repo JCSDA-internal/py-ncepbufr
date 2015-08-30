@@ -1,5 +1,6 @@
-      subroutine fortran_close(lunit)
+      subroutine fortran_close(lunit,iret)
       integer,intent(in) :: lunit
-      close(lunit)
+      integer,intent(out) :: iret
+      close(lunit, iostat=iret)
       return
       end
