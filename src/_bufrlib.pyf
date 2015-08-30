@@ -1801,8 +1801,7 @@ subroutine nxtwin(lun,iwin,jwin) ! in nxtwin.f
     common /bufrbmiss/ bmiss
     common /usrint/ nval,inv,val
 end subroutine nxtwin
-subroutine openbf(filename,lunit,io,lundx) ! in openbf.f
-    character*(*), intent(in) :: filename
+subroutine openbf(lunit,io,lundx) ! in openbf.f
     integer :: lunit
     character*(*) :: io
     integer :: lundx
@@ -3944,6 +3943,14 @@ subroutine wtstat(lunit,lun,il,im) ! in wtstat.f
     common /bufrbmiss/ bmiss
     common /stbfr/ iolun,iomsg
 end subroutine wtstat
+subroutine fortran_open(filename, lunit, format, iret)
+      character*(*), intent(in) :: filename, format
+      integer,intent(in) :: lunit
+      integer,intent(out) :: iret
+end subroutine fortran_open
+subroutine fortran_close(lunit)
+      integer,intent(in) :: lunit
+end subroutine fortran_close
 
     end interface 
 end python module _bufrlib

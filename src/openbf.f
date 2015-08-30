@@ -1,4 +1,4 @@
-      SUBROUTINE OPENBF(FILEIN,LUNIT,IO,LUNDX)
+      SUBROUTINE OPENBF(LUNIT,IO,LUNDX)
 
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
@@ -149,7 +149,6 @@ C$$$
       COMMON /STCODE/ ISCODES(NFILES)
       COMMON /QUIET / IPRT
 
-      character*(*), intent(in) :: FILEIN
       CHARACTER*(*) IO
       CHARACTER*255 filename,fileacc   
       CHARACTER*128 BORT_STR,ERRSTR
@@ -169,13 +168,10 @@ C$$$
 C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 
-      call closbf(lunit)
-      open(lunit,file=trim(FILEIN),form='unformatted')
-
 C     If this is the first call to this subroutine, initialize
 C     IPRT in /QUIET/ as 0 (limited printout - except for abort
 C     messages)
-      
+
       IF(IFIRST.EQ.0) IPRT = 0
 
       IF(IO.EQ.'QUIET') THEN
