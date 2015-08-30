@@ -99,7 +99,7 @@ class open(object):
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
         if self.lundx is not None:
-            fortran_close(self.lundx)
+            iret = fortran_close(self.lundx)
             if iret == 0:
                 bisect.insort_left(_funits,self.lundx)
             else:
