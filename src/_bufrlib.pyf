@@ -2993,7 +2993,7 @@ subroutine ufbdmp(lunin,luprt) ! in ufbdmp.f
 end subroutine ufbdmp
 subroutine ufbevn(lunit,usr,i1,i2,i3,iret,str) ! in ufbevn.f
     integer,intent(in) :: lunit
-    real*8, intent(out), dimension(i1,i2,i3) :: usr
+    real*8, intent(inout), dimension(i1,i2,i3) :: usr
     integer, intent(in) :: i1,i2,i3
     integer, intent(out) :: iret
     character*(*), intent(in) :: str
@@ -3106,7 +3106,7 @@ subroutine ufbin3(lunit,usr,i1,i2,i3,iret,jret,str) ! in ufbin3.f
 end subroutine ufbin3
 subroutine ufbint(lunin,usr,i1,i2,iret,str) ! in ufbint.f
     integer,intent(in) :: lunin
-    real*8, intent(out), dimension(i1,i2) :: usr
+    real*8, intent(inout), dimension(i1,i2) :: usr
     integer, intent(in) :: i1,i2
     integer, intent(out) :: iret
     character*(*), intent(in) :: str
@@ -3303,7 +3303,7 @@ subroutine ufbqcp(lunit,qcp,nemo) ! in ufbqcp.f
 end subroutine ufbqcp
 subroutine ufbrep(lunio,usr,i1,i2,iret,str) ! in ufbrep.f
     integer,intent(in) :: lunio
-    real*8, intent(out), dimension(i1,i2) :: usr
+    real*8, intent(inout), dimension(i1,i2) :: usr
     integer, intent(in) :: i1,i2
     integer, intent(out) :: iret
     character*(*),intent(in) :: str
@@ -3420,7 +3420,7 @@ subroutine ufbrw(lun,usr,i1,i2,io,iret) ! in ufbrw.f
 end subroutine ufbrw
 subroutine ufbseq(lunin,usr,i1,i2,iret,str) ! in ufbseq.f
     integer, intent(in) :: lunin
-    real*8, intent(out), dimension(i1,i2) :: usr
+    real*8, intent(inout), dimension(i1,i2) :: usr
     integer, intent(in) :: i1,i2
     integer, intent(out) :: iret
     character*(*), intent(in) :: str
