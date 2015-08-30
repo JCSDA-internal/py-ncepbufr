@@ -155,11 +155,17 @@ class open(object):
         to 'checkpoint'.
         """
         rewnbf(self.lunit,1)
+    def create_message(self,msg_type,msg_date):
+        openmb(self.lunit,msg_type,int(msg_date))
+    def write_message(self):
+        writsb(self.lunit)
+    def close_message(self):
+        closmg(self.lunit)
     def load_subset(self):
         """
         load subset data from the current message
         (must be called before read_subset).
-        To loop through all messages in a file, and 
+        To loop through all messages in a file, and
         all subsets in each message:
 
         bufr = ncepbufr.open(filename)
