@@ -36,11 +36,13 @@ class open(object):
             raise IOError("too many files open")
         if mode == 'r':
             ioflag = 'IN'
+            self.mode = 'r'
         elif mode == 'w':
             if table is None:
                 msg="must specify file containing bufr table when mode='w'"
                 raise ValueError(msg)
             ioflag = 'OUT'
+            self.mode = 'w'
         else:
             raise ValueError("mode must be 'r' or 'w'")
         if mode == 'r':
