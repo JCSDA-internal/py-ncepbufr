@@ -14,6 +14,7 @@ missing_value = 1.e11
 # max size of decoded data array.
 maxdim = 5000
 maxevents = 255
+nmaxseq = maxevents
 
 class open(object):
     """
@@ -209,13 +210,17 @@ class open(object):
         if np.array([pivot,seq,events]).sum() > 1:
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
-            data,levs = ufbseq(self.lunit,50,maxdim,mnemonic)
+            data = np.empty((nmaxseq,maxdim),np.float,order='F')
+            levs = ufbseq(self.lunit,data,mnemonic,nmaxseq,maxdim)
         elif pivot:
-            data,levs = ufbrep(self.lunit,ndim,maxdim,mnemonic)
+            data = np.empty((ndim,maxdim),np.float,order='F')
+            levs = ufbrep(self.lunit,data,mnemonic,ndim,maxdim)
         elif events:
-            data,levs = ufbevn(self.lunit,ndim,maxdim,maxevents,mnemonic)
+            data = np.empty((ndim,maxdim,maxevent),np.float,order='F')
+            levs = ufbevn(self.lunit,data,mnemonic,ndim,maxdim,maxevents)
         else:
-            data,levs = ufbint(self.lunit,ndim,maxdim,mnemonic)
+            data = np.empty((ndim,maxdim),np.float,order='F')
+            levs = ufbint(self.lunit,data,mnemonic,ndim,maxdim)
         if events:
             return np.ma.masked_values(data[:,:levs,:],missing_value)
         else:
