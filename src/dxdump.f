@@ -1,4 +1,4 @@
-      SUBROUTINE DXDUMP(FILEOUT,LUNIT,LDXOT)
+      SUBROUTINE DXDUMP(LUNIT,LDXOT)
 
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
@@ -56,7 +56,6 @@ C$$$
      .                TABA(MAXTBA,NFILES),TABB(MAXTBB,NFILES),
      .                TABD(MAXTBD,NFILES)
 
-      character*(*), intent(in) :: FILEOUT
       CHARACTER*600 TABD
       CHARACTER*128 TABB
       CHARACTER*128 TABA
@@ -96,10 +95,6 @@ C-----------------------------------------------------------------------
       TDSKIP(ADN) = ((ADN.EQ.'360001').OR.(ADN.EQ.'360002').OR.
      .               (ADN.EQ.'360003').OR.(ADN.EQ.'360004'))
 C-----------------------------------------------------------------------
-
-      if (ldxot .ne. 6) then
-          open(LDXOT,file=trim(FILEOUT),form='formatted')
-      endif
 
 C     DETERMINE LUN FROM LUNIT.
 
@@ -331,7 +326,6 @@ C     CREATE AND WRITE OUT (TO LDXOT) THE CLOSING CARD.
       CARD( 1: 1)='`'
       CARD(80:80)=''''
       WRITE (LDXOT,'(A)') CARD
-      CLOSE(LDXOT)
 
       RETURN
 900   CALL BORT('BUFRLIB: DXDUMP - BUFR FILE IS CLOSED, IT MUST BE'//
