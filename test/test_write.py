@@ -13,6 +13,10 @@ idate=2010050700 # cycle time: YYYYMMDDHH
 subset='ADPSFC'  # surface land (SYNOPTIC, METAR) reports
 bufr.create_message(subset, idate)
 
+hdr = np.empty(len(hdstring.split()),np.float)
+hdr=1.e11 # set all values to missing
+hdr[1]=263.4; hdr[2]=33.2; hdr[3] = -0.1; hdr[5]=179.0
+levs = bufr.write_subset(hdr,hdrstr)
 #! set headers
 #      hdr=10.0e10
 #      c_sid='KTKI'; hdr(1)=rstation_id
