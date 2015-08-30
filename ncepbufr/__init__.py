@@ -21,7 +21,7 @@ class open(object):
 
     'advance' method can be used step through bufr messages.
     """
-    def __init__(self,filename,mode='r',datelen=10):
+    def __init__(self,filename,mode='r',table=None,datelen=10):
         """
         filename: bufr file name
         mode: 'r' for read, 'w' for write (default 'r')
@@ -36,11 +36,29 @@ class open(object):
         if mode == 'r':
             ioflag = 'IN'
         elif mode == 'w':
+            if table is None:
+                msg="must specify file containing bufr table when mode='w'"
+                raise ValueError(msg)
             ioflag = 'OUT'
         else:
             raise ValueError("mode must be 'r' or 'w'")
-        # table embedded in bufr file
-        openbf(filename,self.lunit,ioflag,self.lunit)
+        if mode == 'r':
+            # table embedded in bufr file
+            iret = fortran_open(filename,self.lunit,"unformatted")
+            if iret != 0:
+                msg='error opening %s' % filename
+                raise IOError(msg)
+            openbf(self.lunit,ioflag,self.lunit)
+            self.lundx = None
+        else:
+            self.lundx = random.choice(_funits)
+            iret = fortran_open(table,self.lundx,"formatted")
+            if iret != 0:
+                msg='error opening %s' % table
+            iret = fortran_open(filename,self.lunit,"unformatted")
+            if iret != 0:
+                msg='error opening %s' % filename
+            openbf(self.lunit,ioflag,self.lundx)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
         # initialized message number counter
@@ -69,6 +87,9 @@ class open(object):
         closbf(self.lunit)
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
+        if self.lundx is not None:
+            fortran_close(self.lundx)
+            bisect.insort_left(_funits,self.lundx)
     def advance(self):
         """
         advance to the next msg in the bufr file
