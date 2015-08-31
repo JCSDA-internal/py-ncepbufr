@@ -1,6 +1,6 @@
 # py-ncepbufr
 python interface to NCEP [BUFR](https://en.wikipedia.org/wiki/BUFR) library
-([BUFRLIB](http://www.nco.ncep.noaa.gov/sib/decoders/BUFRLIB/toc/intro/)).
+([BUFRLIB](http://www.nco.ncep.noaa.gov/sib/decoders/BUFRLIB/toc/)).
 
 to install ([numpy](http://numpy.org) and fortran compiler (preferably 
 [gfortran](https://gcc.gnu.org/wiki/GFortran)) required):
