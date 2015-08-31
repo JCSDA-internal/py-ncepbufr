@@ -9,12 +9,11 @@ _funits = list(range(1,100))
 _funits.remove(5)
 _funits.remove(6)
 # missing value in decoded data.
-# (if equal to missing_value, data is masked)
-missing_value = 1.e11
-# max size of decoded data array.
-maxdim = 5000
-maxevents = 255
-nmaxseq = maxevents
+# (if equal to _missing_value, data is masked)
+_missing_value = _bufrlib.getbmiss()
+_maxdim = 5000 # max number of data levels in message
+_maxevents = 255 # max number of prepbufr events in message
+_nmaxseq = _maxevents # max size of sequence in message
 
 class open(object):
     """
@@ -222,21 +221,21 @@ class open(object):
         if np.array([pivot,seq,events]).sum() > 1:
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
-            data = np.empty((nmaxseq,maxdim),np.float,order='F')
-            levs = _bufrlib.ufbseq(self.lunit,data,mnemonic,nmaxseq,maxdim)
+            data = np.empty((_nmaxseq,_maxdim),np.float,order='F')
+            levs = _bufrlib.ufbseq(self.lunit,data,mnemonic,_nmaxseq,_maxdim)
         elif pivot:
-            data = np.empty((ndim,maxdim),np.float,order='F')
-            levs = _bufrlib.ufbrep(self.lunit,data,mnemonic,ndim,maxdim)
+            data = np.empty((ndim,_maxdim),np.float,order='F')
+            levs = _bufrlib.ufbrep(self.lunit,data,mnemonic,ndim,_maxdim)
         elif events:
-            data = np.empty((ndim,maxdim,maxevent),np.float,order='F')
-            levs = _bufrlib.ufbevn(self.lunit,data,mnemonic,ndim,maxdim,maxevents)
+            data = np.empty((ndim,_maxdim,maxevent),np.float,order='F')
+            levs = _bufrlib.ufbevn(self.lunit,data,mnemonic,ndim,_maxdim,_maxevents)
         else:
-            data = np.empty((ndim,maxdim),np.float,order='F')
-            levs = _bufrlib.ufbint(self.lunit,data,mnemonic,ndim,maxdim)
+            data = np.empty((ndim,_maxdim),np.float,order='F')
+            levs = _bufrlib.ufbint(self.lunit,data,mnemonic,ndim,_maxdim)
         if events:
-            return np.ma.masked_values(data[:,:levs,:],missing_value)
+            return np.ma.masked_values(data[:,:levs,:],_missing_value)
         else:
-            return np.ma.masked_values(data[:,:levs],missing_value)
+            return np.ma.masked_values(data[:,:levs],_missing_value)
     def write_subset(self,data,mnemonic,pivot=False,seq=False,events=False,end=False):
         """
         write data to message subset using the specified mnemonic
