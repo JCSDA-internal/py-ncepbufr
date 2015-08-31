@@ -1,7 +1,4 @@
-from _bufrlib import openbf,openmb,closbf,closmg,readmg,\
-                     ufbint,ufbrep,ufbseq,dxdump,rewnbf,\
-                     ireadsb,writsb,fortran_open,fortran_close,\
-                     datelen,ufbqcd
+import _bufrlib
 import random
 import bisect
 import numpy as np
@@ -53,23 +50,23 @@ class open(object):
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
             # table embedded in bufr file
-            iret = fortran_open(filename,self.lunit,"unformatted")
+            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted")
             if iret != 0:
                 msg='error opening %s' % filename
                 raise IOError(msg)
-            openbf(self.lunit,ioflag,self.lunit)
+            _bufrlib.openbf(self.lunit,ioflag,self.lunit)
             self.lundx = None
             self.table = None
         elif mode == 'w':
             self.lundx = random.choice(_funits)
             self.table = table
-            iret = fortran_open(table,self.lundx,"formatted")
+            iret = _bufrlib.fortran_open(table,self.lundx,"formatted")
             if iret != 0:
                 msg='error opening %s' % table
-            iret = fortran_open(filename,self.lunit,"unformatted")
+            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted")
             if iret != 0:
                 msg='error opening %s' % filename
-            openbf(self.lunit,ioflag,self.lundx)
+            _bufrlib.openbf(self.lunit,ioflag,self.lundx)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
         # initialized message number counter
@@ -80,17 +77,17 @@ class open(object):
         """
         reset number of digits for date specification (10 gives YYYYMMDDHH)
         """
-        datelen(charlen)
+        _bufrlib.datelen(charlen)
     def dump_table(self,filename):
         """
         dump embedded bufr table to a file
         """
         lundx = random.choice(_funits)
-        iret = fortran_open(filename,lundx,'formatted')
+        iret = _bufrlib.fortran_open(filename,lundx,'formatted')
         if iret != 0:
             msg='error opening %s' % filename
-        dxdump(self.lunit,lundx)
-        iret = fortran_close(lundx)
+        _bufrlib.dxdump(self.lunit,lundx)
+        iret = _bufrlib.fortran_close(lundx)
         if iret == 0:
             bisect.insort_left(_funits,self.lundx)
         else:
@@ -99,16 +96,16 @@ class open(object):
         """
         print embedded bufr table to stdout
         """
-        dxdump(self.lunit,6)
+        _bufrlib.dxdump(self.lunit,6)
     def close(self):
         """
         close the bufr file
         """
-        closbf(self.lunit)
+        _bufrlib.closbf(self.lunit)
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
         if self.lundx is not None:
-            iret = fortran_close(self.lundx)
+            iret = _bufrlib.fortran_close(self.lundx)
             if iret == 0:
                 bisect.insort_left(_funits,self.lundx)
             else:
@@ -134,7 +131,7 @@ class open(object):
             <processing code for each message here>
 
         """
-        subset, idate, iret = readmg(self.lunit)
+        subset, idate, iret = _bufrlib.readmg(self.lunit)
         if iret:
             return iret
         else:
@@ -149,7 +146,7 @@ class open(object):
         associated with specified mnemonic
         (see ufbqcd.f for more details)
         """
-        return ufbqcd(self.lunit, mnemonic)
+        return _bufrlib.ufbqcd(self.lunit, mnemonic)
     def checkpoint(self):
         """
         mark where we are in the bufr file,
@@ -157,24 +154,24 @@ class open(object):
         The 'restore' method can then be
         used to go back to this state.
         """
-        rewnbf(self.lunit,0)
+        _bufrlib.rewnbf(self.lunit,0)
     def restore(self):
         """
         restore the state of the bufr
         file that recorded by a previous call
         to 'checkpoint'.
         """
-        rewnbf(self.lunit,1)
+        _bufrlib.rewnbf(self.lunit,1)
     def open_message(self,msg_type,msg_date):
         """
         open new bufr message
         """
-        openmb(self.lunit,msg_type,int(msg_date))
+        _bufrlib.openmb(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         """
         close bufr message
         """
-        closmg(self.lunit)
+        _bufrlib.closmg(self.lunit)
     def load_subset(self):
         """
         load subset data from the current message
@@ -188,7 +185,7 @@ class open(object):
                 <processing code for each subset here>
 
         """
-        iret = ireadsb(self.lunit)
+        iret = _bufrlib.ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
     def read_subset(self,mnemonic,pivot=False,seq=False,events=False):
@@ -199,14 +196,14 @@ class open(object):
 
         if pivot = True, the first mnemonic in the string
         is intrepreted as a "pivot".  Effectively, this
-        means ufbrep instead of ufbint is used to decode
-        the message subset.  See the comments in ufbrep.f for
+        means _bufrlib.ufbrep instead of _bufrlib.ufbint is used to decode
+        the message subset.  See the comments in _bufrlib.ufbrep.f for
         more details. Used for radiance data.
 
-        if seq=True, ufbseq is used to read a sequence
+        if seq=True, _bufrlib.ufbseq is used to read a sequence
         of mnemonics. Used for gps data.
 
-        if events=True, ufbevn is used to read prepbufr
+        if events=True, _bufrlib.ufbevn is used to read prepbufr
         'events', and a 3-d array is returned.
 
         Only one of seq, pivot and events can be True.
@@ -226,16 +223,16 @@ class open(object):
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
             data = np.empty((nmaxseq,maxdim),np.float,order='F')
-            levs = ufbseq(self.lunit,data,mnemonic,nmaxseq,maxdim)
+            levs = _bufrlib.ufbseq(self.lunit,data,mnemonic,nmaxseq,maxdim)
         elif pivot:
             data = np.empty((ndim,maxdim),np.float,order='F')
-            levs = ufbrep(self.lunit,data,mnemonic,ndim,maxdim)
+            levs = _bufrlib.ufbrep(self.lunit,data,mnemonic,ndim,maxdim)
         elif events:
             data = np.empty((ndim,maxdim,maxevent),np.float,order='F')
-            levs = ufbevn(self.lunit,data,mnemonic,ndim,maxdim,maxevents)
+            levs = _bufrlib.ufbevn(self.lunit,data,mnemonic,ndim,maxdim,maxevents)
         else:
             data = np.empty((ndim,maxdim),np.float,order='F')
-            levs = ufbint(self.lunit,data,mnemonic,ndim,maxdim)
+            levs = _bufrlib.ufbint(self.lunit,data,mnemonic,ndim,maxdim)
         if events:
             return np.ma.masked_values(data[:,:levs,:],missing_value)
         else:
@@ -246,14 +243,14 @@ class open(object):
 
         if pivot = True, the first mnemonic in the string
         is intrepreted as a "pivot".  Effectively, this
-        means ufbrep instead of ufbint is used to write
-        the subset.  See the comments in ufbrep.f for
+        means _bufrlib.ufbrep instead of _bufrlib.ufbint is used to write
+        the subset.  See the comments in _bufrlib.ufbrep.f for
         more details. Used for radiance data.
 
-        if seq=True, ufbseq is used to write a sequence
+        if seq=True, _bufrlib.ufbseq is used to write a sequence
         of mnemonics. Used for gps data.
 
-        if events=True, ufbevn is used to write prepbufr
+        if events=True, _bufrlib.ufbevn is used to write prepbufr
         'events' (a 3-d data array is required)
 
         Only one of seq, pivot and events can be True.
@@ -275,14 +272,17 @@ class open(object):
         if np.array([pivot,seq,events]).sum() > 1:
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
-            levs = ufbseq(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+            levs = _bufrlib.ufbseq(self.lunit,dataf,mnemonic,dataf.shape[0],\
+                    dataf.shape[1])
         elif pivot:
-            levs = ufbrep(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+            levs = _bufrlib.ufbrep(self.lunit,dataf,mnemonic,dataf.shape[0],\
+                    dataf.shape[1])
         elif events:
-            levs = ufbevn(self.lunit,dataf,mnemonic,dataf.shape[0],\
+            levs = _bufrlib.ufbevn(self.lunit,dataf,mnemonic,dataf.shape[0],\
                     dataf.shape[1],dataf.shape[2])
         else:
-            levs = ufbint(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+            levs = _bufrlib.ufbint(self.lunit,dataf,mnemonic,dataf.shape[0],\
+                    dataf.shape[1])
         # end subset if desired.
         if end:
-            writsb(self.lunit)
+            _bufrlib.writsb(self.lunit)
