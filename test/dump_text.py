@@ -21,5 +21,4 @@ while bufr.advance() == 0: # loop over messages.
                 bufr.dump_subset(sys.argv[2],append=True,verbose=verbose)
         else:
             bufr.print_subset(verbose=verbose) # print decoded subset to stdout
-        raise SystemExit
 bufr.close()
