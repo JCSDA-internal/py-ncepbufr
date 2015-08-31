@@ -3,9 +3,9 @@ python interface to NCEP bufr library ([BUFRLIB](http://www.nco.ncep.noaa.gov/si
 
 to install (fortran compiler required):
 
-1) build fortran library
+* build fortran library
    - cd src, sh makefile.sh
-2) build python module
+* build python module
    - python setup.py build
    - python setup.py install
 
