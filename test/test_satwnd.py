@@ -18,7 +18,7 @@ while bufr.advance() == 0:
         windtype = int(hdr[8])
         lat = hdr[1]; lon = hdr[2]
         qm = hdr[12]
-        obdata = bufr.read_subset(obstr)
+        obdata = bufr.read_subset(obstr).squeeze()
         print('satid, wind type, lat, lon, press, qcflg, time, speed, dir =',\
         satid,windtype,lat,lon,obdata[1],qm,yyyymmddhh,obdata[3],obdata[2])
     # only loop over first 4 subsets
