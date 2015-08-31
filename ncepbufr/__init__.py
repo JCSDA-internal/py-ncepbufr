@@ -43,8 +43,11 @@ class open(object):
                 raise ValueError(msg)
             ioflag = 'OUT'
             self.mode = 'w'
+        elif mode == 'a':
+            ioflag = 'APN'
+            self.mode = 'a'
         else:
-            raise ValueError("mode must be 'r' or 'w'")
+            raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r':
             # table embedded in bufr file
             iret = fortran_open(filename,self.lunit,"unformatted")
@@ -54,7 +57,7 @@ class open(object):
             openbf(self.lunit,ioflag,self.lunit)
             self.lundx = None
             self.table = None
-        else:
+        elif mode == 'w':
             self.lundx = random.choice(_funits)
             self.table = table
             iret = fortran_open(table,self.lundx,"formatted")
@@ -160,8 +163,6 @@ class open(object):
         rewnbf(self.lunit,1)
     def create_message(self,msg_type,msg_date):
         openmb(self.lunit,msg_type,int(msg_date))
-    def write_message(self):
-        writsb(self.lunit)
     def close_message(self):
         closmg(self.lunit)
     def load_subset(self):
@@ -227,3 +228,26 @@ class open(object):
             return np.ma.masked_values(data[:,:levs,:],missing_value)
         else:
             return np.ma.masked_values(data[:,:levs],missing_value)
+    def write_subset(self,data,mnemonic,pivot=False,seq=False,events=False,end=False):
+        if len(data.shape) in [2,3]:
+            dataf = np.empty(data.shape, np.float, order='F')
+            dataf[:] = data[:]
+        elif len(data.shape) == 1:
+            dataf = np.empty((data.shape[0],1), np.float, order='F')
+            dataf[:,0] = data[:]
+        else:
+            msg = 'data in write_subset must be 1,2 or 3d'
+            raise ValueError(msg)
+        if np.array([pivot,seq,events]).sum() > 1:
+            raise ValueError('only one of pivot, seq and events cannot be True')
+        if seq:
+            levs = ufbseq(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+        elif pivot:
+            levs = ufbrep(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+        elif events:
+            levs = ufbevn(self.lunit,dataf,mnemonic,dataf.shape[0],\
+                    dataf.shape[1],dataf.shape[2])
+        else:
+            levs = ufbint(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+        if end:
+            writsb(self.lunit)
