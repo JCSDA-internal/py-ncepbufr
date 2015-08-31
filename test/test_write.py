@@ -115,8 +115,8 @@ oer = np.empty(len(oestr.split()),np.float)
 qcf = np.empty(len(qcstr.split()),np.float)
 hdr[:]=1.e11 # set all values to missing
 obs[:]=1.e11; oer[:]=1.e11; qcf[:]=1.e11
-hdr[0] = np.fromstring('KXYZ    ',dtype=np.float)[0]
-hdr[1]=50.0;hdr[2]=0.2;hdr[3]=-0.5;hdr[4]=182
+hdr[0] = np.fromstring('KBOU    ',dtype=np.float)[0]
+hdr[1]=-105.0;hdr[2]=40.0;hdr[3]=-1.0;hdr[4]=181
 obs[0]=300.0
 idate=2008120101  # YYYYMMDDHH
 subset='ADPSFC'   # surface land reports
