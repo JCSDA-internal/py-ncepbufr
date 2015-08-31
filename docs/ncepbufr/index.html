@@ -1193,9 +1193,9 @@ returns 0 if advance was sucessful,
 of the file was reached).</p>
 <p>The following attributes are set each time
 file is advanced to the next message:</p>
-<p><code>msg_type</code>: string describing type of message.
-<code>msg_date</code>: reference date (YYYYMMDDHH) for message.
-<code>msg_counter</code>: message number.</p>
+<p><code>msg_type</code>: string describing type of message.</p>
+<p><code>msg_date</code>: reference date (YYYYMMDDHH) for message.</p>
+<p><code>msg_counter</code>: message number.</p>
 <p>To loop through all the bufr messages in a file:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">advance</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1318,7 +1318,12 @@ all subsets in each message:</p>
 
     
   
-    <div class="desc"><p>open new bufr message</p></div>
+    <div class="desc"><p>open new bufr message.</p>
+<p>Mandatory arguments:</p>
+<p><code>msg_type</code>: string describing type of message.</p>
+<p><code>msg_date</code>: reference date (e.g. <code>YYYYMMDDHH</code>) for message. The
+number of digits in the reference date is controlled by
+<a href="#ncepbufr.open.set_datelength"><code>set_datelength</code></a>, and is 10 by default.</p></div>
   <div class="source_cont">
 </div>
 
