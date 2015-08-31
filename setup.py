@@ -2,7 +2,13 @@
 # another fortran compiler.
 
 from numpy.distutils.core  import setup, Extension
-import os, sys
+import os, sys, subprocess
+
+# build fortran library if it does not yet exist.
+if not os.path.isfile('src/libbufr.a'):
+    strg = 'cd src; sh makebufrlib.sh'
+    sys.stdout.write('executing "%s"\n' % strg)
+    subprocess.call(strg,shell=True)
 
 ext = Extension(name          = '_bufrlib',
                 sources       = ['src/_bufrlib.pyf'],
