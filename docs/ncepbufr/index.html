@@ -1089,7 +1089,8 @@ table {
       <p id="ncepbufr.open" class="name">class <span class="ident">open</span></p>
       
   
-    <div class="desc"><p>open bufr file.</p>
+    <div class="desc"><p>bufr file object.</p>
+<p><a href="#ncepbufr.open.__init__"><code>__init__</code></a> used to construct instance.</p>
 <p><a href="#ncepbufr.open.advance"><code>advance</code></a> method can be used step through bufr messages.</p></div>
   <div class="source_cont">
 </div>
@@ -1167,10 +1168,12 @@ table {
 
     
   
-    <div class="desc"><p>filename: bufr file name
-mode: 'r' for read, 'w' for write (default 'r')
-datelen:  number of digits for date specification
-          (default 10, gives YYYYMMDDHH)</p></div>
+    <div class="desc"><p>bufr object constructor</p>
+<p><code>filename</code>: bufr file name.</p>
+<p><code>mode</code>: <code>'r'</code> for read, <code>'w'</code> for write, <code>'a'</code> for append (default
+<code>'r'</code>).</p>
+<p><code>datelen</code>:  number of digits for date specification (default 10, gives
+<code>YYYYMMDDHH</code>).</p></div>
   <div class="source_cont">
 </div>
 
@@ -1191,9 +1194,9 @@ returns 0 if advance was sucessful,
 of the file was reached).</p>
 <p>The following attributes are set each time
 file is advanced to the next message:</p>
-<p>msg_type - string describing type of message.
-msg_date - reference date (YYYYMMDDHH) for message.
-msg_counter - message number.</p>
+<p><code>msg_type</code>: string describing type of message.
+<code>msg_date</code>: reference date (YYYYMMDDHH) for message.
+<code>msg_counter</code>: message number.</p>
 <p>To loop through all the bufr messages in a file:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">advance</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1215,7 +1218,7 @@ msg_counter - message number.</p>
   
     <div class="desc"><p>mark where we are in the bufr file,
 and rewind the file.
-The 'restore' method can then be
+The <a href="#ncepbufr.open.restore"><code>restore</code></a> method can then be
 used to go back to this state.</p></div>
   <div class="source_cont">
 </div>
@@ -1278,7 +1281,7 @@ used to go back to this state.</p></div>
   
     <div class="desc"><p>return prepbufr event program code
 associated with specified mnemonic
-(see ufbqcd.f for more details)</p></div>
+(see <code>src/ufbqcd.f</code> for more details)</p></div>
   <div class="source_cont">
 </div>
 
@@ -1294,7 +1297,7 @@ associated with specified mnemonic
     
   
     <div class="desc"><p>load subset data from the current message
-(must be called before read_subset).
+(must be called before <a href="#ncepbufr.open.read_subset"><code>read_subset</code></a>).
 To loop through all messages in a file, and
 all subsets in each message:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -1362,8 +1365,8 @@ of mnemonics. Used for gps data.</p>
 <p>returns a numpy masked array with decoded values
 (missing values are masked).
 The shape of the array is <code>(nm,nlevs)</code>, where
-where nm is the number of elements in the specified
-mnemonic, and nlevs is the number of levels in the report.
+where <code>nm</code> is the number of elements in the specified
+mnemonic, and <code>nlevs</code> is the number of levels in the report.
 If <code>events=True</code>, a 3rd dimension representing the prepbufr
 event codes is added.</p></div>
   <div class="source_cont">
@@ -1382,7 +1385,7 @@ event codes is added.</p></div>
   
     <div class="desc"><p>restore the state of the bufr
 file that recorded by a previous call
-to 'checkpoint'.</p></div>
+to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
   <div class="source_cont">
 </div>
 
@@ -1397,7 +1400,7 @@ to 'checkpoint'.</p></div>
 
     
   
-    <div class="desc"><p>reset number of digits for date specification (10 gives YYYYMMDDHH)</p></div>
+    <div class="desc"><p>reset number of digits for date specification (10 gives <code>YYYYMMDDHH</code>)</p></div>
   <div class="source_cont">
 </div>
 

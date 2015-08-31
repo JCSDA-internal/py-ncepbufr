@@ -14,16 +14,23 @@ _nmaxseq = _maxevents # max size of sequence in message
 
 class open(object):
     """
-    open bufr file.
+    bufr file object.
+
+    `ncepbufr.open.__init__` used to construct instance.
 
     `ncepbufr.open.advance` method can be used step through bufr messages.
     """
     def __init__(self,filename,mode='r',table=None,datelen=10):
         """
-        filename: bufr file name
-        mode: 'r' for read, 'w' for write (default 'r')
-        datelen:  number of digits for date specification
-                  (default 10, gives YYYYMMDDHH)
+        bufr object constructor
+
+        `filename`: bufr file name.
+
+        `mode`: `'r'` for read, `'w'` for write, `'a'` for append (default
+        `'r'`).
+
+        `datelen`:  number of digits for date specification (default 10, gives
+        `YYYYMMDDHH`).
         """
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
@@ -32,17 +39,14 @@ class open(object):
         if not _funits:
             raise IOError("too many files open")
         if mode == 'r':
-            ioflag = 'IN'
-            self.mode = 'r'
+            self._ioflag = 'IN'
         elif mode == 'w':
             if table is None:
                 msg="must specify file containing bufr table when mode='w'"
                 raise ValueError(msg)
-            ioflag = 'OUT'
-            self.mode = 'w'
+            self._ioflag = 'OUT'
         elif mode == 'a':
-            ioflag = 'APN'
-            self.mode = 'a'
+            self._ioflag = 'APN'
         else:
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
@@ -51,7 +55,7 @@ class open(object):
             if iret != 0:
                 msg='error opening %s' % filename
                 raise IOError(msg)
-            _bufrlib.openbf(self.lunit,ioflag,self.lunit)
+            _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
             self.lundx = None
             self.table = None
         elif mode == 'w':
@@ -63,7 +67,7 @@ class open(object):
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted")
             if iret != 0:
                 msg='error opening %s' % filename
-            _bufrlib.openbf(self.lunit,ioflag,self.lundx)
+            _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
         # initialized message number counter
@@ -79,7 +83,7 @@ class open(object):
         '''bufr missing value'''
     def set_datelength(self,charlen=10):
         """
-        reset number of digits for date specification (10 gives YYYYMMDDHH)
+        reset number of digits for date specification (10 gives `YYYYMMDDHH`)
         """
         _bufrlib.datelen(charlen)
     def dump_table(self,filename):
@@ -124,9 +128,9 @@ class open(object):
         The following attributes are set each time
         file is advanced to the next message:
 
-        msg_type - string describing type of message.
-        msg_date - reference date (YYYYMMDDHH) for message.
-        msg_counter - message number.
+        `msg_type`: string describing type of message.
+        `msg_date`: reference date (YYYYMMDDHH) for message.
+        `msg_counter`: message number.
 
         To loop through all the bufr messages in a file:
 
@@ -149,14 +153,14 @@ class open(object):
         """
         return prepbufr event program code
         associated with specified mnemonic
-        (see ufbqcd.f for more details)
+        (see `src/ufbqcd.f` for more details)
         """
         return _bufrlib.ufbqcd(self.lunit, mnemonic)
     def checkpoint(self):
         """
         mark where we are in the bufr file,
         and rewind the file.
-        The 'restore' method can then be
+        The `ncepbufr.open.restore` method can then be
         used to go back to this state.
         """
         _bufrlib.rewnbf(self.lunit,0)
@@ -164,7 +168,7 @@ class open(object):
         """
         restore the state of the bufr
         file that recorded by a previous call
-        to 'checkpoint'.
+        to `ncepbufr.open.checkpoint`.
         """
         _bufrlib.rewnbf(self.lunit,1)
     def open_message(self,msg_type,msg_date):
@@ -180,7 +184,7 @@ class open(object):
     def load_subset(self):
         """
         load subset data from the current message
-        (must be called before read_subset).
+        (must be called before `ncepbufr.open.read_subset`).
         To loop through all messages in a file, and
         all subsets in each message:
 
