@@ -5,7 +5,7 @@ import numpy as np
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
-oestr='POE QOE TOE NUL WOE NUL PWE     '
+oestr='POE QOE TOE NUL WOE NUL PWE'
 
 # open prepbufr file.
 
