@@ -1,6 +1,3 @@
-# use "config_fc --fcompiler=<compiler name> install" to build and install with
-# another fortran compiler.
-
 from numpy.distutils.core  import setup, Extension
 import os, sys, subprocess
 
