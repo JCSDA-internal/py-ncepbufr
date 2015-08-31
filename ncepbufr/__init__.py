@@ -257,7 +257,7 @@ class open:
         """
         write data to message subset using the specified mnemonics
         (a 'mnemonic' is simply a descriptive, alphanumeric name for a
-        data value, likea key in a python dictionary). The mnemonics string
+        data value, like a key in a python dictionary). The mnemonics string
         may contain multiple space delimited mnemonics
         (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
