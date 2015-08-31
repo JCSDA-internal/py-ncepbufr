@@ -129,7 +129,9 @@ class open:
         file is advanced to the next message:
 
         `msg_type`: string describing type of message.
+
         `msg_date`: reference date (YYYYMMDDHH) for message.
+
         `msg_counter`: message number.
 
         To loop through all the bufr messages in a file:
