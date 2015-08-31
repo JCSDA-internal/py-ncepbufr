@@ -51,7 +51,7 @@ class open:
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
             # table embedded in bufr file
-            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted")
+            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
                 raise IOError(msg)
@@ -61,10 +61,10 @@ class open:
         elif mode == 'w':
             self.lundx = random.choice(_funits)
             self.table = table
-            iret = _bufrlib.fortran_open(table,self.lundx,"formatted")
+            iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
             if iret != 0:
                 msg='error opening %s' % table
-            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted")
+            iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
             _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
@@ -91,7 +91,7 @@ class open:
         dump embedded bufr table to a file
         """
         lundx = random.choice(_funits)
-        iret = _bufrlib.fortran_open(filename,lundx,'formatted')
+        iret = _bufrlib.fortran_open(filename,lundx,'formatted','rewind')
         if iret != 0:
             msg='error opening %s' % filename
         _bufrlib.dxdump(self.lunit,lundx)
@@ -160,6 +160,30 @@ class open:
         trying to print the decoded subset using `ncepbufr.open.print_subset`.
         """
         _bufrlib.ufdump(self.lunit,6)
+    def dump_subset(self,filename,append=False):
+        """
+        dump a textual representation of the decoded
+        data in the currently loaded subset to a file.
+
+        If `access='append'`, append to an existing file
+        (otherwise over-write file).
+
+        `ncepbufr.open.load_subset` must be called before
+        trying to print the decoded subset using `ncepbufr.open.print_subset`.
+        """
+        lunout = random.choice(_funits)
+        if not append:
+            iret = _bufrlib.fortran_open(filename,lunout,'formatted','rewind')
+        else:
+            iret = _bufrlib.fortran_open(filename,lunout,'formatted','append')
+        if iret != 0:
+            msg='error opening %s' % filename
+        _bufrlib.ufdump(self.lunit,lunout)
+        iret = _bufrlib.fortran_close(lunout)
+        if iret == 0:
+            bisect.insort_left(_funits,lunout)
+        else:
+            raise IOError('error closing %s' % filename)
     def get_program_code(self,mnemonic):
         """
         return prepbufr event program code
