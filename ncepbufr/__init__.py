@@ -12,7 +12,7 @@ _maxdim = 5000 # max number of data levels in message
 _maxevents = 255 # max number of prepbufr events in message
 _nmaxseq = _maxevents # max size of sequence in message
 
-class open(object):
+class open:
     """
     bufr file object.
 
@@ -97,7 +97,7 @@ class open(object):
         _bufrlib.dxdump(self.lunit,lundx)
         iret = _bufrlib.fortran_close(lundx)
         if iret == 0:
-            bisect.insort_left(_funits,self.lundx)
+            bisect.insort_left(_funits,lundx)
         else:
             raise IOError('error closing %s' % filename)
     def print_table(self):
