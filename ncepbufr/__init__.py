@@ -8,9 +8,6 @@ _funits = list(range(1,100))
 # remove unit numbers used for stdin and stdout
 _funits.remove(5)
 _funits.remove(6)
-# missing value in decoded data.
-# (if equal to _missing_value, data is masked)
-_missing_value = _bufrlib.getbmiss()
 _maxdim = 5000 # max number of data levels in message
 _maxevents = 255 # max number of prepbufr events in message
 _nmaxseq = _maxevents # max size of sequence in message
@@ -72,6 +69,9 @@ class open(object):
         self.msg_counter = 0
         self.msg_type = None
         self.msg_date = None
+        # missing value in decoded data.
+        # (if equal to self.missing_value, data is masked)
+        self.missing_value = _bufrlib.getbmiss()
     def set_datelength(self,charlen=10):
         """
         reset number of digits for date specification (10 gives YYYYMMDDHH)
@@ -233,9 +233,9 @@ class open(object):
             data = np.empty((ndim,_maxdim),np.float,order='F')
             levs = _bufrlib.ufbint(self.lunit,data,mnemonic,ndim,_maxdim)
         if events:
-            return np.ma.masked_values(data[:,:levs,:],_missing_value)
+            return np.ma.masked_values(data[:,:levs,:],self.missing_value)
         else:
-            return np.ma.masked_values(data[:,:levs],_missing_value)
+            return np.ma.masked_values(data[:,:levs],self.missing_value)
     def write_subset(self,data,mnemonic,pivot=False,seq=False,events=False,end=False):
         """
         write data to message subset using the specified mnemonic
