@@ -1048,10 +1048,12 @@ table {
     <li class="mono"><a href="#ncepbufr.open.checkpoint">checkpoint</a></li>
     <li class="mono"><a href="#ncepbufr.open.close">close</a></li>
     <li class="mono"><a href="#ncepbufr.open.close_message">close_message</a></li>
+    <li class="mono"><a href="#ncepbufr.open.dump_subset">dump_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.dump_table">dump_table</a></li>
     <li class="mono"><a href="#ncepbufr.open.get_program_code">get_program_code</a></li>
     <li class="mono"><a href="#ncepbufr.open.load_subset">load_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.open_message">open_message</a></li>
+    <li class="mono"><a href="#ncepbufr.open.print_subset">print_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.print_table">print_table</a></li>
     <li class="mono"><a href="#ncepbufr.open.read_subset">read_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.restore">restore</a></li>
@@ -1256,6 +1258,27 @@ used to go back to this state.</p></div>
   
             
   <div class="item">
+    <div class="name def" id="ncepbufr.open.dump_subset">
+    <p>def <span class="ident">dump_subset</span>(</p><p>self, filename, append=False, verbose=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>dump a textual representation of the decoded
+data in the currently loaded subset to a file.</p>
+<p>If <code>access='append'</code>, append to an existing file
+(otherwise over-write file).</p>
+<p>If <code>verbose=True</code>, more complete but harder to read info is written.</p>
+<p><a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called before
+trying to print the decoded subset using <a href="#ncepbufr.open.dump_subset"><code>dump_subset</code></a>.</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="ncepbufr.open.dump_table">
     <p>def <span class="ident">dump_table</span>(</p><p>self, filename)</p>
     </div>
@@ -1324,6 +1347,25 @@ all subsets in each message:</p>
 <p><code>msg_date</code>: reference date (e.g. <code>YYYYMMDDHH</code>) for message. The
 number of digits in the reference date is controlled by
 <a href="#ncepbufr.open.set_datelength"><code>set_datelength</code></a>, and is 10 by default.</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="ncepbufr.open.print_subset">
+    <p>def <span class="ident">print_subset</span>(</p><p>self, verbose=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>print a textual representation of the decoded
+data in the currently loaded subset.</p>
+<p>If <code>verbose=True</code>, more complete but harder to read info is written.</p>
+<p><a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called before
+trying to print the decoded subset using <a href="#ncepbufr.open.print_subset"><code>print_subset</code></a>.</p></div>
   <div class="source_cont">
 </div>
 

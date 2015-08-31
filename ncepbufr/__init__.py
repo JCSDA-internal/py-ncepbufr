@@ -176,7 +176,7 @@ class open:
         If `verbose=True`, more complete but harder to read info is written.
 
         `ncepbufr.open.load_subset` must be called before
-        trying to print the decoded subset using `ncepbufr.open.print_subset`.
+        trying to print the decoded subset using `ncepbufr.open.dump_subset`.
         """
         lunout = random.choice(_funits)
         if not append:
