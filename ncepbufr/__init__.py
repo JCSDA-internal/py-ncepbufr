@@ -151,22 +151,29 @@ class open:
             self.msg_counter += 1
             self.subset_loaded = False
             return 0
-    def print_subset(self):
+    def print_subset(self,verbose=False):
         """
         print a textual representation of the decoded
         data in the currently loaded subset.
 
+        If `verbose=True`, more complete but harder to read info is written.
+
         `ncepbufr.open.load_subset` must be called before
         trying to print the decoded subset using `ncepbufr.open.print_subset`.
         """
-        _bufrlib.ufdump(self.lunit,6)
-    def dump_subset(self,filename,append=False):
+        if not verbose:
+            _bufrlib.ufdump(self.lunit,6)
+        else:
+            _bufrlib.ufbdmp(self.lunit,6)
+    def dump_subset(self,filename,append=False,verbose=False):
         """
         dump a textual representation of the decoded
         data in the currently loaded subset to a file.
 
         If `access='append'`, append to an existing file
         (otherwise over-write file).
+
+        If `verbose=True`, more complete but harder to read info is written.
 
         `ncepbufr.open.load_subset` must be called before
         trying to print the decoded subset using `ncepbufr.open.print_subset`.
@@ -178,7 +185,10 @@ class open:
             iret = _bufrlib.fortran_open(filename,lunout,'formatted','append')
         if iret != 0:
             msg='error opening %s' % filename
-        _bufrlib.ufdump(self.lunit,lunout)
+        if not verbose:
+            _bufrlib.ufdump(self.lunit,lunout)
+        else:
+            _bufrlib.ufbdmp(self.lunit,lunout)
         iret = _bufrlib.fortran_close(lunout)
         if iret == 0:
             bisect.insort_left(_funits,lunout)
