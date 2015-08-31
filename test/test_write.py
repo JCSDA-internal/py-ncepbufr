@@ -106,6 +106,28 @@ bufr.close_message()
 # close bufr file
 bufr.close()
 
+# open bufr file, append another message to it.
+bufr = ncepbufr.open('prepbufr2','a')
+# set data values
+hdr = np.empty(len(hdstr.split()),np.float)
+obs = np.empty(len(obstr.split()),np.float)
+oer = np.empty(len(oestr.split()),np.float)
+qcf = np.empty(len(qcstr.split()),np.float)
+hdr[:]=1.e11 # set all values to missing
+obs[:]=1.e11; oer[:]=1.e11; qcf[:]=1.e11
+hdr[0] = np.fromstring('KXYZ    ',dtype=np.float)[0]
+hdr[1]=50.0;hdr[2]=0.2;hdr[3]=-0.5;hdr[4]=182
+obs[0]=300.0
+idate=2008120101  # YYYYMMDDHH
+subset='ADPSFC'   # surface land reports
+bufr.open_message(subset, idate)
+bufr.write_subset(hdr,hdstr)
+bufr.write_subset(obs,obstr)
+bufr.write_subset(oer,oestr)
+bufr.write_subset(qcf,qcstr,end=True) # end subset
+bufr.close_message()
+bufr.close()
+
 # read prepbufr file back in.
 
 bufr = ncepbufr.open('prepbufr2')

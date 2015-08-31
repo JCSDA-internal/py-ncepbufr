@@ -48,7 +48,7 @@ class open(object):
             self.mode = 'a'
         else:
             raise ValueError("mode must be 'r', 'w' or 'a'")
-        if mode == 'r':
+        if mode == 'r' or mode == 'a':
             # table embedded in bufr file
             iret = fortran_open(filename,self.lunit,"unformatted")
             if iret != 0:
