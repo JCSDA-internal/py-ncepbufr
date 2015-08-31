@@ -16,7 +16,7 @@ class open(object):
     """
     open bufr file.
 
-    'advance' method can be used step through bufr messages.
+    `ncepbufr.open.advance` method can be used step through bufr messages.
     """
     def __init__(self,filename,mode='r',table=None,datelen=10):
         """
@@ -130,9 +130,10 @@ class open(object):
 
         To loop through all the bufr messages in a file:
 
-        bufr = ncepbufr.open(filename)
-        while bufr.advance() == 0:
-            <processing code for each message here>
+            :::python
+            >>> bufr = ncepbufr.open(filename)
+            >>> while bufr.advance() == 0:
+            >>>     # processing code for each message here
 
         """
         subset, idate, iret = _bufrlib.readmg(self.lunit)
@@ -183,10 +184,11 @@ class open(object):
         To loop through all messages in a file, and
         all subsets in each message:
 
-        bufr = ncepbufr.open(filename)
-        while bufr.advance() == 0:
-            while bufr.load_subset() == 0:
-                <processing code for each subset here>
+            :::python
+            >>> bufr = ncepbufr.open(filename)
+            >>> while bufr.advance() == 0:
+            >>>     while bufr.load_subset() == 0:
+            >>>         # processing code for each subset here
 
         """
         iret = _bufrlib.ireadsb(self.lunit)
@@ -196,28 +198,28 @@ class open(object):
         """
         decode the data from the currently loaded message subset
         using the specified mnemonic
-        (load_subset must be called first)
+        (`ncepbufr.open.load_subset` must be called first)
 
-        if pivot = True, the first mnemonic in the string
+        if `pivot = True`, the first mnemonic in the string
         is intrepreted as a "pivot".  Effectively, this
-        means _bufrlib.ufbrep instead of _bufrlib.ufbint is used to decode
-        the message subset.  See the comments in _bufrlib.ufbrep.f for
+        means `ufbrep` instead of `ufbint` is used to decode
+        the message subset.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if seq=True, _bufrlib.ufbseq is used to read a sequence
+        if `seq=True`, `ufbseq` is used to read a sequence
         of mnemonics. Used for gps data.
 
-        if events=True, _bufrlib.ufbevn is used to read prepbufr
-        'events', and a 3-d array is returned.
+        if `events=True`, `ufbevn` is used to read prepbufr
+        "events", and a 3-d array is returned.
 
         Only one of seq, pivot and events can be True.
 
         returns a numpy masked array with decoded values
         (missing values are masked).
-        The shape of the array is (nm,nlevs), where
+        The shape of the array is `(nm,nlevs)`, where
         where nm is the number of elements in the specified
         mnemonic, and nlevs is the number of levels in the report.
-        If events=True, a 3rd dimension representing the prepbufr
+        If `events=True`, a 3rd dimension representing the prepbufr
         event codes is added.
         """
         if not self.subset_loaded:
@@ -245,22 +247,22 @@ class open(object):
         """
         write data to message subset using the specified mnemonic
 
-        if pivot = True, the first mnemonic in the string
+        if `pivot = True`, the first mnemonic in the string
         is intrepreted as a "pivot".  Effectively, this
-        means _bufrlib.ufbrep instead of _bufrlib.ufbint is used to write
-        the subset.  See the comments in _bufrlib.ufbrep.f for
+        means `ufbrep` instead of `ufbint` is used to write
+        the subset.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if seq=True, _bufrlib.ufbseq is used to write a sequence
+        if `seq=True`, `ufbseq` is used to write a sequence
         of mnemonics. Used for gps data.
 
-        if events=True, _bufrlib.ufbevn is used to write prepbufr
-        'events' (a 3-d data array is required)
+        if `events=True`, `ufbevn` is used to write prepbufr
+        "events" (a 3-d data array is required)
 
         Only one of seq, pivot and events can be True.
 
-        If end=True, the message subset is closed and written
-        to the bufr file (default False).
+        If `end=True`, the message subset is closed and written
+        to the bufr file (default `False`).
         """
         # make a fortran contiguous copy of input data.
         if len(data.shape) in [2,3]:
