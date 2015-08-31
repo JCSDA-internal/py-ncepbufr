@@ -1272,7 +1272,7 @@ used to go back to this state.</p></div>
             
   <div class="item">
     <div class="name def" id="ncepbufr.open.get_program_code">
-    <p>def <span class="ident">get_program_code</span>(</p><p>self)</p>
+    <p>def <span class="ident">get_program_code</span>(</p><p>self, mnemonic)</p>
     </div>
     
 
@@ -1342,16 +1342,21 @@ all subsets in each message:</p>
             
   <div class="item">
     <div class="name def" id="ncepbufr.open.read_subset">
-    <p>def <span class="ident">read_subset</span>(</p><p>self, mnemonic, pivot=False, seq=False, events=False)</p>
+    <p>def <span class="ident">read_subset</span>(</p><p>self, mnemonics, pivot=False, seq=False, events=False)</p>
     </div>
     
 
     
   
     <div class="desc"><p>decode the data from the currently loaded message subset
-using the specified mnemonic
-(<a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called first)</p>
-<p>if <code>pivot = True</code>, the first mnemonic in the string
+using the specified mnemonics (a 'mnemonic' is simply a
+descriptive, alphanumeric name for a data value, like
+a key in a python dictionary). The mnemonics string
+may contain multiple space delimited mnemonics
+(e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
+<p><a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called before
+trying to decode a subset using <a href="#ncepbufr.open.read_subset"><code>read_subset</code></a>.</p>
+<p>if <code>pivot = True</code>, the first mnemonic in the mnemonics string
 is intrepreted as a "pivot".  Effectively, this
 means <code>ufbrep</code> instead of <code>ufbint</code> is used to decode
 the message subset.  See the comments in <code>src/ufbrep.f</code> for
@@ -1365,7 +1370,7 @@ of mnemonics. Used for gps data.</p>
 (missing values are masked).
 The shape of the array is <code>(nm,nlevs)</code>, where
 where <code>nm</code> is the number of elements in the specified
-mnemonic, and <code>nlevs</code> is the number of levels in the report.
+mnemonics string, and <code>nlevs</code> is the number of levels in the report.
 If <code>events=True</code>, a 3rd dimension representing the prepbufr
 event codes is added.</p></div>
   <div class="source_cont">
@@ -1408,14 +1413,18 @@ to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
             
   <div class="item">
     <div class="name def" id="ncepbufr.open.write_subset">
-    <p>def <span class="ident">write_subset</span>(</p><p>self, data, mnemonic, pivot=False, seq=False, events=False, end=False)</p>
+    <p>def <span class="ident">write_subset</span>(</p><p>self, data, mnemonics, pivot=False, seq=False, events=False, end=False)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>write data to message subset using the specified mnemonic</p>
-<p>if <code>pivot = True</code>, the first mnemonic in the string
+    <div class="desc"><p>write data to message subset using the specified mnemonics
+(a 'mnemonic' is simply a descriptive, alphanumeric name for a
+data value, likea key in a python dictionary). The mnemonics string
+may contain multiple space delimited mnemonics
+(e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
+<p>if <code>pivot = True</code>, the first mnemonic in the mnemonics string
 is intrepreted as a "pivot".  Effectively, this
 means <code>ufbrep</code> instead of <code>ufbint</code> is used to write
 the subset.  See the comments in <code>src/ufbrep.f</code> for

@@ -149,7 +149,7 @@ class open:
             self.msg_counter += 1
             self.subset_loaded = False
             return 0
-    def get_program_code(self):
+    def get_program_code(self,mnemonic):
         """
         return prepbufr event program code
         associated with specified mnemonic
@@ -198,13 +198,19 @@ class open:
         iret = _bufrlib.ireadsb(self.lunit)
         if iret == 0: self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonic,pivot=False,seq=False,events=False):
+    def read_subset(self,mnemonics,pivot=False,seq=False,events=False):
         """
         decode the data from the currently loaded message subset
-        using the specified mnemonic
-        (`ncepbufr.open.load_subset` must be called first)
+        using the specified mnemonics (a 'mnemonic' is simply a
+        descriptive, alphanumeric name for a data value, like
+        a key in a python dictionary). The mnemonics string
+        may contain multiple space delimited mnemonics
+        (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
-        if `pivot = True`, the first mnemonic in the string
+        `ncepbufr.open.load_subset` must be called before
+        trying to decode a subset using `ncepbufr.open.read_subset`.
+
+        if `pivot = True`, the first mnemonic in the mnemonics string
         is intrepreted as a "pivot".  Effectively, this
         means `ufbrep` instead of `ufbint` is used to decode
         the message subset.  See the comments in `src/ufbrep.f` for
@@ -222,36 +228,40 @@ class open:
         (missing values are masked).
         The shape of the array is `(nm,nlevs)`, where
         where `nm` is the number of elements in the specified
-        mnemonic, and `nlevs` is the number of levels in the report.
+        mnemonics string, and `nlevs` is the number of levels in the report.
         If `events=True`, a 3rd dimension representing the prepbufr
         event codes is added.
         """
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
-        ndim = len(mnemonic.split())
+        ndim = len(mnemonics.split())
         if np.array([pivot,seq,events]).sum() > 1:
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
             data = np.empty((_nmaxseq,_maxdim),np.float,order='F')
-            levs = _bufrlib.ufbseq(self.lunit,data,mnemonic,_nmaxseq,_maxdim)
+            levs = _bufrlib.ufbseq(self.lunit,data,mnemonics,_nmaxseq,_maxdim)
         elif pivot:
             data = np.empty((ndim,_maxdim),np.float,order='F')
-            levs = _bufrlib.ufbrep(self.lunit,data,mnemonic,ndim,_maxdim)
+            levs = _bufrlib.ufbrep(self.lunit,data,mnemonics,ndim,_maxdim)
         elif events:
             data = np.empty((ndim,_maxdim,maxevent),np.float,order='F')
-            levs = _bufrlib.ufbevn(self.lunit,data,mnemonic,ndim,_maxdim,_maxevents)
+            levs = _bufrlib.ufbevn(self.lunit,data,mnemonics,ndim,_maxdim,_maxevents)
         else:
             data = np.empty((ndim,_maxdim),np.float,order='F')
-            levs = _bufrlib.ufbint(self.lunit,data,mnemonic,ndim,_maxdim)
+            levs = _bufrlib.ufbint(self.lunit,data,mnemonics,ndim,_maxdim)
         if events:
             return np.ma.masked_values(data[:,:levs,:],self.missing_value)
         else:
             return np.ma.masked_values(data[:,:levs],self.missing_value)
-    def write_subset(self,data,mnemonic,pivot=False,seq=False,events=False,end=False):
+    def write_subset(self,data,mnemonics,pivot=False,seq=False,events=False,end=False):
         """
-        write data to message subset using the specified mnemonic
+        write data to message subset using the specified mnemonics
+        (a 'mnemonic' is simply a descriptive, alphanumeric name for a
+        data value, likea key in a python dictionary). The mnemonics string
+        may contain multiple space delimited mnemonics
+        (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
-        if `pivot = True`, the first mnemonic in the string
+        if `pivot = True`, the first mnemonic in the mnemonics string
         is intrepreted as a "pivot".  Effectively, this
         means `ufbrep` instead of `ufbint` is used to write
         the subset.  See the comments in `src/ufbrep.f` for
@@ -282,16 +292,16 @@ class open:
         if np.array([pivot,seq,events]).sum() > 1:
             raise ValueError('only one of pivot, seq and events cannot be True')
         if seq:
-            levs = _bufrlib.ufbseq(self.lunit,dataf,mnemonic,dataf.shape[0],\
+            levs = _bufrlib.ufbseq(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1])
         elif pivot:
-            levs = _bufrlib.ufbrep(self.lunit,dataf,mnemonic,dataf.shape[0],\
+            levs = _bufrlib.ufbrep(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1])
         elif events:
-            levs = _bufrlib.ufbevn(self.lunit,dataf,mnemonic,dataf.shape[0],\
+            levs = _bufrlib.ufbevn(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1],dataf.shape[2])
         else:
-            levs = _bufrlib.ufbint(self.lunit,dataf,mnemonic,dataf.shape[0],\
+            levs = _bufrlib.ufbint(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1])
         # end subset if desired.
         if end:
