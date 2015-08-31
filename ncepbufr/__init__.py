@@ -27,6 +27,7 @@ class open(object):
         """
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
+        '''bufr file opened with this fortran unit number'''
         _funits.remove(self.lunit)
         if not _funits:
             raise IOError("too many files open")
@@ -67,11 +68,15 @@ class open(object):
         self.set_datelength()
         # initialized message number counter
         self.msg_counter = 0
+        '''current bufr message number'''
         self.msg_type = None
+        '''current bufr message type'''
         self.msg_date = None
+        '''reference date for bufr message'''
         # missing value in decoded data.
         # (if equal to self.missing_value, data is masked)
         self.missing_value = _bufrlib.getbmiss()
+        '''bufr missing value'''
     def set_datelength(self,charlen=10):
         """
         reset number of digits for date specification (10 gives YYYYMMDDHH)
