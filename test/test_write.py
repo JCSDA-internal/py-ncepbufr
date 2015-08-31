@@ -12,7 +12,7 @@ oestr='POE QOE TOE NUL WOE NUL PWE     '
 bufr = ncepbufr.open('prepbufr2','w',table='prepbufr.table')
 idate=2010050700 # cycle time: YYYYMMDDHH
 subset='ADPSFC'  # surface land (SYNOPTIC, METAR) reports
-bufr.create_message(subset, idate)
+bufr.open_message(subset, idate)
 
 hdr = np.empty(len(hdstr.split()),np.float)
 hdr[:]=1.e11 # set all values to missing

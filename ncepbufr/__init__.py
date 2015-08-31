@@ -161,7 +161,7 @@ class open(object):
         to 'checkpoint'.
         """
         rewnbf(self.lunit,1)
-    def create_message(self,msg_type,msg_date):
+    def open_message(self,msg_type,msg_date):
         openmb(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         closmg(self.lunit)
