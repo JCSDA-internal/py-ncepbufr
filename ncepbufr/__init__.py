@@ -151,6 +151,15 @@ class open:
             self.msg_counter += 1
             self.subset_loaded = False
             return 0
+    def print_subset(self):
+        """
+        print a textual representation of the decoded
+        data in the currently loaded subset.
+
+        `ncepbufr.open.load_subset` must be called before
+        trying to print the decoded subset using `ncepbufr.open.print_subset`.
+        """
+        _bufrlib.ufdump(self.lunit,6)
     def get_program_code(self,mnemonic):
         """
         return prepbufr event program code
