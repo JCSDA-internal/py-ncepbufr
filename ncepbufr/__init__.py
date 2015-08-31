@@ -162,8 +162,14 @@ class open(object):
         """
         rewnbf(self.lunit,1)
     def open_message(self,msg_type,msg_date):
+        """
+        open new bufr message
+        """
         openmb(self.lunit,msg_type,int(msg_date))
     def close_message(self):
+        """
+        close bufr message
+        """
         closmg(self.lunit)
     def load_subset(self):
         """
@@ -190,7 +196,7 @@ class open(object):
         if pivot = True, the first mnemonic in the string
         is intrepreted as a "pivot".  Effectively, this
         means ufbrep instead of ufbint is used to decode
-        the message.  See the comments in ufbrep.f for
+        the message subset.  See the comments in ufbrep.f for
         more details. Used for radiance data.
 
         if seq=True, ufbseq is used to read a sequence
@@ -199,13 +205,15 @@ class open(object):
         if events=True, ufbevn is used to read prepbufr
         'events', and a 3-d array is returned.
 
-        Only one of seq, pivot and events cannot be True.
+        Only one of seq, pivot and events can be True.
 
         returns a numpy masked array with decoded values
-        (missing values are masked)
+        (missing values are masked).
         The shape of the array is (nm,nlevs), where
         where nm is the number of elements in the specified
         mnemonic, and nlevs is the number of levels in the report.
+        If events=True, a 3rd dimension representing the prepbufr
+        event codes is added.
         """
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
@@ -229,10 +237,32 @@ class open(object):
         else:
             return np.ma.masked_values(data[:,:levs],missing_value)
     def write_subset(self,data,mnemonic,pivot=False,seq=False,events=False,end=False):
+        """
+        write data to message subset using the specified mnemonic
+
+        if pivot = True, the first mnemonic in the string
+        is intrepreted as a "pivot".  Effectively, this
+        means ufbrep instead of ufbint is used to write
+        the subset.  See the comments in ufbrep.f for
+        more details. Used for radiance data.
+
+        if seq=True, ufbseq is used to write a sequence
+        of mnemonics. Used for gps data.
+
+        if events=True, ufbevn is used to write prepbufr
+        'events' (a 3-d data array is required)
+
+        Only one of seq, pivot and events can be True.
+
+        If end=True, the message subset is closed and written
+        to the bufr file (default False).
+        """
+        # make a fortran contiguous copy of input data.
         if len(data.shape) in [2,3]:
             dataf = np.empty(data.shape, np.float, order='F')
             dataf[:] = data[:]
         elif len(data.shape) == 1:
+            # make 1d array into 2d array with 1 level
             dataf = np.empty((data.shape[0],1), np.float, order='F')
             dataf[:,0] = data[:]
         else:
@@ -249,5 +279,6 @@ class open(object):
                     dataf.shape[1],dataf.shape[2])
         else:
             levs = ufbint(self.lunit,dataf,mnemonic,dataf.shape[0],dataf.shape[1])
+        # end subset if desired.
         if end:
             writsb(self.lunit)
