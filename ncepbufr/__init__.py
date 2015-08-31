@@ -1,4 +1,7 @@
-from _bufrlib import *
+from _bufrlib import openbf,openmb,closbf,closmg,readmg,\
+                     ufbint,ufbrep,ufbseq,dxdump,rewnbf,\
+                     ireadsb,writsb,fortran_open,fortran_close,\
+                     datelen,ufbqcd
 import random
 import bisect
 import numpy as np
@@ -140,6 +143,7 @@ class open(object):
             self.msg_counter += 1
             self.subset_loaded = False
             return 0
+    def get_program_code(self):
         """
         return prepbufr event program code
         associated with specified mnemonic
