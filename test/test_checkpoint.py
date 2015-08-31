@@ -14,7 +14,7 @@ nmsg = 0
 while bufr.advance() == 0:
     #print(nmsg, bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0:
-        hdr = bufr.read_subset(hdstr)
+        hdr = bufr.read_subset(hdstr).squeeze()
         station_id = hdr[0].tostring()
         obs = bufr.read_subset(obstr)
         nlevs = obs.shape[-1]
@@ -22,18 +22,18 @@ while bufr.advance() == 0:
         qcf = bufr.read_subset(qcstr)
         if nmsg == 10:
             print('station_id, lon, lat, time, station_type, levels =',\
-            station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs)
+            station_id,hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
             bufr.checkpoint()
     if nmsg == 15: break
     nmsg += 1
 bufr.restore()
 bufr.load_subset()
-hdr = bufr.read_subset(hdstr)
+hdr = bufr.read_subset(hdstr).squeeze()
 station_id = hdr[0].tostring()
 obs = bufr.read_subset(obstr)
 nlevs = obs.shape[-1]
 oer = bufr.read_subset(oestr)
 qcf = bufr.read_subset(qcstr)
 print('station_id, lon, lat, time, station_type, levels =',\
-station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs)
+station_id,hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
 bufr.close()

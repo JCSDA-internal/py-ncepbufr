@@ -10,10 +10,10 @@ bufr.print_table()
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0:
-        hdr = bufr.read_subset(hdrstr)
+        hdr = bufr.read_subset(hdrstr).squeeze()
         yyyymmddhh ='%04i%02i%02i%02i%02i' % tuple(hdr[0:5])
-        satid = int(hdr[7].item())
-        ptid = int(hdr[8].item())
+        satid = int(hdr[7])
+        ptid = int(hdr[8])
         nreps_this_ROSEQ2 = bufr.read_subset('{ROSEQ2}').squeeze()
         nreps_this_ROSEQ1 = len(nreps_this_ROSEQ2)
         data1b = bufr.read_subset('ROSEQ1',seq=True) # bending angle
