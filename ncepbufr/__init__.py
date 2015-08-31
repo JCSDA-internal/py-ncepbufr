@@ -217,8 +217,8 @@ class open(object):
         returns a numpy masked array with decoded values
         (missing values are masked).
         The shape of the array is `(nm,nlevs)`, where
-        where nm is the number of elements in the specified
-        mnemonic, and nlevs is the number of levels in the report.
+        where `nm` is the number of elements in the specified
+        mnemonic, and `nlevs` is the number of levels in the report.
         If `events=True`, a 3rd dimension representing the prepbufr
         event codes is added.
         """
