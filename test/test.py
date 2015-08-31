@@ -24,7 +24,8 @@ while bufr.advance() == 0: # loop over messages.
         print('station_id, lon, lat, time, station_type, levels =',\
         station_id,hdr[1].item(),hdr[2].item(),hdr[3].item(),int(hdr[4].item()),nlevs)
         for k in range(nlevs):
-            print('level',k+1)
+            if nlevs > 1:
+                print('level',k+1)
             print('obs',obs[:,k])
             print('oer',oer[:,k])
             print('qcf',qcf[:,k])
