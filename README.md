@@ -4,6 +4,8 @@ python interface to NCEP bufr library ([BUFRLIB](http://www.nco.ncep.noaa.gov/si
 to install ([numpy](http://numpy.org) and fortran compiler (preferably 
 [gfortran](https://gcc.gnu.org/wiki/GFortran)) required):
 
+Probably will not work on Windows.
+
 * python setup.py build
    - setup.py will try to build `src/libbufr.a` if it does not
 already exist using `cd src; sh makebufrlib.sh`. `src/makebufrlib.sh`
