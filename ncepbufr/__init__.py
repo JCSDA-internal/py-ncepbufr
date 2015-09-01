@@ -77,6 +77,8 @@ class open:
         '''current bufr message type'''
         self.msg_date = None
         '''reference date for bufr message'''
+        self.receipt_time = None
+        '''tank recipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
         # missing value in decoded data.
         # (if equal to self.missing_value, data is masked)
         self.missing_value = _bufrlib.getbmiss()
@@ -86,6 +88,17 @@ class open:
         reset number of digits for date specification (10 gives `YYYYMMDDHH`)
         """
         _bufrlib.datelen(charlen)
+    def _receipt_time(self):
+        """
+        return 'tank' receipt time (`YYYYMMDDHHMM`).
+
+        returns -1 if there is no tank recipt time for this message.
+        """
+        iyr,imon,iday,ihr,imin,iret = _bufrlib.rtrcpt(self.lunit)
+        if iret == 0:
+            return int('%04i%02i%02i%02i%02i' % (iyr,imon,iday,ihr,imin))
+        else:
+            return iret
     def dump_table(self,filename):
         """
         dump embedded bufr table to a file
@@ -150,6 +163,7 @@ class open:
             self.msg_date = idate
             self.msg_counter += 1
             self.subset_loaded = False
+            self.recipt_time = self._receipt_time()
             return 0
     def print_subset(self,verbose=False):
         """

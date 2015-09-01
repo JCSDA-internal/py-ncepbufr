@@ -2561,13 +2561,8 @@ subroutine rsvfvm(nem1,nem2) ! in rsvfvm.f
     character*8 :: nem2
 end subroutine rsvfvm
 subroutine rtrcpt(lunit,iyr,imo,idy,ihr,imi,iret) ! in rtrcpt.f
-    integer :: lunit
-    integer :: iyr
-    integer :: imo
-    integer :: idy
-    integer :: ihr
-    integer :: imi
-    integer :: iret
+    integer,intent(in) :: lunit
+    integer,intent(out) :: iyr,imo,idy,ihr,imi,iret
     real*8 :: bmiss
     integer :: maxbyt
     integer :: ibit
