@@ -79,6 +79,8 @@ class open:
         '''reference date for bufr message'''
         self.receipt_time = None
         '''tank recipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
+        self.subsets = None
+        '''number of subsets in the bufr message'''
         # missing value in decoded data.
         # (if equal to self.missing_value, data is masked)
         self.missing_value = _bufrlib.getbmiss()
@@ -99,6 +101,11 @@ class open:
             return int('%04i%02i%02i%02i%02i' % (iyr,imon,iday,ihr,imin))
         else:
             return iret
+    def _subsets(self):
+        """
+        return the number of subsets in this bufr message
+        """
+        return _bufrlib.nmsub(self.lunit)
     def dump_table(self,filename):
         """
         dump embedded bufr table to a file
@@ -147,6 +154,13 @@ class open:
 
         `msg_counter`: message number.
 
+        `receipt_time`: bufr tank receipt time.
+
+        `subsets`: number of subsets in the message.
+
+        `subset_loaded`: Boolean indicating whether a subset has been
+        loaded with `ncepbufr.open.load_subset`.  Initialized to `False`.
+
         To loop through all the bufr messages in a file:
 
             :::python
@@ -164,7 +178,21 @@ class open:
             self.msg_counter += 1
             self.subset_loaded = False
             self.recipt_time = self._receipt_time()
+            self.subsets = self._subsets()
             return 0
+    def inventory(self):
+        """
+        return a list containing an inventory of the bufr file.
+        The list contains a tuple for each message.
+        containing (msg_type,msg_date,subsets).
+        """
+        self.checkpoint()
+        inv = []
+        while self.advance() == 0:
+            inv.append((self.msg_type,self.msg_date,self.subsets))
+        self.restore()
+        return inv
+
     def print_subset(self,verbose=False):
         """
         print a textual representation of the decoded
@@ -263,7 +291,8 @@ class open:
 
         """
         iret = _bufrlib.ireadsb(self.lunit)
-        if iret == 0: self.subset_loaded = True
+        if iret == 0: 
+            self.subset_loaded = True
         return iret
     def read_subset(self,mnemonics,pivot=False,seq=False,events=False):
         """
@@ -274,6 +303,8 @@ class open:
         may contain multiple space delimited mnemonics
         (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
+        By default, the bufrlib routine `ufbint` is used.
+
         `ncepbufr.open.load_subset` must be called before
         trying to decode a subset using `ncepbufr.open.read_subset`.
 
@@ -283,8 +314,8 @@ class open:
         the message subset.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if `seq=True`, `ufbseq` is used to read a sequence
-        of mnemonics. Used for gps data.
+        if `seq=True`, `ufbseq` is used to read data represened by
+        a sequence mnemonic. Used for gps data.
 
         if `events=True`, `ufbevn` is used to read prepbufr
         "events", and a 3-d array is returned.
@@ -328,14 +359,16 @@ class open:
         may contain multiple space delimited mnemonics
         (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
+        By default, the bufrlib routine `ufbint` is used.
+
         if `pivot = True`, the first mnemonic in the mnemonics string
         is intrepreted as a "pivot".  Effectively, this
         means `ufbrep` instead of `ufbint` is used to write
         the subset.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if `seq=True`, `ufbseq` is used to write a sequence
-        of mnemonics. Used for gps data.
+        if `seq=True`, `ufbseq` is used to read data represened by
+        a sequence mnemonic. Used for gps data.
 
         if `events=True`, `ufbevn` is used to write prepbufr
         "events" (a 3-d data array is required)

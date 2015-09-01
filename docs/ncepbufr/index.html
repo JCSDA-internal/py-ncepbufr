@@ -1051,6 +1051,7 @@ table {
     <li class="mono"><a href="#ncepbufr.open.dump_subset">dump_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.dump_table">dump_table</a></li>
     <li class="mono"><a href="#ncepbufr.open.get_program_code">get_program_code</a></li>
+    <li class="mono"><a href="#ncepbufr.open.inventory">inventory</a></li>
     <li class="mono"><a href="#ncepbufr.open.load_subset">load_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.open_message">open_message</a></li>
     <li class="mono"><a href="#ncepbufr.open.print_subset">print_subset</a></li>
@@ -1159,6 +1160,28 @@ table {
 </div>
 
             </div>
+            <div class="item">
+            <p id="ncepbufr.open.receipt_time" class="name">var <span class="ident">receipt_time</span></p>
+            
+
+            
+  
+    <div class="desc"><p>tank recipt time for bufr message (<code>YYYYMMDDHHMM</code>), -1 if missing</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="ncepbufr.open.subsets" class="name">var <span class="ident">subsets</span></p>
+            
+
+            
+  
+    <div class="desc"><p>number of subsets in the bufr message</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
           <h3>Methods</h3>
             
   <div class="item">
@@ -1198,6 +1221,10 @@ file is advanced to the next message:</p>
 <p><code>msg_type</code>: string describing type of message.</p>
 <p><code>msg_date</code>: reference date (YYYYMMDDHH) for message.</p>
 <p><code>msg_counter</code>: message number.</p>
+<p><code>receipt_time</code>: bufr tank receipt time.</p>
+<p><code>subsets</code>: number of subsets in the message.</p>
+<p><code>subset_loaded</code>: Boolean indicating whether a subset has been
+loaded with <a href="#ncepbufr.open.load_subset"><code>load_subset</code></a>.  Initialized to <code>False</code>.</p>
 <p>To loop through all the bufr messages in a file:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">advance</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1311,6 +1338,23 @@ associated with specified mnemonic
   
             
   <div class="item">
+    <div class="name def" id="ncepbufr.open.inventory">
+    <p>def <span class="ident">inventory</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return a list containing an inventory of the bufr file.
+The list contains a tuple for each message.
+containing (msg_type,msg_date,subsets).</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="ncepbufr.open.load_subset">
     <p>def <span class="ident">load_subset</span>(</p><p>self)</p>
     </div>
@@ -1401,6 +1445,7 @@ descriptive, alphanumeric name for a data value, like
 a key in a python dictionary). The mnemonics string
 may contain multiple space delimited mnemonics
 (e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
+<p>By default, the bufrlib routine <code>ufbint</code> is used.</p>
 <p><a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called before
 trying to decode a subset using <a href="#ncepbufr.open.read_subset"><code>read_subset</code></a>.</p>
 <p>if <code>pivot = True</code>, the first mnemonic in the mnemonics string
@@ -1408,8 +1453,8 @@ is intrepreted as a "pivot".  Effectively, this
 means <code>ufbrep</code> instead of <code>ufbint</code> is used to decode
 the message subset.  See the comments in <code>src/ufbrep.f</code> for
 more details. Used for radiance data.</p>
-<p>if <code>seq=True</code>, <code>ufbseq</code> is used to read a sequence
-of mnemonics. Used for gps data.</p>
+<p>if <code>seq=True</code>, <code>ufbseq</code> is used to read data represened by
+a sequence mnemonic. Used for gps data.</p>
 <p>if <code>events=True</code>, <code>ufbevn</code> is used to read prepbufr
 "events", and a 3-d array is returned.</p>
 <p>Only one of seq, pivot and events can be True.</p>
@@ -1471,13 +1516,14 @@ to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
 data value, like a key in a python dictionary). The mnemonics string
 may contain multiple space delimited mnemonics
 (e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
+<p>By default, the bufrlib routine <code>ufbint</code> is used.</p>
 <p>if <code>pivot = True</code>, the first mnemonic in the mnemonics string
 is intrepreted as a "pivot".  Effectively, this
 means <code>ufbrep</code> instead of <code>ufbint</code> is used to write
 the subset.  See the comments in <code>src/ufbrep.f</code> for
 more details. Used for radiance data.</p>
-<p>if <code>seq=True</code>, <code>ufbseq</code> is used to write a sequence
-of mnemonics. Used for gps data.</p>
+<p>if <code>seq=True</code>, <code>ufbseq</code> is used to read data represened by
+a sequence mnemonic. Used for gps data.</p>
 <p>if <code>events=True</code>, <code>ufbevn</code> is used to write prepbufr
 "events" (a 3-d data array is required)</p>
 <p>Only one of seq, pivot and events can be True.</p>
