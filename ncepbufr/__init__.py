@@ -173,7 +173,7 @@ class open:
         if iret:
             return iret
         else:
-            self.msg_type = subset
+            self.msg_type = subset.decode('ascii')
             self.msg_date = idate
             self.msg_counter += 1
             self.subset_loaded = False
