@@ -215,7 +215,7 @@ class open:
         dump a textual representation of the decoded
         data in the currently loaded subset to a file.
 
-        If `access='append'`, append to an existing file
+        If `append=True`, append to an existing file
         (otherwise over-write file).
 
         If `verbose=True`, more complete but harder to read info is written.
