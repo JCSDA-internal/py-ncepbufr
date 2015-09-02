@@ -166,7 +166,7 @@ subroutine bort2(str1,str2) ! in bort2.f
     character*(*) :: str2
 end subroutine bort2
 subroutine bvers(cverstr) ! in bvers.f
-    character*(*) :: cverstr
+    character*12,intent(out) :: cverstr
 end subroutine bvers
 subroutine cadn30(idn,adn) ! in cadn30.f
     integer :: idn

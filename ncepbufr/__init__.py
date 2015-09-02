@@ -3,6 +3,9 @@ import random
 import bisect
 import numpy as np
 
+__version__ = "0.9.1"
+__bufrlib_version__ = _bufrlib.bvers().rstrip()
+
 # create list of allowed fortran unit numbers
 _funits = list(range(1,100))
 # remove unit numbers used for stdin and stdout

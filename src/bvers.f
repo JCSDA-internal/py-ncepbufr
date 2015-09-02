@@ -35,16 +35,16 @@ C   MACHINE:  PORTABLE TO ALL PLATFORMS
 C
 C$$$
 
-	CHARACTER*(*)	CVERSTR
+	CHARACTER*12	CVERSTR
 
 C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 
-	IF (LEN(CVERSTR).LT.8) GOTO 900
+	!IF (LEN(CVERSTR).LT.8) GOTO 900
 
 	CVERSTR = '10.2.5'
 
 	RETURN
-900	CALL BORT('BUFRLIB: BVERS - INPUT STRING MUST CONTAIN SPACE '//
-     .    'FOR AT LEAST 8 CHARACTERS')
+!900	CALL BORT('BUFRLIB: BVERS - INPUT STRING MUST CONTAIN SPACE '//
+!     .    'FOR AT LEAST 8 CHARACTERS')
 	END

@@ -1,3 +1,7 @@
+version 0.9.1 (not yet released)
+===============================
+* add __version__ and __bufrlib_version__ module variables.
+
 9/1/2015:  version 0.9 (tag v0.9rel)
 ====================================
 * first public release. 
