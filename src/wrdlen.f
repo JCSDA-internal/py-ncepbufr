@@ -433,7 +433,11 @@ C  -----------------
 
       IF(PRINT) THEN
          CALL BVERS(CVSTR)
+
+
+
          CNDIAN = 'LITTLE'
+
       ERRSTR = '=============== ' //
      . 'WELCOME TO THE BUFR ARCHIVE LIBRARY' // ' =============='
       CALL ERRWRT(ERRSTR)
@@ -476,3 +480,4 @@ C  -----
      . ' (65) NOR EBCDIC (193)")') IA
       CALL BORT(BORT_STR)
       END
+

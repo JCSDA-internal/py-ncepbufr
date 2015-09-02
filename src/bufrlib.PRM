@@ -1,18 +1,29 @@
 C-----------------------------------------------------------------------
 C	Define the BUFRLIB build types.
 
+
+
+
 C-----------------------------------------------------------------------
 C	Maximum number of BUFR files that can be connected to the
 C	BUFRLIB software (for reading or writing) at any one time.
 C	(NOTE: This parameter must also be identically defined 
 C	       within "bufrlib.h" for use by several C routines!)
 
+
+
+
 	PARAMETER ( NFILES = 32 )
+
 C-----------------------------------------------------------------------
 C	Maximum length (in bytes) of a BUFR message that can be
 C	read or written by the BUFRLIB software.
 
+
+
+
 	PARAMETER ( MXMSGL = 600000 )
+
 	PARAMETER ( MXMSGLD4 = MXMSGL/4 )
 C-----------------------------------------------------------------------
 C	Maximum number of Section 3 FXY descriptors that can be
@@ -20,7 +31,7 @@ C	written into a BUFR message by the BUFRLIB software.
 C	(NOTE: This parameter must also be identically defined 
 C	       within "bufrlib.h" for use by several C routines!)
 
-	PARAMETER ( MAXNC = 300 )
+	PARAMETER ( MAXNC = 600 )
 C-----------------------------------------------------------------------
 C	Maximum number of default Section 0 or Section 1 values
 C	that can be overwritten within a BUFR message by the
@@ -31,22 +42,42 @@ C-----------------------------------------------------------------------
 C	Maximum number of data values that can be read from or written
 C	into a subset by the BUFRLIB software.
 
+
+
+
 	PARAMETER ( MAXSS = 80000 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of data values that can be written into a subset
 C	of a compressed BUFR message by the BUFRLIB software.
 
+
+
+
+
+
 	PARAMETER ( MXCDV = 3000 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of subsets that can be written into a compressed
 C	BUFR message by the BUFRLIB software.
 
+
+
+
 	PARAMETER ( MXCSB = 4000 )
+
 C-----------------------------------------------------------------------
 C	Maximum length of a character string that can be written into a
 C	compressed BUFR message by the BUFRLIB software.
 
+
+
+
+
+
 	PARAMETER ( MXLCC = 32 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of entries in the internal BUFR Table A for each
 C	BUFR file that is connected to the BUFRLIB software.
@@ -87,7 +118,11 @@ C	       within "bufrlib.h" for use by several C routines!)
 C-----------------------------------------------------------------------
 C	Maximum number of entries in the internal jump/link table.
 
+
+
+
 	PARAMETER ( MAXJL = NFILES*3000 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of entries in the internal string cache.
 
@@ -101,17 +136,31 @@ C	Maximum number of "long" character strings (i.e. greater than
 C       8 bytes) which can be read from a subset of a compressed BUFR
 C	message.
 
+
+
+
 	PARAMETER ( MXRST = 50 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of BUFR messages that can be stored within
 C	internal memory.
 
+
+
+
 	PARAMETER ( MAXMSG = 200000 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of bytes that can be used to store BUFR
 C	messages within internal memory.
 
+
+
+
+
+
 	PARAMETER ( MAXMEM = 50000000 )
+
 C-----------------------------------------------------------------------
 C	Maximum number of jump/link table entries which can be used to
 C	store new reference values (as defined using the 2-03 operator).
@@ -138,7 +187,11 @@ C-----------------------------------------------------------------------
 C	Maximum number of bytes that can be copied between BUFR
 C	messages within internal memory.
 
+
+
+
 	PARAMETER ( MXIMB = 400000 )
+
 C-----------------------------------------------------------------------
 C	BUFRLIB "missing" value.  The default value for BMISS is set
 C	within subroutine BFRINI, but it can be modified by the user via
@@ -147,3 +200,4 @@ C	a subsequent call to subroutine SETBMISS.
 	COMMON /BUFRBMISS/ BMISS
 	REAL*8  BMISS
 C-----------------------------------------------------------------------
+
