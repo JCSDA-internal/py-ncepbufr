@@ -155,8 +155,8 @@ EOF
 cpp $CPPFLAGS -DBUILD=NORMAL bufrlib.PRM.orig bufrlib.prm
 
 export LIB="libbufr.a"
-export FFLAGS=" -O2 -fdefault-real-8"
-export CFLAGS=" -O2 -DUNDERSCORE"
+export FFLAGS=" -O2 -fPIC -fdefault-real-8"
+export CFLAGS=" -O2 -fPIC -DUNDERSCORE"
 export AFLAGS=" "
 make -f make.libbufr
 err_make=$?
