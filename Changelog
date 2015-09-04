@@ -1,5 +1,6 @@
 version 0.9.1 (not yet released)
 ===============================
+* add test/prepbufr2nc.py
 * add __version__ and __bufrlib_version__ module variables.
 * add -fPIC to FFLAGS and CFLAGS in makebufrlib.sh.
 
