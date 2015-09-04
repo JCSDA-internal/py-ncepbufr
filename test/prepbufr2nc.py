@@ -29,32 +29,32 @@ while bufr.advance() == 0: # loop over messages.
     if not g.variables.has_key('obdata'):
         g.setncattr('desc',mnemonics_dict[bufr.msg_type].rstrip())
         nobs = g.createDimension('nobs',None)
-        hdrdata = g.createVariable('header',np.float32,('nobs','header'),zlib=True)
+        hdrdata =\
+        g.createVariable('header',np.float32,('nobs','header'),zlib=True,fill_value=bufr.missing_value)
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
         for key in hdstr.split()[1:]:
             hdrdata.setncattr(key,mnemonics_dict[key])
-        hdrdata.missing_value = 1.e11
         hdrdata.info = hdstr[4:]
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
-            obdata = g.createVariable('obdata',np.float32,('nobs','nlevs','obinfo'),zlib=True)
-            oedata = g.createVariable('oberr',np.float32,('nobs','nlevs','oeinfo'),zlib=True)
-            qcdata = g.createVariable('qcinfo',np.float32,('nobs','nlevs','qcinfo'),zlib=True)
+            obdata =\
+            g.createVariable('obdata',np.float32,('nobs','nlevs','obinfo'),zlib=True,fill_value=bufr.missing_value)
+            oedata =\
+            g.createVariable('oberr',np.float32,('nobs','nlevs','oeinfo'),zlib=True,fill_value=bufr.missing_value)
+            qcdata =\
+            g.createVariable('qcinfo',np.float32,('nobs','nlevs','qcinfo'),zlib=True,fill_value=bufr.missing_value)
         else:
             obdata = g.createVariable('obdata',np.float32,('nobs','obinfo'),zlib=True)
             oedata = g.createVariable('oberr',np.float32,('nobs','oeinfo'),zlib=True)
             qcdata = g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),zlib=True)
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
-        obdata.missing_value=1.e11
         obdata.info = obstr
         for key in oestr.split():
             oedata.setncattr(key,mnemonics_dict[key])
-        oedata.missing_value = 1.e11
         oedata.info = oestr
         for key in qcstr.split():
             qcdata.setncattr(key,mnemonics_dict[key])
-        qcdata.missing_value = 1.e11
         qcdata.info = qcstr
     while bufr.load_subset() == 0: # loop over subsets in message.
         hdr = bufr.read_subset(hdstr).squeeze()
