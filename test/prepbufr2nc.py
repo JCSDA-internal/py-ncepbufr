@@ -2,6 +2,12 @@ import ncepbufr
 import numpy as np
 from netCDF4 import Dataset
 from prepbufr_mnemonics import mnemonics_dict
+import sys
+
+prepbufr_filename = sys.argv[1]
+netcdf_filename = sys.argv[2]
+if prepbufr_filename == netcdf_filename:
+    raise IOError('cannot overwrite input prepbufr file')
 
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
@@ -10,14 +16,14 @@ oestr='POE QOE TOE NUL WOE NUL PWE'
 
 # read prepbufr file, write data to netcdf file.
 
-nc = Dataset('prepbufr.nc','w',format='NETCDF4')
+nc = Dataset(netcdf_filename,'w',format='NETCDF4')
 hd = nc.createDimension('header',len(hdstr.split())-1)
 ob = nc.createDimension('obinfo',len(obstr.split()))
 oe = nc.createDimension('oeinfo',len(oestr.split()))
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nlevs = nc.createDimension('nlevs',255)
 
-bufr = ncepbufr.open('prepbufr')
+bufr = ncepbufr.open(prepbufr_filename)
 while bufr.advance() == 0: # loop over messages.
     g = nc.createGroup(bufr.msg_type)
     if not g.variables.has_key('obdata'):
