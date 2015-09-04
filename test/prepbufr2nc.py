@@ -44,6 +44,27 @@ oestr_dict['TOE'] = 'temperature observation error'
 oestr_dict['WOE'] = 'wind observation error'
 oestr_dict['NUL'] = 'missing'
 oestr_dict['PWE'] = 'precipitable water observation error'
+grpdict = {}
+grpdict["ADPUPA"] = "UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS            "
+grpdict["AIRCAR"] = "MDCRS ACARS AIRCRAFT REPORTS                             "
+grpdict["AIRCFT"] = "AIREP, PIREP, AMDAR, TAMDAR AIRCRAFT REPORTS             "
+grpdict["SATWND"] = "SATELLITE-DERIVED WIND REPORTS                           "
+grpdict["PROFLR"] = "WIND PROFILER REPORTS                                    "
+grpdict["VADWND"] = "VAD (NEXRAD) WIND REPORTS                                "
+grpdict["SATEMP"] = "TOVS SATELLITE DATA (SOUNDINGS, RETRIEVALS, RADIANCES)   "
+grpdict["ADPSFC"] = "SURFACE LAND (SYNOPTIC, METAR) REPORTS                   "
+grpdict["SFCSHP"] = "SURFACE MARINE (SHIP, BUOY, C-MAN PLATFORM) REPORTS      "
+grpdict["SFCBOG"] = "MEAN SEA-LEVEL PRESSURE BOGUS REPORTS                    "
+grpdict["SPSSMI"] = "SSM/I RETRIEVAL PRODUCTS (REPROCESSED WIND SPEED, TPW)   "
+grpdict["SYNDAT"] = "SYNTHETIC TROPICAL CYCLONE BOGUS REPORTS                 "
+grpdict["ERS1DA"] = "ERS SCATTEROMETER DATA (REPROCESSED WIND SPEED)          "
+grpdict["GOESND"] = "GOES SATELLITE DATA (SOUNDINGS, RETRIEVALS, RADIANCES)   "
+grpdict["QKSWND"] = "QUIKSCAT SCATTEROMETER DATA (REPROCESSED)                "
+grpdict["MSONET"] = "MESONET SURFACE REPORTS (COOPERATIVE NETWORKS)           "
+grpdict["GPSIPW"] = "GLOBAL POSITIONING SATELLITE-INTEGRATED PRECIP. WATER    "
+grpdict["RASSDA"] = "RADIO ACOUSTIC SOUNDING SYSTEM (RASS) TEMP PROFILE RPTS  "
+grpdict["WDSATR"] = "WINDSAT SCATTEROMETER DATA (REPROCESSED)                 "
+grpdict["ASCATW"] = "ASCAT SCATTEROMETER DATA (REPROCESSED)                   "
 
 # read prepbufr file, write data to netcdf file.
 
@@ -58,6 +79,7 @@ bufr = ncepbufr.open('prepbufr')
 while bufr.advance() == 0: # loop over messages.
     g = nc.createGroup(bufr.msg_type)
     if not g.variables.has_key('obdata'):
+        g.setncattr('desc',grpdict[bufr.msg_type].rstrip())
         nobs = g.createDimension('nobs',None)
         hdrdata = g.createVariable('header',np.float32,('nobs','header'),zlib=True)
         stnid = g.createVariable('stationid',str,('nobs',))
