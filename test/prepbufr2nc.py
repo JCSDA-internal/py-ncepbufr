@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ncepbufr
 import numpy as np
 from netCDF4 import Dataset
@@ -9,6 +10,9 @@ prepbufr_filename = sys.argv[1]
 netcdf_filename = sys.argv[2]
 if prepbufr_filename == netcdf_filename:
     raise IOError('cannot overwrite input prepbufr file')
+
+# chunksize along leftmost dimension for netcdf
+nobschunk = 100
 
 # mnemonics to extract data from prepbufr file.
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
@@ -33,9 +37,6 @@ nqcd = len(qc)
 levs = nc.createDimension('nlevs',200)
 nlevs = len(levs)
 
-# chunksizes for netcdf
-nobschunk = 10; nobschunk1 = 100
-
 # open prepbufr file.
 bufr = ncepbufr.open(prepbufr_filename)
 
@@ -47,11 +48,11 @@ while bufr.advance() == 0: # loop over messages.
         typedict[bufr.msg_type] = 0
     while bufr.load_subset() == 0: # loop over subsets in message.
         typedict[bufr.msg_type] += 1
-nmsg = bufr.msg_counter
+nmessages = bufr.msg_counter
 bufr.rewind()
 
 # create some more variables in the netcdf file (that pertain to messages).
-nm = nc.createDimension('msg',nmsg)
+nm = nc.createDimension('msg',nmessages)
 msg_date =\
 nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
 msg_date.info = 'BUFR MESSAGE DATE'
@@ -83,10 +84,9 @@ while bufr.advance() == 0: # loop over messages.
         # number of obs is the unlimited dimension.
         nobsd = g.createDimension('nobs',typedict[bufr.msg_type])
         # chunksize should not be greater than the number of obs.
-        nobs_chunk1 = min(len(nobsd),nobschunk1)
         nobs_chunk = min(len(nobsd),nobschunk)
         hdrdata =\
-        g.createVariable('header',np.float32,('nobs','header'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk1,nhdd))
+        g.createVariable('header',np.float32,('nobs','header'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
         # retain association of ob data with bufr message number.
@@ -106,11 +106,11 @@ while bufr.advance() == 0: # loop over messages.
         else:
             # single level message types.
             obdata =\
-            g.createVariable('obdata',np.float32,('nobs','obinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk1,nobd))
+            g.createVariable('obdata',np.float32,('nobs','obinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
             oedata =\
-            g.createVariable('oberr',np.float32,('nobs','oeinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk1,noed))
+            g.createVariable('oberr',np.float32,('nobs','oeinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk1,nqcd))
+            g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
         # mnemonic descriptions as variable attributes.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
@@ -154,7 +154,8 @@ while bufr.advance() == 0: # loop over messages.
     stnidarr = np.array(stnidarr)
     nob = nobsdict[bufr.msg_type]
     nob1 = nob-bufr.subsets+1
-    #print bufr.msg_type,bufr.msg_counter,bufr.subsets,nob1,nob+1
+    print('writing message %s out of %s, type %s with %s obs' %\
+    (bufr.msg_counter,nmessages,bufr.msg_type,bufr.subsets))
     # write all the data from subset.
     g['header'][nob1:nob+1] = hdrarr
     g['obdata'][nob1:nob+1] = obsarr
