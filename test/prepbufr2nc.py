@@ -71,11 +71,11 @@ while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type not in nobsdict.keys():
         nobsdict[bufr.msg_type] = -1
     nmsg = bufr.msg_counter
-    msg_date[nmsg] = bufr.msg_date
+    msg_date[nmsg-1] = bufr.msg_date
     if bufr.receipt_time is not None:
-        tank_date[nmsg] = bufr.receipt_time
+        tank_date[nmsg-1] = bufr.receipt_time
     else:
-        tank_date[nmsg] = -1
+        tank_date[nmsg-1] = -1
     # each message type in a separate group.
     if bufr.msg_type not in nc.groups:
         g = nc.createGroup(bufr.msg_type)
