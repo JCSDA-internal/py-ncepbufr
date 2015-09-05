@@ -21,4 +21,5 @@ if __name__ == "__main__":
           url               = "http://github.com/jswhit/py-ncepbufr",
           ext_modules       = [ext],
           packages          = ['ncepbufr'],
+          scripts           = ['utils/prepbufr2nc'],
           )
