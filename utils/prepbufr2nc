@@ -6,6 +6,8 @@ from netCDF4 import Dataset
 from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
 import sys
 
+if len(sys.argv) < 3:
+    raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
 # input and output file names from command line args.
 prepbufr_filename = sys.argv[1]
 netcdf_filename = sys.argv[2]
