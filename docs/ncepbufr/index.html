@@ -858,6 +858,7 @@ table {
 .codehilite .err { border: 1px solid #FF0000 } /* Error */
 .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
 .codehilite .o { color: #666666 } /* Operator */
+.codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
 .codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
@@ -1034,6 +1035,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#ncepbufr.prepbufr_mnemonics_dict">prepbufr_mnemonics_dict</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1058,6 +1066,7 @@ table {
     <li class="mono"><a href="#ncepbufr.open.print_table">print_table</a></li>
     <li class="mono"><a href="#ncepbufr.open.read_subset">read_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.restore">restore</a></li>
+    <li class="mono"><a href="#ncepbufr.open.rewind">rewind</a></li>
     <li class="mono"><a href="#ncepbufr.open.set_datelength">set_datelength</a></li>
     <li class="mono"><a href="#ncepbufr.open.write_subset">write_subset</a></li>
   </ul>
@@ -1066,6 +1075,11 @@ table {
       </ul>
     </li>
 
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="bufr_mnemonics.m.html">ncepbufr.bufr_mnemonics</a></li>
+      </ul>
+    </li>
     </ul>
   </div>
 
@@ -1084,6 +1098,15 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="ncepbufr.prepbufr_mnemonics_dict" class="name">var <span class="ident">prepbufr_mnemonics_dict</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1228,7 +1251,7 @@ loaded with <a href="#ncepbufr.open.load_subset"><code>load_subset</code></a>.  
 <p>To loop through all the bufr messages in a file:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">advance</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>     <span class="c"># processing code for each message here</span>
+<span class="o">&gt;&gt;&gt;</span>     <span class="c1"># processing code for each message here</span>
 </pre></div></div>
   <div class="source_cont">
 </div>
@@ -1369,7 +1392,7 @@ all subsets in each message:</p>
 <div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">bufr</span> <span class="o">=</span> <span class="n">ncepbufr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">advance</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 <span class="o">&gt;&gt;&gt;</span>     <span class="k">while</span> <span class="n">bufr</span><span class="o">.</span><span class="n">load_subset</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<span class="o">&gt;&gt;&gt;</span>         <span class="c"># processing code for each subset here</span>
+<span class="o">&gt;&gt;&gt;</span>         <span class="c1"># processing code for each subset here</span>
 </pre></div></div>
   <div class="source_cont">
 </div>
@@ -1489,6 +1512,21 @@ to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
   
             
   <div class="item">
+    <div class="name def" id="ncepbufr.open.rewind">
+    <p>def <span class="ident">rewind</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>rewind the bufr file (same as <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>).</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="ncepbufr.open.set_datelength">
     <p>def <span class="ident">set_datelength</span>(</p><p>self, charlen=10)</p>
     </div>
@@ -1537,6 +1575,13 @@ to the bufr file (default <code>False</code>).</p></div>
       </div>
       </div>
 
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="bufr_mnemonics.m.html">ncepbufr.bufr_mnemonics</a></p>
+      
+  
+
+      </div>
   </section>
 
     </article>
