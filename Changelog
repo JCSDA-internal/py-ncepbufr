@@ -1,5 +1,6 @@
 version 0.9.1 (not yet released)
 ===============================
+* add 'set_missing_value' method.
 * rewind method added, aliased to checkpoint.
 * reinitialize msg_counter when checkpoint called.
 * added utility for converting prepbufr to netcdf (utils/prepbufr2nc).

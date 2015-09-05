@@ -89,6 +89,12 @@ class open:
         # (if equal to self.missing_value, data is masked)
         self.missing_value = _bufrlib.getbmiss()
         '''bufr missing value'''
+    def set_missing_value(self,missing_value):
+        """
+        reset bufr missing value.
+        """
+        _bufrlib.setbmiss(missing_value)
+        self.missing_value = missing_value
     def set_datelength(self,charlen=10):
         """
         reset number of digits for date specification (10 gives `YYYYMMDDHH`)
