@@ -254,6 +254,16 @@ class open:
         used to go back to this state.
         """
         _bufrlib.rewnbf(self.lunit,0)
+        self.msg_counter = 0
+        self.msg_type = None
+        self.msg_date = None
+        self.receipt_time = None
+        self.subsets = None
+    def rewind(self):
+        """
+        rewind the bufr file (same as `ncepbufr.open.checkpoint`).
+        """
+        self.checkpoint()
     def restore(self):
         """
         restore the state of the bufr
