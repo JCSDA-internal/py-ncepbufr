@@ -4,7 +4,7 @@ version 0.9.1 (not yet released)
 * reinitialize msg_counter when checkpoint called.
 * added utility for converting prepbufr to netcdf (utils/prepbufr2nc.py).
 * add __version__ and __bufrlib_version__ module variables.
-* add -fPIC to FFLAGS and CFLAGS in makebufrlib.sh.
+* add -fPIC to FFLAGS and CFLAGS in makebufrlib.sh, removed -fdefault-real-8.
 
 9/1/2015:  version 0.9 (tag v0.9rel)
 ====================================
