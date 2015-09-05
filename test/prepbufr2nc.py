@@ -11,8 +11,8 @@ if prepbufr_filename == netcdf_filename:
 
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
-qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
-oestr='POE QOE TOE NUL WOE NUL PWE'
+qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
+oestr='POE QOE TOE NUL WOE PWE'
 
 # read prepbufr file, write data to netcdf file.
 
@@ -21,11 +21,24 @@ hd = nc.createDimension('header',len(hdstr.split())-1)
 ob = nc.createDimension('obinfo',len(obstr.split()))
 oe = nc.createDimension('oeinfo',len(oestr.split()))
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
-nlevs = nc.createDimension('nlevs',255)
+nm = nc.createDimension('msg',None)
+msg_date =\
+nc.createVariable('msg_date',np.int32,('msg',),zlib=True,fill_value=-1)
+msg_date.info = 'BUFR MESSAGE DATE'
+tank_date =\
+nc.createVariable('tank_date',np.int32,('msg',),zlib=True,fill_value=-1)
+tank_date.info = 'BUFR TANK RECEIPT DATE'
+nlevs = nc.createDimension('nlevs',200)
 
 bufr = ncepbufr.open(prepbufr_filename)
 while bufr.advance() == 0: # loop over messages.
     g = nc.createGroup(bufr.msg_type)
+    nmsg = bufr.msg_counter
+    msg_date[nmsg] = bufr.msg_date
+    if bufr.receipt_time is not None:
+        tank_date[nmsg] = bufr.receipt_time
+    else:
+        tank_date[nmsg] = -1
     if not g.variables.has_key('obdata'):
         g.setncattr('desc',mnemonics_dict[bufr.msg_type].rstrip())
         nobs = g.createDimension('nobs',None)
@@ -33,6 +46,8 @@ while bufr.advance() == 0: # loop over messages.
         g.createVariable('header',np.float32,('nobs','header'),zlib=True,fill_value=bufr.missing_value)
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
+        msgnum = g.createVariable('msgnum',np.int32,('nobs',))
+        msgnum.info = 'BUFR MESSAGE NUMBER'
         for key in hdstr.split()[1:]:
             hdrdata.setncattr(key,mnemonics_dict[key])
         hdrdata.info = hdstr[4:]
@@ -66,6 +81,7 @@ while bufr.advance() == 0: # loop over messages.
         g['header'][nob] = hdr.squeeze()[1:]
         id = hdr[0].tostring()
         g['stationid'][nob] = id
+        g['msgnum'][nob] = bufr.msg_counter
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
             g['obdata'][nob,:n] = obs.T
             g['oberr'][nob,:n]  = err.T
