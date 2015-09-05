@@ -121,7 +121,6 @@ while bufr.advance() == 0: # loop over messages.
         for key in qcstr.split():
             qcdata.setncattr(key,mnemonics_dict[key])
         qcdata.info = qcstr
-        nc.sync() # dump data to disk.
     # lists to hold data from each subset
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; stnidarr = []
     while bufr.load_subset() == 0: # loop over subsets in message.
