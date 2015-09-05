@@ -2,7 +2,7 @@ import _bufrlib
 import random
 import bisect
 import numpy as np
-from bufr_mnemonics import *
+from .bufr_mnemonics import *
 
 __version__ = "0.9.1"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
