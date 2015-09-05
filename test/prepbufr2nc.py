@@ -4,18 +4,23 @@ from netCDF4 import Dataset
 from prepbufr_mnemonics import mnemonics_dict
 import sys
 
+# input and output file names from command line args.
 prepbufr_filename = sys.argv[1]
 netcdf_filename = sys.argv[2]
 if prepbufr_filename == netcdf_filename:
     raise IOError('cannot overwrite input prepbufr file')
 
+# mnemonics to extract data from prepbufr file.
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
 oestr='POE QOE TOE NUL WOE PWE'
 
-# read prepbufr file, write data to netcdf file.
+# skip these report types
+skiptypes = []
+#skiptypes = ['SATWND']
 
+# open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
 hd = nc.createDimension('header',len(hdstr.split())-1)
 ob = nc.createDimension('obinfo',len(obstr.split()))
@@ -23,15 +28,20 @@ oe = nc.createDimension('oeinfo',len(oestr.split()))
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nm = nc.createDimension('msg',None)
 msg_date =\
-nc.createVariable('msg_date',np.int32,('msg',),zlib=True,fill_value=-1)
+nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1)
 msg_date.info = 'BUFR MESSAGE DATE'
 tank_date =\
-nc.createVariable('tank_date',np.int32,('msg',),zlib=True,fill_value=-1)
+nc.createVariable('tank_date',np.int32,('msg',),fill_value=-1)
 tank_date.info = 'BUFR TANK RECEIPT DATE'
 nlevs = nc.createDimension('nlevs',200)
 
+# open prepbufr file.
 bufr = ncepbufr.open(prepbufr_filename)
+
+# read prepbufr data, write to netcdf.
 while bufr.advance() == 0: # loop over messages.
+    if bufr.msg_type in skiptypes: continue
+    # each message type in a separate group.
     g = nc.createGroup(bufr.msg_type)
     nmsg = bufr.msg_counter
     msg_date[nmsg] = bufr.msg_date
@@ -41,27 +51,32 @@ while bufr.advance() == 0: # loop over messages.
         tank_date[nmsg] = -1
     if not g.variables.has_key('obdata'):
         g.setncattr('desc',mnemonics_dict[bufr.msg_type].rstrip())
+        # number of obs is the unlimited dimension.
         nobs = g.createDimension('nobs',None)
         hdrdata =\
-        g.createVariable('header',np.float32,('nobs','header'),zlib=True,fill_value=bufr.missing_value)
+        g.createVariable('header',np.float32,('nobs','header'),fill_value=bufr.missing_value)
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
+        # retain association of ob data with bufr message number.
         msgnum = g.createVariable('msgnum',np.int32,('nobs',))
         msgnum.info = 'BUFR MESSAGE NUMBER'
         for key in hdstr.split()[1:]:
             hdrdata.setncattr(key,mnemonics_dict[key])
         hdrdata.info = hdstr[4:]
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
+            # these message types are multi-level
             obdata =\
-            g.createVariable('obdata',np.float32,('nobs','nlevs','obinfo'),zlib=True,fill_value=bufr.missing_value)
+            g.createVariable('obdata',np.float32,('nobs','obinfo','nlevs'),fill_value=bufr.missing_value)
             oedata =\
-            g.createVariable('oberr',np.float32,('nobs','nlevs','oeinfo'),zlib=True,fill_value=bufr.missing_value)
+            g.createVariable('oberr',np.float32,('nobs','oeinfo','nlevs'),fill_value=bufr.missing_value)
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','nlevs','qcinfo'),zlib=True,fill_value=bufr.missing_value)
+            g.createVariable('qcinfo',np.float32,('nobs','qcinfo','nlevs'),fill_value=bufr.missing_value)
         else:
-            obdata = g.createVariable('obdata',np.float32,('nobs','obinfo'),zlib=True)
-            oedata = g.createVariable('oberr',np.float32,('nobs','oeinfo'),zlib=True)
-            qcdata = g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),zlib=True)
+            # single level message types.
+            obdata = g.createVariable('obdata',np.float32,('nobs','obinfo'))
+            oedata = g.createVariable('oberr',np.float32,('nobs','oeinfo'))
+            qcdata = g.createVariable('qcinfo',np.float32,('nobs','qcinfo'))
+        # mnemonic descriptions as variable attributes.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
         obdata.info = obstr
@@ -78,19 +93,23 @@ while bufr.advance() == 0: # loop over messages.
         err = bufr.read_subset(oestr)
         n = obs.shape[-1]
         nob = g['header'].shape[0]
+        # station id in a separate variables.
         g['header'][nob] = hdr.squeeze()[1:]
-        id = hdr[0].tostring()
-        g['stationid'][nob] = id
+        g['stationid'][nob] = hdr[0].tostring()
+        # keep track of message number
         g['msgnum'][nob] = bufr.msg_counter
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
-            g['obdata'][nob,:n] = obs.T
-            g['oberr'][nob,:n]  = err.T
-            g['qcinfo'][nob,:n] = qc.T
+            # multi-level data
+            g['obdata'][nob,:,:n] = obs
+            g['oberr'][nob,:,:n]  = err
+            g['qcinfo'][nob,:,:n] = qc
         else:
-            g['obdata'][nob] = obs.squeeze()
-            g['oberr'][nob]  = err.squeeze()
-            g['qcinfo'][nob] = qc.squeeze()
-    nc.sync()
+            # single level data
+            g['obdata'][nob,:] = obs.squeeze()
+            g['oberr'][nob,:]  = err.squeeze()
+            g['qcinfo'][nob,:] = qc.squeeze()
+    nc.sync() # write data to file.
 
+# close files.
 bufr.close()
 nc.close()
