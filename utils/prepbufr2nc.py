@@ -2,7 +2,7 @@ from __future__ import print_function
 import ncepbufr
 import numpy as np
 from netCDF4 import Dataset
-from prepbufr_mnemonics import mnemonics_dict
+from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
 import sys
 
 # input and output file names from command line args.
