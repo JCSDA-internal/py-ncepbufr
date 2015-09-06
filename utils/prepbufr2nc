@@ -29,7 +29,7 @@ skiptypes = []
 
 # open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
-hd = nc.createDimension('header',len(hdstr.split())-1)
+hd = nc.createDimension('hdinfo',len(hdstr.split())-1)
 nhdd = len(hd)
 ob = nc.createDimension('obinfo',len(obstr.split()))
 nobd = len(ob)
@@ -37,7 +37,7 @@ oe = nc.createDimension('oeinfo',len(oestr.split()))
 noed = len(oe)
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nqcd = len(qc)
-levs = nc.createDimension('nlevs',200)
+levs = nc.createDimension('datalevs',200)
 nlevs = len(levs)
 
 # open prepbufr file.
@@ -59,9 +59,6 @@ nm = nc.createDimension('msg',nmessages)
 msg_date =\
 nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
 msg_date.info = 'BUFR MESSAGE DATE'
-tank_date =\
-nc.createVariable('tank_date',np.int32,('msg',),fill_value=-1,zlib=True)
-tank_date.info = 'BUFR TANK RECEIPT DATE'
 
 # read prepbufr data, write to netcdf.
 nobsdict = {}
@@ -76,10 +73,6 @@ while bufr.advance() == 0: # loop over messages.
         nobsdict[bufr.msg_type] = -1
     nmsg = bufr.msg_counter
     msg_date[nmsg-1] = bufr.msg_date
-    if bufr.receipt_time is not None:
-        tank_date[nmsg-1] = bufr.receipt_time
-    else:
-        tank_date[nmsg-1] = -1
     # each message type in a separate group.
     if bufr.msg_type not in nc.groups:
         g = nc.createGroup(bufr.msg_type)
@@ -89,7 +82,7 @@ while bufr.advance() == 0: # loop over messages.
         # chunksize should not be greater than the number of obs.
         nobs_chunk = min(len(nobsd),nobschunk)
         hdrdata =\
-        g.createVariable('header',np.float32,('nobs','header'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+        g.createVariable('header',np.float32,('nobs','hdinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
         # retain association of ob data with bufr message number.
@@ -101,19 +94,25 @@ while bufr.advance() == 0: # loop over messages.
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
             # these message types are multi-level
             obdata =\
-            g.createVariable('obdata',np.float32,('nobs','obinfo','nlevs'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd,nlevs))
+            g.createVariable('obdata',np.float32,('nobs','obinfo','datalevs'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd,nlevs))
             oedata =\
-            g.createVariable('oberr',np.float32,('nobs','oeinfo','nlevs'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed,nlevs))
+            g.createVariable('oberr',np.float32,('nobs','oeinfo','datalevs'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed,nlevs))
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','qcinfo','nlevs'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd,nlevs))
+            g.createVariable('qcinfo',np.float32,('nobs','qcinfo','datalevs'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd,nlevs))
         else:
             # single level message types.
             obdata =\
-            g.createVariable('obdata',np.float32,('nobs','obinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
+            g.createVariable('obdata',np.float32,('nobs','obinfo'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
             oedata =\
-            g.createVariable('oberr',np.float32,('nobs','oeinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
+            g.createVariable('oberr',np.float32,('nobs','oeinfo'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
+            g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),\
+	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
         # mnemonic descriptions as variable attributes.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
