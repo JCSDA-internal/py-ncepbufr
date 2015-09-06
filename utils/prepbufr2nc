@@ -150,21 +150,16 @@ while bufr.advance() == 0: # loop over messages.
             errarr.append(err.squeeze())
             qcarr.append(qc.squeeze())
     # make lists into arrays.
-    obsarr = np.array(obsarr)
-    errarr = np.array(errarr)
-    qcarr = np.array(qcarr)
-    hdrarr = np.array(hdrarr)
-    stnidarr = np.array(stnidarr)
     nob = nobsdict[bufr.msg_type]
     nob1 = nob-bufr.subsets+1
     print('writing message %s out of %s, type %s with %s obs' %\
     (bufr.msg_counter,nmessages,bufr.msg_type,bufr.subsets))
     # write all the data from subset.
-    g['header'][nob1:nob+1] = hdrarr
-    g['obdata'][nob1:nob+1] = obsarr
-    g['oberr'][nob1:nob+1]  = errarr
-    g['qcinfo'][nob1:nob+1] = qcarr
-    g['stationid'][nob1:nob+1] = stnidarr
+    g['header'][nob1:nob+1] = np.array(hdrarr)
+    g['obdata'][nob1:nob+1] = np.array(obsarr)
+    g['oberr'][nob1:nob+1]  = np.array(errarr)
+    g['qcinfo'][nob1:nob+1] = np.array(qcarr)
+    g['stationid'][nob1:nob+1] = np.array(stnidarr)
     # keep track of message number
     g['msgnum'][nob1:nob+1] = bufr.msg_counter
     nc.sync() # dump data to disk.
