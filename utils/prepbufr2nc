@@ -21,7 +21,7 @@ nobschunk = 100
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
-oestr='POE QOE TOE NUL WOE PWE'
+oestr='POE QOE TOE ZOE WOE PWE'
 
 # skip these report types
 skiptypes = []
