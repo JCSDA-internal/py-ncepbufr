@@ -82,7 +82,8 @@ while bufr.advance() == 0: # loop over messages.
         # chunksize should not be greater than the number of obs.
         nobs_chunk = min(len(nobsd),nobschunk)
         hdrdata =\
-        g.createVariable('header',np.float32,('nobs','hdrinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+        g.createVariable('header',np.float32,('nobs','hdrinfo'),\
+	fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
         # retain association of ob data with bufr message number.
@@ -95,24 +96,24 @@ while bufr.advance() == 0: # loop over messages.
             # these message types are multi-level
             obdata =\
             g.createVariable('obdata',np.float32,('nobs','obinfo','datalevs'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd,nlevs))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd,nlevs))
             oedata =\
             g.createVariable('oberr',np.float32,('nobs','oeinfo','datalevs'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed,nlevs))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed,nlevs))
             qcdata =\
             g.createVariable('qcdata',np.float32,('nobs','qcinfo','datalevs'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd,nlevs))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd,nlevs))
         else:
             # single level message types.
             obdata =\
             g.createVariable('obdata',np.float32,('nobs','obinfo'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
             oedata =\
             g.createVariable('oberr',np.float32,('nobs','oeinfo'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
             qcdata =\
             g.createVariable('qcdata',np.float32,('nobs','qcinfo'),\
-	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
+            fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
         # mnemonic descriptions as variable attributes.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
