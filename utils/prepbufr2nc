@@ -29,7 +29,7 @@ skiptypes = []
 
 # open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
-hd = nc.createDimension('hdinfo',len(hdstr.split())-1)
+hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
 nhdd = len(hd)
 ob = nc.createDimension('obinfo',len(obstr.split()))
 nobd = len(ob)
@@ -82,7 +82,7 @@ while bufr.advance() == 0: # loop over messages.
         # chunksize should not be greater than the number of obs.
         nobs_chunk = min(len(nobsd),nobschunk)
         hdrdata =\
-        g.createVariable('header',np.float32,('nobs','hdinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+        g.createVariable('header',np.float32,('nobs','hdrinfo'),fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
         stnid = g.createVariable('stationid',str,('nobs',))
         stnid.info = 'STATION IDENTIFICATION'
         # retain association of ob data with bufr message number.
@@ -100,7 +100,7 @@ while bufr.advance() == 0: # loop over messages.
             g.createVariable('oberr',np.float32,('nobs','oeinfo','datalevs'),\
 	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed,nlevs))
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','qcinfo','datalevs'),\
+            g.createVariable('qcdata',np.float32,('nobs','qcinfo','datalevs'),\
 	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd,nlevs))
         else:
             # single level message types.
@@ -111,7 +111,7 @@ while bufr.advance() == 0: # loop over messages.
             g.createVariable('oberr',np.float32,('nobs','oeinfo'),\
 	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
             qcdata =\
-            g.createVariable('qcinfo',np.float32,('nobs','qcinfo'),\
+            g.createVariable('qcdata',np.float32,('nobs','qcinfo'),\
 	    fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
         # mnemonic descriptions as variable attributes.
         for key in obstr.split():
@@ -157,7 +157,7 @@ while bufr.advance() == 0: # loop over messages.
     g['header'][nob1:nob+1] = np.array(hdrarr)
     g['obdata'][nob1:nob+1] = np.array(obsarr)
     g['oberr'][nob1:nob+1]  = np.array(errarr)
-    g['qcinfo'][nob1:nob+1] = np.array(qcarr)
+    g['qcdata'][nob1:nob+1] = np.array(qcarr)
     g['stationid'][nob1:nob+1] = np.array(stnidarr)
     # keep track of message number
     g['msgnum'][nob1:nob+1] = bufr.msg_counter
