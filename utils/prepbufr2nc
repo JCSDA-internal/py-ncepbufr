@@ -37,7 +37,7 @@ oe = nc.createDimension('oeinfo',len(oestr.split()))
 noed = len(oe)
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nqcd = len(qc)
-levs = nc.createDimension('datalevs',200)
+levs = nc.createDimension('datalevs',255)
 nlevs = len(levs)
 
 # open prepbufr file.
