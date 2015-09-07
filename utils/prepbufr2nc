@@ -58,7 +58,7 @@ bufr.rewind()
 nm = nc.createDimension('msg',nmessages)
 msg_date =\
 nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
-msg_date.info = 'BUFR MESSAGE DATE'
+msg_date.desc = 'BUFR MESSAGE DATE'
 
 # read prepbufr data, write to netcdf.
 nobsdict = {}
@@ -85,13 +85,13 @@ while bufr.advance() == 0: # loop over messages.
         g.createVariable('header',np.float32,('nobs','hdrinfo'),\
 	fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
         stnid = g.createVariable('stationid',str,('nobs',))
-        stnid.info = 'STATION IDENTIFICATION'
+        stnid.desc = 'STATION IDENTIFICATION'
         # retain association of ob data with bufr message number.
         msgnum = g.createVariable('msgnum',np.int32,('nobs',))
-        msgnum.info = 'BUFR MESSAGE NUMBER'
+        msgnum.desc = 'BUFR MESSAGE NUMBER'
         for key in hdstr.split()[1:]:
             hdrdata.setncattr(key,mnemonics_dict[key])
-        hdrdata.info = hdstr[4:]
+        hdrdata.hdrinfo = hdstr[4:]
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
             # these message types are multi-level
             obdata =\
@@ -117,13 +117,13 @@ while bufr.advance() == 0: # loop over messages.
         # mnemonic descriptions as variable attributes.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
-        obdata.info = obstr
+        obdata.obinfo = obstr
         for key in oestr.split():
             oedata.setncattr(key,mnemonics_dict[key])
-        oedata.info = oestr
+        oedata.oeinfo = oestr
         for key in qcstr.split():
             qcdata.setncattr(key,mnemonics_dict[key])
-        qcdata.info = qcstr
+        qcdata.qcinfo = qcstr
     # lists to hold data from each subset
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; stnidarr = []
     while bufr.load_subset() == 0: # loop over subsets in message.
