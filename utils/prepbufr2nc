@@ -19,7 +19,7 @@ nobschunk = 100
 
 # mnemonics to extract data from prepbufr file.
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
-obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO XDR YDR HRDR'
+obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS TDO PMO XDR YDR HRDR'
 qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
 oestr='POE QOE TOE ZOE WOE PWE'
 
