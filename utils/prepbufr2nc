@@ -58,7 +58,7 @@ bufr.rewind()
 nm = nc.createDimension('msg',nmessages)
 msg_date =\
 nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
-msg_date.desc = 'BUFR MESSAGE DATE'
+msg_date.desc = 'bufr message date'
 
 # read prepbufr data, write to netcdf.
 nobsdict = {}
@@ -84,11 +84,12 @@ while bufr.advance() == 0: # loop over messages.
         hdrdata =\
         g.createVariable('header',np.float32,('nobs','hdrinfo'),\
 	fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+	hdrdata.desc = 'observation header data'
         stnid = g.createVariable('stationid',str,('nobs',))
-        stnid.desc = 'STATION IDENTIFICATION'
+        stnid.desc = 'station id'
         # retain association of ob data with bufr message number.
         msgnum = g.createVariable('msgnum',np.int32,('nobs',))
-        msgnum.desc = 'BUFR MESSAGE NUMBER'
+        msgnum.desc = 'bufr message number'
         for key in hdstr.split()[1:]:
             hdrdata.setncattr(key,mnemonics_dict[key])
         hdrdata.hdrinfo = hdstr[4:]
@@ -118,12 +119,15 @@ while bufr.advance() == 0: # loop over messages.
         for key in obstr.split():
             obdata.setncattr(key,mnemonics_dict[key])
         obdata.obinfo = obstr
+	obdata.desc = 'observation data'
         for key in oestr.split():
             oedata.setncattr(key,mnemonics_dict[key])
         oedata.oeinfo = oestr
+	oedata.desc = 'observation error data'
         for key in qcstr.split():
             qcdata.setncattr(key,mnemonics_dict[key])
         qcdata.qcinfo = qcstr
+	qcdata.desc = 'observation QC data'
     # lists to hold data from each subset
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; stnidarr = []
     while bufr.load_subset() == 0: # loop over subsets in message.
