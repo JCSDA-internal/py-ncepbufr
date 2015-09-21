@@ -1471,7 +1471,9 @@ descriptive, alphanumeric name for a data value, like
 a key in a python dictionary). The mnemonics string
 may contain multiple space delimited mnemonics
 (e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
-<p>By default, the bufrlib routine <code>ufbint</code> is used.</p>
+<p>By default, the mnemonics are assumed to be part of a delayed
+replication sequence, or have no replication at all, and <code>ufbint</code>
+is used to read the data.</p>
 <p><a href="#ncepbufr.open.load_subset"><code>load_subset</code></a> must be called before
 trying to decode a subset using <a href="#ncepbufr.open.read_subset"><code>read_subset</code></a>.</p>
 <p>if <code>rep = True</code>, <code>ufbrep</code> is used to read data represented
@@ -1570,7 +1572,9 @@ to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
 data value, like a key in a python dictionary). The mnemonics string
 may contain multiple space delimited mnemonics
 (e.g. <code>mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'</code>).</p>
-<p>By default, the bufrlib routine <code>ufbint</code> is used.</p>
+<p>By default, the mnemonics are assumed to be part of a delayed
+replication sequence, or have no replication at all, and <code>ufbint</code>
+is used to write the data.</p>
 <p>if <code>rep = True</code>, <code>ufbrep</code> is used to write data represented
 a regular replication sequence.  See the comments in <code>src/ufbrep.f</code> for
 more details. Used for radiance data.</p>
