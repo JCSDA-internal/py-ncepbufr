@@ -7,5 +7,5 @@ import sys
 bufr = ncepbufr.open(sys.argv[1])
 for n,msg in enumerate(bufr.inventory()):
     out = (n+1,)+msg
-    print('message %s: %s %s %s subsets' % out)
+    print('message %s: %s %s %s %s subsets' % out)
 bufr.close()

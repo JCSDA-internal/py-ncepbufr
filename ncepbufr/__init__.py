@@ -187,7 +187,7 @@ class open:
             self.msg_date = idate
             self.msg_counter += 1
             self.subset_loaded = False
-            self.recipt_time = self._receipt_time()
+            self.receipt_time = self._receipt_time()
             self.subsets = self._subsets()
             return 0
     def inventory(self):
@@ -199,7 +199,7 @@ class open:
         self.checkpoint()
         inv = []
         while self.advance() == 0:
-            inv.append((self.msg_type,self.msg_date,self.subsets))
+            inv.append((self.msg_type,self.msg_date,self.receipt_time,self.subsets))
         self.restore()
         return inv
 
