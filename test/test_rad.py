@@ -20,7 +20,7 @@ while bufr.advance() == 0:
         # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
         print('sat id,sensor id lat, lon, yyyymmddhhmmss =',int(hdr1[0]),\
         int(hdr1[1]),hdr1[9],hdr1[10],yyyymmddhhss)
-        obs = bufr.read_subset('TMBR',pivot=True).squeeze()
+        obs = bufr.read_subset('TMBR',rep=True).squeeze()
         nchanl = len(obs)
         for k in range(nchanl):
             print('channel, tb =',k+1,obs[k])

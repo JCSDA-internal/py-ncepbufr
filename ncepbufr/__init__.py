@@ -314,7 +314,7 @@ class open:
         if iret == 0: 
             self.subset_loaded = True
         return iret
-    def read_subset(self,mnemonics,pivot=False,seq=False,events=False):
+    def read_subset(self,mnemonics,rep=False,seq=False,events=False):
         """
         decode the data from the currently loaded message subset
         using the specified mnemonics (a 'mnemonic' is simply a
@@ -328,19 +328,17 @@ class open:
         `ncepbufr.open.load_subset` must be called before
         trying to decode a subset using `ncepbufr.open.read_subset`.
 
-        if `pivot = True`, the first mnemonic in the mnemonics string
-        is intrepreted as a "pivot".  Effectively, this
-        means `ufbrep` instead of `ufbint` is used to decode
-        the message subset.  See the comments in `src/ufbrep.f` for
+        if `rep = True`, `ufbrep` is used to read data represented
+        a regular replication sequence.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if `seq=True`, `ufbseq` is used to read data represened by
+        if `seq=True`, `ufbseq` is used to read data represented by
         a sequence mnemonic. Used for gps data.
 
         if `events=True`, `ufbevn` is used to read prepbufr
         "events", and a 3-d array is returned.
 
-        Only one of seq, pivot and events can be True.
+        Only one of seq, rep and events can be True.
 
         returns a numpy masked array with decoded values
         (missing values are masked).
@@ -353,12 +351,12 @@ class open:
         if not self.subset_loaded:
             raise IOError('subset not loaded, call load_subset first')
         ndim = len(mnemonics.split())
-        if np.array([pivot,seq,events]).sum() > 1:
-            raise ValueError('only one of pivot, seq and events cannot be True')
+        if np.array([rep,seq,events]).sum() > 1:
+            raise ValueError('only one of rep, seq and events cannot be True')
         if seq:
             data = np.empty((_nmaxseq,_maxdim),np.float,order='F')
             levs = _bufrlib.ufbseq(self.lunit,data,mnemonics,_nmaxseq,_maxdim)
-        elif pivot:
+        elif rep:
             data = np.empty((ndim,_maxdim),np.float,order='F')
             levs = _bufrlib.ufbrep(self.lunit,data,mnemonics,ndim,_maxdim)
         elif events:
@@ -371,7 +369,7 @@ class open:
             return np.ma.masked_values(data[:,:levs,:],self.missing_value)
         else:
             return np.ma.masked_values(data[:,:levs],self.missing_value)
-    def write_subset(self,data,mnemonics,pivot=False,seq=False,events=False,end=False):
+    def write_subset(self,data,mnemonics,rep=False,seq=False,events=False,end=False):
         """
         write data to message subset using the specified mnemonics
         (a 'mnemonic' is simply a descriptive, alphanumeric name for a
@@ -381,19 +379,17 @@ class open:
 
         By default, the bufrlib routine `ufbint` is used.
 
-        if `pivot = True`, the first mnemonic in the mnemonics string
-        is intrepreted as a "pivot".  Effectively, this
-        means `ufbrep` instead of `ufbint` is used to write
-        the subset.  See the comments in `src/ufbrep.f` for
+        if `rep = True`, `ufbrep` is used to write data represented
+        a regular replication sequence.  See the comments in `src/ufbrep.f` for
         more details. Used for radiance data.
 
-        if `seq=True`, `ufbseq` is used to read data represened by
+        if `seq=True`, `ufbseq` is used to write data represented by
         a sequence mnemonic. Used for gps data.
 
         if `events=True`, `ufbevn` is used to write prepbufr
         "events" (a 3-d data array is required)
 
-        Only one of seq, pivot and events can be True.
+        Only one of seq, rep and events can be True.
 
         If `end=True`, the message subset is closed and written
         to the bufr file (default `False`).
@@ -409,12 +405,12 @@ class open:
         else:
             msg = 'data in write_subset must be 1,2 or 3d'
             raise ValueError(msg)
-        if np.array([pivot,seq,events]).sum() > 1:
-            raise ValueError('only one of pivot, seq and events cannot be True')
+        if np.array([rep,seq,events]).sum() > 1:
+            raise ValueError('only one of rep, seq and events cannot be True')
         if seq:
             levs = _bufrlib.ufbseq(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1])
-        elif pivot:
+        elif rep:
             levs = _bufrlib.ufbrep(self.lunit,dataf,mnemonics,dataf.shape[0],\
                     dataf.shape[1])
         elif events:
