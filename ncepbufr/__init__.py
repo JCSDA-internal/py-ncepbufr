@@ -194,7 +194,7 @@ class open:
         """
         return a list containing an inventory of the bufr file.
         The list contains a tuple for each message.
-        containing (msg_type,msg_date,subsets).
+        containing (msg_type,msg_date,receipt_time,subsets).
         """
         self.checkpoint()
         inv = []
