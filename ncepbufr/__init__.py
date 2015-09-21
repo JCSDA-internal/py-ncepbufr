@@ -323,7 +323,9 @@ class open:
         may contain multiple space delimited mnemonics
         (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
-        By default, the bufrlib routine `ufbint` is used.
+        By default, the mnemonics are assumed to be part of a delayed
+        replication sequence, or have no replication at all, and `ufbint`
+        is used to read the data.
 
         `ncepbufr.open.load_subset` must be called before
         trying to decode a subset using `ncepbufr.open.read_subset`.
@@ -377,7 +379,9 @@ class open:
         may contain multiple space delimited mnemonics
         (e.g. `mnemonics='MNEMONIC1 MNEMONIC2 MNEMONIC3'`).
 
-        By default, the bufrlib routine `ufbint` is used.
+        By default, the mnemonics are assumed to be part of a delayed
+        replication sequence, or have no replication at all, and `ufbint`
+        is used to write the data.
 
         if `rep = True`, `ufbrep` is used to write data represented
         a regular replication sequence.  See the comments in `src/ufbrep.f` for
