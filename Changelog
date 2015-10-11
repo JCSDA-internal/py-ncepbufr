@@ -1,5 +1,7 @@
 version 0.9.1 (not yet released)
 ===============================
+* remove -C from CPPFLAGS in src/makebufrlib.sh (pull request #1), 
+  otherwise compile failed with cpp version 4.8.
 * add 'set_missing_value' method.
 * rewind method added, aliased to checkpoint.
 * reinitialize msg_counter when checkpoint called.
