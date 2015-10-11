@@ -434,3 +434,4 @@ prepbufr_mnemonics_dict = {
 'ZCS': 'STANDARD DEVIATION OF CLIMATOLOGICAL HEIGHT VALUE',\
 'DBSS': 'DEPTH BELOW SEA SURFACE'
 }
+'''dictionary mapping prepbufr mnemonics to human readable descriptions'''
