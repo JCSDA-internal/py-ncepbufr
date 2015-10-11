@@ -22,7 +22,8 @@
 
 export FC=gfortran
 export CC=gcc
-CPPFLAGS=" -P -traditional-cpp -C"
+#CPPFLAGS=" -P -traditional-cpp -C"
+CPPFLAGS=" -P -traditional-cpp"
 
 #-------------------------------------------------------------------------------
 #     Determine the byte-ordering scheme used by the local machine.
@@ -84,7 +85,7 @@ echo
 
 rm -f endiantest.c endiantest
 
-    
+
 #-------------------------------------------------------------------------------
 #     Preprocess any Fortran *.F files into corresponding *.f files.
 
@@ -109,22 +110,22 @@ do
   obj=`basename $i .f`
   OBJS="$OBJS ${obj}.o"
 done
- 
+
 #-------------------------------------------------------------------------------
 #     Generate a list of object files that corresponds to the
 #     list of C ( .c ) files in the current directory.
- 
+
 for i in `ls *.c`
 do
   obj=`basename $i .c`
   OBJS="$OBJS ${obj}.o"
 done
- 
+
 #-------------------------------------------------------------------------------
 #     Remove make file, if it exists.  May need a new make file
 #     with an updated object file list.
- 
-if [ -f make.libbufr ] 
+
+if [ -f make.libbufr ]
 then
   rm -f make.libbufr
 fi
