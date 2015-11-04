@@ -215,10 +215,10 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
 !        rdiagbuf(14,ii) = errinv_input       ! prepbufr inverse obs error (m/s)**-1
 !        rdiagbuf(15,ii) = errinv_adjst       ! read_prepbufr inverse obs error (m/s)**-1
 !        rdiagbuf(16,ii) = errinv_final       ! final inverse observation error (m/s)**-1
-!        rdiagbuf(17,ii) = data(iuob,i)       ! u wind comp1.0nt observation (m/s)
+!        rdiagbuf(17,ii) = data(iuob,i)       ! u wind component observation (m/s)
 !        rdiagbuf(18,ii) = dudiff             ! u obs-ges used in analysis (m/s)
 !        rdiagbuf(19,ii) = uob-ugesin         ! u obs-ges w/o bias correction (m/s) (future slot)
-!        rdiagbuf(20,ii) = data(ivob,i)       ! v wind comp1.0nt observation (m/s)
+!        rdiagbuf(20,ii) = data(ivob,i)       ! v wind component observation (m/s)
 !        rdiagbuf(21,ii) = dvdiff             ! v obs-ges used in analysis (m/s)
 !        rdiagbuf(22,ii) = vob-vgesin         ! v obs-ges w/o bias correction (m/s) (future slot)
 !        rdiagbuf(23,ii) = factw              ! 10m wind reduction factor
@@ -563,7 +563,6 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           end if
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
-
 ! Convert to innovation (as pointed out by Lidia)
           h_x(nob) = rdiagbuf(17,n) - (rdiagbuf(5,n)*rdiagbuf(17,n))
           !x_type(nob) = obtype
@@ -682,7 +681,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
 !        rdiagbuf(23,ii) = data(inls,i)         ! number of laser shots
 !        rdiagbuf(24,ii) = data(incls,i)        ! number of cloud laser shots
 !        rdiagbuf(25,ii) = data(iatd,i)         ! atmospheric depth
-!        rdiagbuf(26,ii) = data(ilob,i)         ! line of sight comp1.0nt of wind orig.
+!        rdiagbuf(26,ii) = data(ilob,i)         ! line of sight component of wind orig.
     else if (obtype == ' pw') then
        allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
        read(iunit) cdiagbuf(1:ii),rdiagbuf(:,1:ii)
