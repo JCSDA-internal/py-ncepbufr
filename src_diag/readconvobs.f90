@@ -93,12 +93,12 @@ subroutine get_num_convobs(obsfile,num_obs_tot)
 end subroutine get_num_convobs
 
 subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
-           x_lon, x_lat, x_press, x_time, x_code, x_errorig, x_type)
+           x_lon, x_lat, x_press, x_time, x_code, x_errorig, x_type, x_use)
 
   character(len=500), intent(in) :: obsfile
   double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_err,x_lon,&
                                x_lat,x_press,x_time,x_errorig
-  integer, dimension(nobs_max), intent(out) :: x_code
+  integer, dimension(nobs_max), intent(out) :: x_code, x_use
   integer, dimension(nobs_max,3), intent(out) ::  x_type
   ! local vars
   character(len=3) :: obtype
@@ -135,6 +135,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -196,6 +197,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_type(nob) = '  v'
           obtype = 'v'
           call strtoarr(obtype, x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -249,6 +251,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
           x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -298,6 +301,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
           x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
     else if (obtype == '  q') then
@@ -322,6 +326,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = (rdiagbuf(17,n)-rdiagbuf(18,n))/rdiagbuf(20,n)
           !x_type(nob) = obtype 
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -365,6 +370,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -408,6 +414,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 !        cdiagbuf(ii)    = station_id         ! station id
@@ -451,6 +458,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 ! radar wind superobs
@@ -500,6 +508,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_type(nob) = '  u'
           obtype = 'u'
           call strtoarr(obtype, x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        do n=1,ii
           nob = nob + 1
@@ -519,6 +528,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_type(nob) = '  v'
           obtype = 'v'
           call strtoarr(obtype, x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 ! radar radial winds
@@ -567,6 +577,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n) - (rdiagbuf(5,n)*rdiagbuf(17,n))
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 ! refractivity (setupref.f90)
@@ -651,6 +662,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 ! doppler lidar winds
@@ -702,6 +714,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
           call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
 ! total column water
