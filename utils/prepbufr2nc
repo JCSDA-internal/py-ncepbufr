@@ -85,8 +85,8 @@ while bufr.advance() == 0: # loop over messages.
         g.createVariable('header',np.float32,('nobs','hdrinfo'),\
 	fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
 	hdrdata.desc = 'observation header data'
-        stnid = g.createVariable('stationid',str,('nobs',))
-        stnid.desc = 'station id'
+        obid = g.createVariable('obid',str,('nobs',))
+        obid.desc = 'observation id (station id/type code/lon/lat/time/elevation)'
         # retain association of ob data with bufr message number.
         msgnum = g.createVariable('msgnum',np.int32,('nobs',))
         msgnum.desc = 'bufr message number'
@@ -129,7 +129,8 @@ while bufr.advance() == 0: # loop over messages.
         qcdata.qcinfo = qcstr
 	qcdata.desc = 'observation QC data'
     # lists to hold data from each subset
-    hdrarr = []; obsarr = []; qcarr = []; errarr = []; stnidarr = []
+    hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
+    uniqidarr = []
     while bufr.load_subset() == 0: # loop over subsets in message.
         hdr = bufr.read_subset(hdstr).squeeze()
         obs = bufr.read_subset(obstr)
@@ -137,9 +138,12 @@ while bufr.advance() == 0: # loop over messages.
         err = bufr.read_subset(oestr)
         nl = obs.shape[-1] # number of levels in data.
         nobsdict[bufr.msg_type] += 1 # ob number for this message type.
-        # station id in a separate variables.
         hdrarr.append(hdr.squeeze()[1:])
-        stnidarr.append(hdr[0].tostring())
+	obidstr = "%s %3i %6.2f %6.2f %6.2f %5i" % \
+        (hdr[0].tostring(), hdr[4], hdr[1], hdr[2], hdr[3], hdr[5])
+        # ob id in a separate variables.
+	# concatenate with level to get unique identifier.
+	obidarr.append(obidstr)
         if bufr.msg_type in ['RASSDA','VADWND','PROFLR','ADPUPA']:
             # multi-level data.
             obs2[:] = bufr.missing_value; obs2[:,:nl] = obs
@@ -163,7 +167,7 @@ while bufr.advance() == 0: # loop over messages.
     g['obdata'][nob1:nob+1] = np.array(obsarr)
     g['oberr'][nob1:nob+1]  = np.array(errarr)
     g['qcdata'][nob1:nob+1] = np.array(qcarr)
-    g['stationid'][nob1:nob+1] = np.array(stnidarr)
+    g['obid'][nob1:nob+1] = np.array(obidarr)
     # keep track of message number
     g['msgnum'][nob1:nob+1] = bufr.msg_counter
     nc.sync() # dump data to disk.
