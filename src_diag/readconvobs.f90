@@ -134,7 +134,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -177,7 +177,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = '  u'
-          obtype = 'u'
+          obtype = '  u'
           call strtoarr(obtype, x_type(nob,:), 3)
           nob = nob + 1
           x_code(nob) = rdiagbuf(1,n)
@@ -195,7 +195,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           h_x(nob) = rdiagbuf(20,n)-rdiagbuf(21,n)
           !h_xnobc(nob) = rdiagbuf(20,n)-rdiagbuf(22,n)
           !x_type(nob) = '  v'
-          obtype = 'v'
+          obtype = '  v'
           call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
@@ -246,7 +246,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_err(nob) = (1.0/rdiagbuf(15,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           !x_type(nob) = obtype 
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           ! background adjusted to station height
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
@@ -296,7 +296,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_err(nob) = (1.0/rdiagbuf(15,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           !x_type(nob) = ' ps'
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           ! background adjusted to station height
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
@@ -325,7 +325,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)/rdiagbuf(20,n)
           h_x(nob) = (rdiagbuf(17,n)-rdiagbuf(18,n))/rdiagbuf(20,n)
           !x_type(nob) = obtype 
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -369,7 +369,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -413,7 +413,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -457,7 +457,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -506,7 +506,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = '  u'
-          obtype = 'u'
+          obtype = '  u'
           call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
@@ -526,7 +526,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(20,n)
           h_x(nob) = rdiagbuf(20,n)-rdiagbuf(21,n)
           !x_type(nob) = '  v'
-          obtype = 'v'
+          obtype = '  v'
           call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
@@ -576,7 +576,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
 ! Convert to innovation (as pointed out by Lidia)
           h_x(nob) = rdiagbuf(17,n) - (rdiagbuf(5,n)*rdiagbuf(17,n))
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -661,7 +661,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -713,7 +713,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           !x_type(nob) = obtype
-          call strtoarr(trim(adjustl(obtype)), x_type(nob,:), 3)
+          call strtoarr(obtype, x_type(nob,:), 3)
           x_use(nob) = rdiagbuf(12,n)
        enddo
        deallocate(cdiagbuf,rdiagbuf)
@@ -759,7 +759,7 @@ subroutine strtoarr(strin, chararr, n_str)
   character(len=n_str), intent(in) :: strin
   integer, intent(out) ::  chararr(n_str)
   chararr = 32
-  do j=1,len_trim(trim(adjustl(strin)))
+  do j=1,n_str
      chararr(j) = ichar(strin(j:j))
   enddo
 end subroutine strtoarr
