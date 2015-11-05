@@ -2,13 +2,15 @@ import numpy as np
 import _read_convobs
 class diag_conv(object):
     # read diag_conv file.
-    def __init__(self,filename):
-        nobs = _read_convobs.get_num_convobs(filename)
+    def __init__(self,filename,endian='native'):
+        nobs = _read_convobs.get_num_convobs(filename,endian=endian)
+        self.endian = endian
         self.nobs = nobs; self.filename = filename
     def read_obs(self):
         h_x,x_obs,x_err,x_lon,x_lat,x_press,x_time,\
         x_code,x_errorig,x_type,x_use,x_station_id =\
-        _read_convobs.get_convobs_data(self.filename, self.nobs)
+        _read_convobs.get_convobs_data(self.filename, self.nobs,\
+        endian=self.endian)
         obs_desc = []
         for n in range(self.nobs):
             s = x_type[n].tostring()

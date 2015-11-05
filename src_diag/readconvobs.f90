@@ -1,13 +1,20 @@
-subroutine get_num_convobs(obsfile,num_obs_tot)
+subroutine get_num_convobs(obsfile,num_obs_tot,endian)
     character(len=500), intent(in) :: obsfile
     integer, intent(out) :: num_obs_tot
+    character(len=6), optional, intent(in) :: endian
     ! local vars
     character(len=3) :: obtype
     integer iunit, nchar, nreal, ii, mype,ios, idate
     integer :: nn,nobst, nobsps, nobsq, nobsuv, nobsgps, &
          nobstcp, nobssst, nobsspd, nobsdw, nobsrw, nobspw, nobssrw
     character(len=8),allocatable,dimension(:):: cdiagbuf
+    character(len=6) :: convert_endian
     real,allocatable,dimension(:,:)::rdiagbuf
+    if (.not. present(endian)) then
+      convert_endian = 'native'
+    else
+      convert_endian = endian
+    endif
     iunit = 7
     num_obs_tot = 0
     nobst = 0
@@ -23,7 +30,14 @@ subroutine get_num_convobs(obsfile,num_obs_tot)
     nobssrw = 0
     nobstcp = 0
     !print *,obsfile
-    open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='big_endian')
+    if (trim(convert_endian) == 'big') then
+       open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='big_endian')
+    else if (trim(convert_endian) == 'little') then
+       open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='little_endian')
+    else if (trim(convert_endian) == 'native') then
+       open(iunit,form="unformatted",file=trim(obsfile),iostat=ios)
+    endif
+
     read(iunit) idate
     !print *,idate
 10  continue
@@ -94,25 +108,39 @@ end subroutine get_num_convobs
 
 subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
            x_lon, x_lat, x_press, x_time, x_code, x_errorig, x_type, &
-           x_use, x_station_id)
+           x_use, x_station_id, endian)
 
   character(len=500), intent(in) :: obsfile
+  character(len=6), optional, intent(in) :: endian
   double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_err,x_lon,&
                                x_lat,x_press,x_time,x_errorig
   integer, dimension(nobs_max), intent(out) :: x_code, x_use
   integer, dimension(nobs_max,3), intent(out) ::  x_type
   integer, dimension(nobs_max,8), intent(out) ::  x_station_id
   ! local vars
+  character(len=6) :: convert_endian
   character(len=3) :: obtype
   integer iunit, nobs_max, nob, n, nchar, nreal, ii, mype, ios, idate
   character(len=8),allocatable,dimension(:):: cdiagbuf
   real,allocatable,dimension(:,:)::rdiagbuf
 
+  if (.not. present(endian)) then
+    convert_endian = 'native'
+  else
+    convert_endian = endian
+  endif
+
   iunit = 7
 
   nob  = 0
   !print *,obsfile
-  open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='big_endian')
+  if (trim(convert_endian) == 'big') then
+     open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='big_endian')
+  else if (trim(convert_endian) == 'little') then
+     open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='little_endian')
+  else if (trim(convert_endian) == 'native') then
+     open(iunit,form="unformatted",file=trim(obsfile),iostat=ios)
+  endif
   read(iunit) idate
 10 continue
   read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype

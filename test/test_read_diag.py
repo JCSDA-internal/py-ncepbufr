@@ -1,7 +1,7 @@
 import read_diag
 import numpy as np
 obsfile = 'diag_conv_ges.2015102700'
-diag_conv = read_diag.diag_conv(obsfile)
+diag_conv = read_diag.diag_conv(obsfile,endian='big')
 print 'total number of obs = ',diag_conv.nobs
 diag_conv.read_obs()
 # print o-f stats for ps obs
