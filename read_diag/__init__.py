@@ -6,7 +6,7 @@ class diag_conv(object):
         nobs = _read_convobs.get_num_convobs(filename)
         self.nobs = nobs; self.filename = filename
     def read_obs(self):
-        h_x,x_obs,x_err,x_lon,x_lat,x_press,x_time,x_code,x_errorig,x_type =\
+        h_x,x_obs,x_err,x_lon,x_lat,x_press,x_time,x_code,x_errorig,x_type,x_use =\
         _read_convobs.get_convobs_data(self.filename, self.nobs)
         obs_desc = []
         for n in range(self.nobs):
@@ -23,4 +23,5 @@ class diag_conv(object):
         self.code = x_code
         self.oberr_orig = x_errorig
         self.obtype = np.array(obs_desc,'S3')
+        self.used = x_use
 
