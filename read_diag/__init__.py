@@ -21,7 +21,7 @@ class diag_conv(object):
         self.code = x_code
         self.oberr_orig = x_errorig
         self.used = x_use
-        self.obtype = (x_type.tostring()).replace('\x00','')
-        self.obtype = np.array(self.obtype.split('|')[:-1])
-        self.station_ids = (x_station_id.tostring()).replace('\x00','')
-        self.station_ids = np.array(self.station_ids.split('|')[:-1])
+        self.obtype = \
+        np.array((x_type.tostring()).replace('\x00','')[:-1].split('|'))
+        self.station_ids =\
+        np.array((x_station_id.tostring()).replace('\x00','')[:-1].split('|'))
