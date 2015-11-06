@@ -1,5 +1,6 @@
 import numpy as np
 import _read_convobs
+__version__ = '0.0.1'
 class diag_conv(object):
     # read diag_conv file.
     def __init__(self,filename,endian='native'):

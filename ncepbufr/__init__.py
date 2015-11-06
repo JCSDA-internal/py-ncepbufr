@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 from .bufr_mnemonics import *
 
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 
 # create list of allowed fortran unit numbers
@@ -311,7 +311,7 @@ class open:
 
         """
         iret = _bufrlib.ireadsb(self.lunit)
-        if iret == 0: 
+        if iret == 0:
             self.subset_loaded = True
         return iret
     def read_subset(self,mnemonics,rep=False,seq=False,events=False):

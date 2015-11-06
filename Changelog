@@ -1,3 +1,7 @@
+version 0.9.2
+=============
+* include module for reading GSI diagnostic files (read_diag).
+
 10/11/2015: version 0.9.1 (tag v0.9.1rel)
 =========================================
 * remove -C from CPPFLAGS in src/makebufrlib.sh (pull request #1), 
