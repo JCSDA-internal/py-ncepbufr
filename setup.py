@@ -7,10 +7,13 @@ if not os.path.isfile('src/libbufr.a'):
     sys.stdout.write('executing "%s"\n' % strg)
     subprocess.call(strg,shell=True)
 
-ext = Extension(name          = '_bufrlib',
+ext_bufrlib = Extension(name          = '_bufrlib',
                 sources       = ['src/_bufrlib.pyf'],
                 libraries     = ['bufr'],
                 library_dirs  = ['src'])
+
+ext_diag_conv = Extension(name     = '_read_convobs',
+                          sources  = ['src_diag/readconvobs.f90'])
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
@@ -19,7 +22,7 @@ if __name__ == "__main__":
           author            = "Jeff Whitaker",
           author_email      = "jeffrey.s.whitaker@noaa.gov",
           url               = "http://github.com/jswhit/py-ncepbufr",
-          ext_modules       = [ext],
-          packages          = ['ncepbufr'],
+          ext_modules       = [ext_bufrlib,ext_diag_conv],
+          packages          = ['ncepbufr','read_diag'],
           scripts           = ['utils/prepbufr2nc'],
           )
