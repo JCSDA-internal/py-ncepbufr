@@ -115,8 +115,8 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
   double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_err,x_lon,&
                                x_lat,x_press,x_time,x_errorig
   integer, dimension(nobs_max), intent(out) :: x_code, x_use
-  integer, dimension(nobs_max,3), intent(out) ::  x_type
-  integer, dimension(nobs_max,8), intent(out) ::  x_station_id
+  integer, dimension(nobs_max,4), intent(out) ::  x_type
+  integer, dimension(nobs_max,9), intent(out) ::  x_station_id
   ! local vars
   character(len=6) :: convert_endian
   character(len=3) :: obtype
@@ -799,9 +799,10 @@ end subroutine get_convobs_data
 subroutine strtoarr(strin, chararr, n_str)
   integer, intent(in) :: n_str
   character(len=n_str), intent(in) :: strin
-  integer, intent(out) ::  chararr(n_str)
-  chararr = 32
+  integer, intent(out) ::  chararr(n_str+1)
+  chararr = 32 ! space
   do j=1,n_str
      chararr(j) = ichar(strin(j:j))
   enddo
+  chararr(n_str+1) = 124 ! '|'
 end subroutine strtoarr

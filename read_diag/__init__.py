@@ -11,16 +11,6 @@ class diag_conv(object):
         x_code,x_errorig,x_type,x_use,x_station_id =\
         _read_convobs.get_convobs_data(self.filename, self.nobs,\
         endian=self.endian)
-        obs_desc = []
-        for n in range(self.nobs):
-            s = x_type[n].tostring()
-            s = s.encode('ascii').replace('\x00','').strip()
-            obs_desc.append(s)
-        station_ids = []
-        for n in range(self.nobs):
-            s = x_station_id[n].tostring()
-            s = s.encode('ascii').replace('\x00','').strip()
-            station_ids.append(s)
         self.hx = h_x
         self.obs = x_obs
         self.oberr = x_err
@@ -30,7 +20,8 @@ class diag_conv(object):
         self.time = x_time
         self.code = x_code
         self.oberr_orig = x_errorig
-        self.obtype = np.array(obs_desc,'S3')
         self.used = x_use
-        self.station_ids = np.array(station_ids,'S8')
-
+        self.obtype = (x_type.tostring()).replace('\x00','')
+        self.obtype = np.array(self.obtype.split('|')[:-1])
+        self.station_ids = (x_station_id.tostring()).replace('\x00','')
+        self.station_ids = np.array(self.station_ids.split('|')[:-1])
