@@ -7,11 +7,13 @@ if not os.path.isfile('src/libbufr.a'):
     sys.stdout.write('executing "%s"\n' % strg)
     subprocess.call(strg,shell=True)
 
-ext_bufrlib = Extension(name          = '_bufrlib',
+# interface for NCEP bufrlib.
+ext_bufrlib = Extension(name  = '_bufrlib',
                 sources       = ['src/_bufrlib.pyf'],
                 libraries     = ['bufr'],
                 library_dirs  = ['src'])
 
+# module for reading GSI diagnostic files.
 ext_diag_conv = Extension(name     = '_read_convobs',
                           sources  = ['src_diag/readconvobs.f90'])
 
