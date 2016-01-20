@@ -8,10 +8,11 @@ import sys
 
 # write obs in nobs_chunk chunks for better compression.
 # nobs_chunk should not be less than the total number of obs in the bufr file.
-nobs_chunk = 200
+nobs_chunk = 100
 
 if len(sys.argv) < 3:
     raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
+
 # input and output file names from command line args.
 prepbufr_filename = sys.argv[1]
 netcdf_filename = sys.argv[2]
@@ -26,7 +27,7 @@ oestr='POE QOE TOE ZOE WOE PWE'
 
 # skip these report types
 skiptypes = []
-#skiptypes = ['SATWND']
+#skiptypes = ['SATWND'] # sat winds in a separate bufr file.
 
 # open prepbufr file.
 # find total number of messages, analysis date
@@ -129,7 +130,7 @@ while bufr.advance() == 0: # loop over messages.
     nc['obdata'][nob1:nob+1] = np.array(obsarr)
     nc['oberr'][nob1:nob+1]  = np.array(errarr)
     qcarr = np.array(qcarr)
-    qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.int8)
+    qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.uint8)
     nc['qcdata'][nob1:nob+1] = np.array(qcarr)
     nc['obid'][nob1:nob+1] = np.array(obidarr)
     nc.sync() # dump data to disk.
