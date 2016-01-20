@@ -58,7 +58,7 @@ hdrdata.desc = 'observation header data'
 for key in hdstr.split()[1:]:
     hdrdata.setncattr(key,mnemonics_dict[key])
 hdrdata.hdrinfo = hdstr[4:]
-obid = nc.createVariable('obid',str,('nobs',))
+obid = nc.createVariable('obid',str,('nobs',),zlib=True)
 obid.desc = 'observation id (station id/type code/lon/lat/time/elevation/pressure)'
 obdata =\
 nc.createVariable('obdata',np.float32,('nobs','obinfo'),\
