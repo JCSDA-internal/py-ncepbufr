@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import ncepbufr
+import numpy as np
+from netCDF4 import Dataset
+from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
+import sys
+
+if len(sys.argv) < 3:
+    raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
+# input and output file names from command line args.
+prepbufr_filename = sys.argv[1]
+netcdf_filename = sys.argv[2]
+if prepbufr_filename == netcdf_filename:
+    raise IOError('cannot overwrite input prepbufr file')
+
+# chunksize along leftmost dimension for netcdf
+nobs_chunk = 100
+
+# mnemonics to extract data from prepbufr file.
+hdstr='SID XOB YOB DHR TYP ELV SAID T29'
+obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS TDO PMO XDR YDR HRDR'
+qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
+oestr='POE QOE TOE ZOE WOE PWE'
+
+# skip these report types
+skiptypes = []
+#skiptypes = ['SATWND']
+
+# open netcdf file
+nc = Dataset(netcdf_filename,'w',format='NETCDF4')
+hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
+nhdd = len(hd)
+ob = nc.createDimension('obinfo',len(obstr.split()))
+nobd = len(ob)
+oe = nc.createDimension('oeinfo',len(oestr.split()))
+noed = len(oe)
+qc = nc.createDimension('qcinfo',len(qcstr.split()))
+nqcd = len(qc)
+nobsd = nc.createDimension('nobs',None)
+
+# open prepbufr file.
+bufr = ncepbufr.open(prepbufr_filename)
+
+# find number of messages, obs for each message type in bufr file.
+typedict = {}
+while bufr.advance() == 0: # loop over messages.
+    if bufr.msg_type in skiptypes: continue
+    if bufr.msg_type not in typedict.keys():
+        typedict[bufr.msg_type] = 0
+    while bufr.load_subset() == 0: # loop over subsets in message.
+        typedict[bufr.msg_type] += 1
+nmessages = bufr.msg_counter
+bufr.rewind()
+
+# create netcdf variables.
+hdrdata =\
+nc.createVariable('header',np.float32,('nobs','hdrinfo'),\
+fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+hdrdata.desc = 'observation header data'
+for key in hdstr.split()[1:]:
+    hdrdata.setncattr(key,mnemonics_dict[key])
+hdrdata.hdrinfo = hdstr[4:]
+obid = nc.createVariable('obid',str,('nobs',))
+obid.desc = 'observation id (station id/type code/lon/lat/time/elevation)'
+# retain association of ob data with bufr message number.
+msgnum = nc.createVariable('msgnum',np.int32,('nobs',))
+msgnum.desc = 'bufr message number'
+nm = nc.createDimension('msg',nmessages)
+msg_date =\
+nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
+msg_date.desc = 'bufr message date'
+obdata =\
+nc.createVariable('obdata',np.float32,('nobs','obinfo'),\
+fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
+oedata =\
+nc.createVariable('oberr',np.float32,('nobs','oeinfo'),\
+fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
+qcdata =\
+nc.createVariable('qcdata',np.float32,('nobs','qcinfo'),\
+fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
+# mnemonic descriptions as variable attributes.
+for key in obstr.split():
+    obdata.setncattr(key,mnemonics_dict[key])
+obdata.obinfo = obstr
+obdata.desc = 'observation data'
+for key in oestr.split():
+    oedata.setncattr(key,mnemonics_dict[key])
+oedata.oeinfo = oestr
+oedata.desc = 'observation error data'
+for key in qcstr.split():
+    qcdata.setncattr(key,mnemonics_dict[key])
+qcdata.qcinfo = qcstr
+qcdata.desc = 'observation QC data'
+
+# read prepbufr data, write to netcdf.
+nob = 0
+while bufr.advance() == 0: # loop over messages.
+    if bufr.msg_type in skiptypes: continue
+    nmsg = bufr.msg_counter
+    msg_date[nmsg-1] = bufr.msg_date
+
+    # lists to hold data from each subset
+    hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
+    uniqidarr = []
+    nobs_message = 0
+    while bufr.load_subset() == 0: # loop over subsets in message.
+        hdr = bufr.read_subset(hdstr).squeeze()
+        obs = bufr.read_subset(obstr)
+        qc  = bufr.read_subset(qcstr)
+        err = bufr.read_subset(oestr)
+        nlevs = obs.shape[-1] # number of levels in data.
+        nob += nlevs # ob number for this message type.
+        nobs_message += nlevs
+        for nlev in range(nlevs):
+            hdrarr.append(hdr.squeeze()[1:])
+            # use balloon drift lat/lon if available.
+            if obs[11,nlev] != np.nan:
+                obidstr = "%s %3i %6.2f %6.2f %6.2f %5i %7.1f" % \
+                (hdr[0].tostring(), hdr[4], obs[11,nlev], obs[12,nlev], obs[13,nlev], hdr[5], obs[0,nlev])
+            else:
+                (hdr[0].tostring(), hdr[4], hdr[1], hdr[2], hdr[3], hdr[5], obs[0,nlev])
+            obidarr.append(obidstr)
+            obsarr.append(obs[:,nlev])
+            errarr.append(err[:,nlev])
+            qcarr.append(qc[:,nlev])
+    # make lists into arrays.
+    nob1 = nob-nobs_message+1
+    print('writing message %s out of %s, type %s with %s obs' %\
+    (bufr.msg_counter,nmessages,bufr.msg_type,nobs_message))
+    # write all the data from subset.
+    nc['header'][nob1:nob+1] = np.array(hdrarr)
+    nc['obdata'][nob1:nob+1] = np.array(obsarr)
+    nc['oberr'][nob1:nob+1]  = np.array(errarr)
+    nc['qcdata'][nob1:nob+1] = np.array(qcarr)
+    nc['obid'][nob1:nob+1] = np.array(obidarr)
+    # keep track of message number
+    nc['msgnum'][nob1:nob+1] = bufr.msg_counter
+    nc.sync() # dump data to disk.
+
+# close files.
+bufr.close(); nc.close()
