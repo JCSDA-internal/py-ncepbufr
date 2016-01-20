@@ -29,9 +29,15 @@ skiptypes = []
 
 # open prepbufr file.
 bufr = ncepbufr.open(prepbufr_filename)
+while bufr.advance() == 0: # loop over messages.
+    if bufr.msg_type in skiptypes: continue
+nmessages = bufr.msg_counter
+analdate = bufr.msg_date
+bufr.rewind()
 
 # open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
+nc.analysis_date=str(analdate)
 
 # create netcdf dimensions
 hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
@@ -82,6 +88,8 @@ nob = 0
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
     nmsg = bufr.msg_counter
+    if bufr.msg_date != analdate:
+        print('warning: non-matching analysis date %s' % bufr.msg_date)
 
     # lists to hold data from each subset
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
@@ -93,12 +101,13 @@ while bufr.advance() == 0: # loop over messages.
         qc  = bufr.read_subset(qcstr)
         err = bufr.read_subset(oestr)
         nlevs = obs.shape[-1] # number of levels in data.
-        nob += nlevs # ob number for this message type.
-        nobs_message += nlevs
+        nob += nlevs # total number  of obs
+        nobs_message += nlevs # obs for this message
         for nlev in range(nlevs):
             hdrarr.append(hdr.squeeze()[1:])
-            # use balloon drift lat/lon if available.
-            if obs[11,nlev] != np.nan:
+            # use balloon drift lat/lon/time for sondes, pibals
+            # not sure this is the right thing to do - check read_prepbufr in GSI!
+            if hdr[4] in [120,220,221-:
                 obidstr = "%s %3i %6.2f %6.2f %6.2f %5i %7.1f" % \
                 (hdr[0].tostring(), hdr[4], obs[11,nlev], obs[12,nlev], obs[13,nlev], hdr[5], obs[0,nlev])
             else:
@@ -109,9 +118,9 @@ while bufr.advance() == 0: # loop over messages.
             qcarr.append(qc[:,nlev])
     # make lists into arrays.
     nob1 = nob-nobs_message+1
-    print('writing message %s, type %s with %s obs' %\
-    (bufr.msg_counter,bufr.msg_type,nobs_message))
-    # write all the data from subset.
+    print('writing message %s out of %s, type %s with %s obs' %\
+    (bufr.msg_counter,nmessages,bufr.msg_type,nobs_message))
+    # write all the data from message.
     nc['header'][nob1:nob+1] = np.array(hdrarr)
     nc['obdata'][nob1:nob+1] = np.array(obsarr)
     nc['oberr'][nob1:nob+1]  = np.array(errarr)
