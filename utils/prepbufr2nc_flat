@@ -8,7 +8,7 @@ import sys
 
 # write obs in nobs_chunk chunks for better compression.
 # nobs_chunk should not be less than the total number of obs in the bufr file.
-nobs_chunk = 100
+nobs_chunk = 200
 
 if len(sys.argv) < 3:
     raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
