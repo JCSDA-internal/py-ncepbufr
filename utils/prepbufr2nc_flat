@@ -7,7 +7,7 @@ from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
 import sys
 
 # write obs in nobs_chunk chunks for better compression.
-nobs_chunk = 100
+nobs_chunk = 200
 
 if len(sys.argv) < 3:
     raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
@@ -28,6 +28,7 @@ skiptypes = []
 #skiptypes = ['SATWND']
 
 # open prepbufr file.
+# find total number of messages, analysis date
 bufr = ncepbufr.open(prepbufr_filename)
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
@@ -87,11 +88,13 @@ qcdata.desc = 'observation QC data'
 nob = 0
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
-    nmsg = bufr.msg_counter
+
+    # check to see that analysis date is the same for every message.
+    # if not, print warning.
     if bufr.msg_date != analdate:
         print('warning: non-matching analysis date %s' % bufr.msg_date)
 
-    # lists to hold data from each subset
+    # lists to hold data from each subset in message.
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
     uniqidarr = []
     nobs_message = 0
