@@ -15,7 +15,7 @@ if prepbufr_filename == netcdf_filename:
     raise IOError('cannot overwrite input prepbufr file')
 
 # chunksize along leftmost dimension for netcdf
-nobs_chunk = 100
+nobs_chunk = 1000
 
 # mnemonics to extract data from prepbufr file.
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
@@ -41,7 +41,6 @@ nobsd = nc.createDimension('nobs',None)
 
 # open prepbufr file.
 bufr = ncepbufr.open(prepbufr_filename)
-
 # find number of messages, obs for each message type in bufr file.
 typedict = {}
 while bufr.advance() == 0: # loop over messages.
@@ -62,7 +61,7 @@ for key in hdstr.split()[1:]:
     hdrdata.setncattr(key,mnemonics_dict[key])
 hdrdata.hdrinfo = hdstr[4:]
 obid = nc.createVariable('obid',str,('nobs',))
-obid.desc = 'observation id (station id/type code/lon/lat/time/elevation)'
+obid.desc = 'observation id (station id/type code/lon/lat/time/elevation/pressure)'
 # retain association of ob data with bufr message number.
 msgnum = nc.createVariable('msgnum',np.int32,('nobs',))
 msgnum.desc = 'bufr message number'
