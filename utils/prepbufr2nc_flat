@@ -14,9 +14,6 @@ netcdf_filename = sys.argv[2]
 if prepbufr_filename == netcdf_filename:
     raise IOError('cannot overwrite input prepbufr file')
 
-# chunksize along leftmost dimension for netcdf
-nobs_chunk = 1000
-
 # mnemonics to extract data from prepbufr file.
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS TDO PMO XDR YDR HRDR'
@@ -29,6 +26,8 @@ skiptypes = []
 
 # open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
+
+# create netcdf dimensions
 hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
 nhdd = len(hd)
 ob = nc.createDimension('obinfo',len(obstr.split()))
@@ -39,23 +38,17 @@ qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nqcd = len(qc)
 nobsd = nc.createDimension('nobs',None)
 
-# open prepbufr file.
+# open prepbufr file, count messages.
 bufr = ncepbufr.open(prepbufr_filename)
-# find number of messages, obs for each message type in bufr file.
-typedict = {}
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
-    if bufr.msg_type not in typedict.keys():
-        typedict[bufr.msg_type] = 0
-    while bufr.load_subset() == 0: # loop over subsets in message.
-        typedict[bufr.msg_type] += 1
 nmessages = bufr.msg_counter
 bufr.rewind()
 
 # create netcdf variables.
 hdrdata =\
 nc.createVariable('header',np.float32,('nobs','hdrinfo'),\
-fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+fill_value=bufr.missing_value,zlib=True)
 hdrdata.desc = 'observation header data'
 for key in hdstr.split()[1:]:
     hdrdata.setncattr(key,mnemonics_dict[key])
@@ -71,13 +64,13 @@ nc.createVariable('msg_date',np.int32,('msg',),fill_value=-1,zlib=True)
 msg_date.desc = 'bufr message date'
 obdata =\
 nc.createVariable('obdata',np.float32,('nobs','obinfo'),\
-fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
+fill_value=bufr.missing_value,zlib=True)
 oedata =\
 nc.createVariable('oberr',np.float32,('nobs','oeinfo'),\
-fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
+fill_value=bufr.missing_value,zlib=True)
 qcdata =\
 nc.createVariable('qcdata',np.float32,('nobs','qcinfo'),\
-fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nqcd))
+fill_value=bufr.missing_value,zlib=True)
 # mnemonic descriptions as variable attributes.
 for key in obstr.split():
     obdata.setncattr(key,mnemonics_dict[key])
