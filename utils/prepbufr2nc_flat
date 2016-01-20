@@ -107,7 +107,7 @@ while bufr.advance() == 0: # loop over messages.
             hdrarr.append(hdr.squeeze()[1:])
             # use balloon drift lat/lon/time for sondes, pibals
             # not sure this is the right thing to do - check read_prepbufr in GSI!
-            if hdr[4] in [120,220,221-:
+            if hdr[4] in [120,220,221]:
                 obidstr = "%s %3i %6.2f %6.2f %6.2f %5i %7.1f" % \
                 (hdr[0].tostring(), hdr[4], obs[11,nlev], obs[12,nlev], obs[13,nlev], hdr[5], obs[0,nlev])
             else:
