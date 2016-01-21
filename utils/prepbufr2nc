@@ -80,8 +80,7 @@ zlib=True,chunksizes=(nobs_chunk,))
 subsetnum.desc='subset number within bufr message'
 msgtype = nc.createVariable('msgtype',str,('nmsgs'),zlib=True)
 msgtype.desc='bufr message type'
-msgdate = nc.createVariable('msgdate',np.uint32,('nobs'),\
-zlib=True,chunksizes=(nobs_chunk,))
+msgdate = nc.createVariable('msgdate',np.uint32,('nmsgs'),zlib=True)
 msgdate.desc='bufr message date'
 # mnemonic descriptions as variable attributes.
 for key in obstr.split():
@@ -134,19 +133,22 @@ while bufr.advance() == 0: # loop over messages.
             msgnumarr.append(bufr.msg_counter)
             subsetnumarr.append(nsubset)
     # make lists into arrays.
+    hdrarr = np.array(hdrarr); obsarr = np.array(obsarr)
+    errarr = np.array(errarr); qcarr = np.array(qcarr)
+    obidarr = np.array(obidarr); msgnumarr = np.array(msgnumarr)
+    subsetnumarr = np.array(subsetnumarr)
+    qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.uint8)
+    # write all the data for this message
     nob1 = nob-nobs_message
     print('writing message %s out of %s, type %s with %s obs' %\
     (bufr.msg_counter,nmessages,bufr.msg_type,nobs_message))
-    # write all the data from message.
-    nc['header'][nob1:nob] = np.array(hdrarr)
-    nc['obdata'][nob1:nob] = np.array(obsarr)
-    nc['oberr'][nob1:nob]  = np.array(errarr)
-    qcarr = np.array(qcarr)
-    qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.uint8)
-    nc['qcdata'][nob1:nob] = np.array(qcarr)
-    nc['obid'][nob1:nob] = np.array(obidarr)
-    nc['msgnum'][nob1:nob] = np.array(msgnumarr)
-    nc['subsetnum'][nob1:nob] = np.array(subsetnumarr)
+    nc['header'][nob1:nob] = hdrarr
+    nc['obdata'][nob1:nob] = obsarr
+    nc['oberr'][nob1:nob]  = errarr
+    nc['qcdata'][nob1:nob] = qcarr
+    nc['obid'][nob1:nob] = obidarr
+    nc['msgnum'][nob1:nob] = msgnumarr
+    nc['subsetnum'][nob1:nob] = subsetnumarr
     nc.sync() # dump data to disk.
 
 # close files.
