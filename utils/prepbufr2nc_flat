@@ -52,6 +52,7 @@ noed = len(oe)
 qc = nc.createDimension('qcinfo',len(qcstr.split()))
 nqcd = len(qc)
 nobsd = nc.createDimension('nobs',None)
+nmsgs = nc.createDimension('nmsgs',nmessages)
 
 # create netcdf variables.
 hdrdata =\
@@ -73,6 +74,11 @@ qc_fillval = 255
 qcdata =\
 nc.createVariable('qcdata',np.uint8,('nobs','qcinfo'),\
 fill_value=qc_fillval,zlib=True,chunksizes=(nobs_chunk,nqcd))
+_msgnum = nc.createVariable('_msgnum',np.uint32,('nobs'),\
+zlib=True,chunksizes=(nobs_chunk,))
+_subsetnum = nc.createVariable('_subsetnum',np.uint32,('nobs'),\
+zlib=True,chunksizes=(nobs_chunk,))
+_msgtype = nc.createVariable('_msgtype',str,('nmsgs'),zlib=True)
 # mnemonic descriptions as variable attributes.
 for key in obstr.split():
     obdata.setncattr(key,mnemonics_dict[key])
@@ -99,8 +105,12 @@ while bufr.advance() == 0: # loop over messages.
 
     # lists to hold data from each subset in message.
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
+    _msgnumarr = []; _subsetnumarr = []
     nobs_message = 0
+    nsubset = 0
+    nc['_msgtype'][bufr.msg_counter] = bufr.msg_type
     while bufr.load_subset() == 0: # loop over subsets in message.
+        nsubset += 1
         hdr = bufr.read_subset(hdstr).squeeze()
         obs = bufr.read_subset(obstr)
         qc  = bufr.read_subset(qcstr)
@@ -121,18 +131,22 @@ while bufr.advance() == 0: # loop over messages.
             obsarr.append(obs[:,nlev])
             errarr.append(err[:,nlev])
             qcarr.append(qc[:,nlev])
+            _msgnumarr.append(bufr.msg_counter)
+            _subsetnumarr.append(nsubset)
     # make lists into arrays.
-    nob1 = nob-nobs_message+1
+    nob1 = nob-nobs_message
     print('writing message %s out of %s, type %s with %s obs' %\
     (bufr.msg_counter,nmessages,bufr.msg_type,nobs_message))
     # write all the data from message.
-    nc['header'][nob1:nob+1] = np.array(hdrarr)
-    nc['obdata'][nob1:nob+1] = np.array(obsarr)
-    nc['oberr'][nob1:nob+1]  = np.array(errarr)
+    nc['header'][nob1:nob] = np.array(hdrarr)
+    nc['obdata'][nob1:nob] = np.array(obsarr)
+    nc['oberr'][nob1:nob]  = np.array(errarr)
     qcarr = np.array(qcarr)
     qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.uint8)
-    nc['qcdata'][nob1:nob+1] = np.array(qcarr)
-    nc['obid'][nob1:nob+1] = np.array(obidarr)
+    nc['qcdata'][nob1:nob] = np.array(qcarr)
+    nc['obid'][nob1:nob] = np.array(obidarr)
+    nc['_msgnum'][nob1:nob] = np.array(_msgnumarr)
+    nc['_subsetnum'][nob1:nob] = np.array(_subsetnumarr)
     nc.sync() # dump data to disk.
 
 # close files.
