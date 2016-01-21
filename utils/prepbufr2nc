@@ -35,12 +35,10 @@ bufr = ncepbufr.open(prepbufr_filename)
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
 nmessages = bufr.msg_counter
-analdate = bufr.msg_date
 bufr.rewind()
 
 # open netcdf file
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
-nc.analysis_date=str(analdate)
 
 # create netcdf dimensions
 hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
@@ -74,11 +72,17 @@ qc_fillval = 255
 qcdata =\
 nc.createVariable('qcdata',np.uint8,('nobs','qcinfo'),\
 fill_value=qc_fillval,zlib=True,chunksizes=(nobs_chunk,nqcd))
-_msgnum = nc.createVariable('_msgnum',np.uint32,('nobs'),\
+msgnum = nc.createVariable('msgnum',np.uint32,('nobs'),\
 zlib=True,chunksizes=(nobs_chunk,))
-_subsetnum = nc.createVariable('_subsetnum',np.uint32,('nobs'),\
+msgnum.desc = 'bufr message number'
+subsetnum = nc.createVariable('subsetnum',np.uint16,('nobs'),\
 zlib=True,chunksizes=(nobs_chunk,))
-_msgtype = nc.createVariable('_msgtype',str,('nmsgs'),zlib=True)
+subsetnum.desc='subset number within bufr message'
+msgtype = nc.createVariable('msgtype',str,('nmsgs'),zlib=True)
+msgtype.desc='bufr message type'
+msgdate = nc.createVariable('msgdate',np.uint32,('nobs'),\
+zlib=True,chunksizes=(nobs_chunk,))
+msgdate.desc='bufr message date'
 # mnemonic descriptions as variable attributes.
 for key in obstr.split():
     obdata.setncattr(key,mnemonics_dict[key])
@@ -98,17 +102,13 @@ nob = 0
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
 
-    # check to see that analysis date is the same for every message.
-    # if not, print warning.
-    if bufr.msg_date != analdate:
-        print('warning: non-matching analysis date %s' % bufr.msg_date)
-
     # lists to hold data from each subset in message.
     hdrarr = []; obsarr = []; qcarr = []; errarr = []; obidarr = []
-    _msgnumarr = []; _subsetnumarr = []
+    msgnumarr = []; subsetnumarr = []
     nobs_message = 0
     nsubset = 0
-    nc['_msgtype'][bufr.msg_counter-1] = bufr.msg_type
+    nc['msgtype'][bufr.msg_counter-1] = bufr.msg_type
+    nc['msgdate'][bufr.msg_counter-1] = bufr.msg_date
     while bufr.load_subset() == 0: # loop over subsets in message.
         nsubset += 1
         hdr = bufr.read_subset(hdstr).squeeze()
@@ -131,8 +131,8 @@ while bufr.advance() == 0: # loop over messages.
             obsarr.append(obs[:,nlev])
             errarr.append(err[:,nlev])
             qcarr.append(qc[:,nlev])
-            _msgnumarr.append(bufr.msg_counter)
-            _subsetnumarr.append(nsubset)
+            msgnumarr.append(bufr.msg_counter)
+            subsetnumarr.append(nsubset)
     # make lists into arrays.
     nob1 = nob-nobs_message
     print('writing message %s out of %s, type %s with %s obs' %\
@@ -145,8 +145,8 @@ while bufr.advance() == 0: # loop over messages.
     qcarr = np.where(qcarr == bufr.missing_value,qc_fillval,qcarr).astype(np.uint8)
     nc['qcdata'][nob1:nob] = np.array(qcarr)
     nc['obid'][nob1:nob] = np.array(obidarr)
-    nc['_msgnum'][nob1:nob] = np.array(_msgnumarr)
-    nc['_subsetnum'][nob1:nob] = np.array(_subsetnumarr)
+    nc['msgnum'][nob1:nob] = np.array(msgnumarr)
+    nc['subsetnum'][nob1:nob] = np.array(subsetnumarr)
     nc.sync() # dump data to disk.
 
 # close files.
