@@ -108,7 +108,7 @@ while bufr.advance() == 0: # loop over messages.
     _msgnumarr = []; _subsetnumarr = []
     nobs_message = 0
     nsubset = 0
-    nc['_msgtype'][bufr.msg_counter] = bufr.msg_type
+    nc['_msgtype'][bufr.msg_counter-1] = bufr.msg_type
     while bufr.load_subset() == 0: # loop over subsets in message.
         nsubset += 1
         hdr = bufr.read_subset(hdstr).squeeze()
