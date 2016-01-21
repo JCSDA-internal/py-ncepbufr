@@ -41,7 +41,7 @@ bufr.rewind()
 nc = Dataset(netcdf_filename,'w',format='NETCDF4')
 
 # create netcdf dimensions
-hd = nc.createDimension('hdrinfo',len(hdstr.split())-1)
+hd = nc.createDimension('hdrinfo',len(hdstr.split()))
 nhdd = len(hd)
 ob = nc.createDimension('obinfo',len(obstr.split()))
 nobd = len(ob)
@@ -57,9 +57,9 @@ hdrdata =\
 nc.createVariable('header',np.float32,('nobs','hdrinfo'),\
 fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
 hdrdata.desc = 'observation header data'
-for key in hdstr.split()[1:]:
+for key in hdstr.split():
     hdrdata.setncattr(key,mnemonics_dict[key])
-hdrdata.hdrinfo = hdstr[4:]
+hdrdata.hdrinfo = hdstr
 obid = nc.createVariable('obid',str,('nobs',),zlib=True)
 obid.desc = 'observation id (station id/type code/lon/lat/time/elevation/pressure)'
 obdata =\
@@ -118,7 +118,7 @@ while bufr.advance() == 0: # loop over messages.
         nob += nlevs # total number  of obs
         nobs_message += nlevs # obs for this message
         for nlev in range(nlevs):
-            hdrarr.append(hdr.squeeze()[1:])
+            hdrarr.append(hdr.squeeze())
             # use balloon drift lat/lon/time for sondes, pibals
             # not sure this is the right thing to do - check read_prepbufr in GSI!
             if hdr[4] in [120,220,221]:
