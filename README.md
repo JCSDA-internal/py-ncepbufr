@@ -22,3 +22,5 @@ see http://jswhit.github.io/py-ncepbufr/ for docs.
 see test/test.py for example usage.
 
 utils/prepbufr2nc is a utility to convert [NCEP prepbufr](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/document.htm) files to netcdf format.
+
+utils/nc2prepbufr does the reverse (netcdf back to prepbufr).
