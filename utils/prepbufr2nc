@@ -54,7 +54,7 @@ nmsgs = nc.createDimension('nmsgs',nmessages)
 
 # create netcdf variables.
 hdrdata =\
-nc.createVariable('header',np.float32,('nobs','hdrinfo'),\
+nc.createVariable('header',np.float64,('nobs','hdrinfo'),\
 fill_value=bufr.missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
 hdrdata.desc = 'observation header data'
 for key in hdstr.split():
