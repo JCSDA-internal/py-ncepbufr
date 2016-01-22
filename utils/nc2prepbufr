@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""inverse of prepbufr2nc - convert netCDF back to prepbufr"""
 from __future__ import print_function
 import ncepbufr, sys
 import numpy as np
