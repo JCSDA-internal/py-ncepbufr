@@ -290,7 +290,7 @@ class open:
         number of digits in the reference date is controlled by
         `ncepbufr.open.set_datelength`, and is 10 by default.
         """
-        _bufrlib.openmb(self.lunit,msg_type,int(msg_date))
+        _bufrlib.openmg(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         """
         close bufr message
