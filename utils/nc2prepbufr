@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import ncepbufr
+import ncepbufr, sys
 import numpy as np
 from netCDF4 import Dataset
-from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
-import sys
 
 if len(sys.argv) < 4:
     raise SystemExit('nc2prepbufr <input netcdf> <input prepbufr> <prepbufr table>')
@@ -45,9 +43,9 @@ header = nc.variables['header']
 bufr = ncepbufr.open(prepbufr_filename,'w',table=prepbufr_table)
 
 for nmsg in range(1,nmessages+1):
-    analdate = msgdates[nmsg]
-    msgtype = msgtypes[nmsg]
-    bufr.open_message(msgtype, analdate)
+    analdate = msgdates[nmsg-1]
+    msgtype = msgtypes[nmsg-1]
+    bufr.open_message(msgtype, analdate) # open message
     nobsmsg = np.nonzero(msgnums == nmsg)[0]
     subsetsmsg = subsets[nobsmsg]
     print('writing message %s' % nmsg)
@@ -61,7 +59,7 @@ for nmsg in range(1,nmessages+1):
         bufr.write_subset(obdat.T,obstr)
         bufr.write_subset(oberrdat.T,oestr)
         bufr.write_subset(qcdat.T,qcstr,end=True) # end subset
-    bufr.close_message()
+    bufr.close_message() # close message
 
 nc.close()
 bufr.close()
