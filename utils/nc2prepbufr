@@ -53,7 +53,7 @@ for nmsg in range(1,nmessages+1):
         nobs_subset = nobsmsg[np.nonzero(subsetsmsg == nsub)[0]]
         obdat = obdata[nobs_subset]
         oberrdat = oberr[nobs_subset]
-        qcdat = qcdata[nobs_subset].astype(np.float32)
+        qcdat = qcdata[nobs_subset]
         hdrdat = header[nobs_subset]
         bufr.write_subset(hdrdat[0,:].T,hdstr)
         bufr.write_subset(obdat.T,obstr)
