@@ -41,7 +41,6 @@ header = nc.variables['header']
 
 # open prepbufr file
 bufr = ncepbufr.open(prepbufr_filename,'w',table=prepbufr_table)
-bufr.rewind()
 
 for nmsg in range(1,nmessages+1):
     analdate = msgdates[nmsg-1]
