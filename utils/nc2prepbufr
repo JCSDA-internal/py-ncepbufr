@@ -11,6 +11,9 @@ if len(sys.argv) < 4:
 # input and output file names, plus bufr table from command line args.
 netcdf_filename = sys.argv[1]
 prepbufr_filename = sys.argv[2]
+# a bufr table can be extracted from an existing prepbufr file like this:
+#>>> bufr = ncepbufr.open('prepbufr')
+#>>> bufr.dump_table('prepbufr.table')
 prepbufr_table = sys.argv[3]
 if prepbufr_filename == netcdf_filename:
     raise IOError('cannot overwrite input netcdf file')
