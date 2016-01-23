@@ -9,7 +9,7 @@ class diag_conv(object):
         self.nobs = nobs; self.filename = filename
     def read_obs(self):
         h_x,x_obs,x_err,x_lon,x_lat,x_press,x_time,\
-        x_code,x_errorig,x_type,x_use,x_station_id =\
+        x_code,x_errorig,x_type,x_use,x_station_id,x_stnelev =\
         _read_convobs.get_convobs_data(self.filename, self.nobs,\
         endian=self.endian)
         self.hx = h_x
@@ -19,6 +19,7 @@ class diag_conv(object):
         self.lat = x_lat
         self.press = x_press
         self.time = x_time
+        self.stnelev = x_stnelev
         self.code = x_code
         self.oberr_orig = x_errorig
         self.used = x_use
