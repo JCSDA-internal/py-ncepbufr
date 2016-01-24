@@ -11,6 +11,7 @@ obidstrs = nc_prepbufr['obid'][:]
 print 'total number of diag obs = ',diag_conv.nobs
 print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size 
 diag_conv.read_obs()
+count_nomatch = 0; count_multmatch = 0
 for nob in range(diag_conv.nobs):
     stid = diag_conv.station_ids[nob]
     lon = diag_conv.lon[nob]
@@ -20,13 +21,18 @@ for nob in range(diag_conv.nobs):
     elev = diag_conv.stnelev[nob]
     obcode = diag_conv.code[nob]
     obtype = diag_conv.obtype[nob]
-    obidstr = "%s %3i %6.2f %6.2f %6.2f %4i %5i" % \
+    obidstr = "%s %3i %6.2f %6.2f %6.2f %4i %6.1f" % \
     (stid,obcode,lon,lat,time,elev,press)
     nobs_nc = np.nonzero(obidstrs == obidstr)[0]
     print nob,obidstr,len(nobs_nc),'matches'
     if len(nobs_nc) == 0:
-        raise ValueError('no match found')
+        count_nomatch += 1
+        #raise ValueError('no match found')
     elif len(nobs_nc) > 1:
-        print('multiple matches found!')
-        print nobs_nc,obidstrs[nobs_nc]
+        count_multmatch += 1
+        #print nobs_nc,obidstrs[nobs_nc]
+        #print nc_prepbufr['obdata'][nobs_nc]
+        #raise ValueError('multiple matches found')
+print(count_nomatch,' no matches')
+print(count_multmatch,' multiple matches')
 nc_prepbufr.close()
