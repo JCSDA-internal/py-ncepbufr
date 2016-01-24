@@ -17,7 +17,7 @@ print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size
 diag_conv.read_obs()
 count_nomatch = 0; count_multmatch = 0
 for nob in range(diag_conv.nobs):
-    if diag_conv.obtype[nob] == 'gps': continue
+    if diag_conv.obtype[nob] in ['tcp','gps']: continue
     stid = diag_conv.station_ids[nob]
     lon = diag_conv.lon[nob]
     lat = diag_conv.lat[nob]
