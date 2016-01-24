@@ -33,7 +33,7 @@ for nob in range(diag_conv.nobs):
         count_multmatch += 1
         print nobs_nc,obidstrs[nobs_nc]
         print nc_prepbufr['obdata'][nobs_nc]
-        raise ValueError('multiple matches found')
+        #raise ValueError('multiple matches found')
 print(count_nomatch,' no matches')
 print(count_multmatch,' multiple matches')
 nc_prepbufr.close()
