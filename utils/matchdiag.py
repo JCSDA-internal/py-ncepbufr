@@ -10,7 +10,7 @@ nc_prepbufr = Dataset(ncfile)
 obidstrs = nc_prepbufr['obid'][:]
 obidl = obidstrs.tolist()
 #for obid in obidl:
-#    if obid.startswith('89009'): print obid
+#    if obid.startswith('47945'): print obid
 #raise SystemExit
 print('%s non-unique ob ids' % str(len(obidl)-len(set(obidl))))
 # observation id not including pressure.
@@ -26,6 +26,8 @@ for nob in range(diag_conv.nobs):
     lat = diag_conv.lat[nob]
     time = diag_conv.time[nob]
     press = diag_conv.press[nob]
+    # skip if missing or invalid pressure
+    if press < 0 or press > 2.e4: continue
     elev = diag_conv.stnelev[nob]
     obcode = diag_conv.code[nob]
     obtype = diag_conv.obtype[nob]
@@ -33,8 +35,6 @@ for nob in range(diag_conv.nobs):
     (stid,obcode,lon,lat,time,elev,press)
     nobs_nc = np.nonzero(obidstrs_nop == obidstr[:-6])[0]
     if len(nobs_nc) > 1: # if more than one match, include pressure
-        # skip if missing or invalid pressure
-        if press < 0 or press > 2.e4: continue
         nobs_nc = np.nonzero(obidstrs == obidstr)[0]
     print nob,obidstr,len(nobs_nc),'matches'
     if len(nobs_nc) == 0:
