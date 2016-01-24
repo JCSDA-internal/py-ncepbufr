@@ -37,9 +37,7 @@ for nob in range(diag_conv.nobs):
         #raise ValueError('no match found')
     elif len(nobs_nc) > 1:
         count_multmatch += 1
-        print nobs_nc,obidstrs[nobs_nc]
-        print nc_prepbufr['obdata'][nobs_nc]
         #raise ValueError('multiple matches found')
-print(count_nomatch,' no matches')
-print(count_multmatch,' multiple matches')
+print('%s no matches' % count_nomatch)
+print('%s duplicate matches' % count_multmatch)
 nc_prepbufr.close()
