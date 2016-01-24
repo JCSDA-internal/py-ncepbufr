@@ -2,7 +2,7 @@ import read_diag
 from netCDF4 import Dataset
 import numpy as np
 obsfile = 'diag_conv_ges.2010102700'
-ncfile = 'prepbufr_2015102700.nc'
+ncfile = 'prepbufr_2010102700.nc'
 diag_conv = read_diag.diag_conv(obsfile,endian='big')
 print 'read netcdf'
 nc_prepbufr = Dataset(ncfile)
@@ -10,7 +10,8 @@ nc_prepbufr = Dataset(ncfile)
 obidstrs = nc_prepbufr['obid'][:]
 obidl = obidstrs.tolist()
 #for obid in obidl:
-#    if obid.startswith('11120'): print obid
+#    if obid.startswith('89009'): print obid
+#raise SystemExit
 print('%s non-unique ob ids' % str(len(obidl)-len(set(obidl))))
 # observation id not including pressure.
 obidstrs_nop = np.array([obid[:-6] for obid in obidstrs])
