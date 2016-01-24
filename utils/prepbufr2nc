@@ -11,6 +11,9 @@ import sys
 # nobs_chunk should not be less than the total number of obs in the bufr file.
 nobs_chunk = 200
 
+# min/max times in assim window
+time_min = -3.0; time_max = 3.0
+
 if len(sys.argv) < 3:
     raise SystemExit('prepbufr2nc <input prepbufr> <output netcdf>')
 
@@ -118,16 +121,21 @@ while bufr.advance() == 0: # loop over messages.
         err = bufr.read_subset(oestr)
 	nlevs_use = 0
 	for nlev in range(obs.shape[-1]):
-            # use balloon drift lat/lon/time for sondes, pibals.
-            # probably needs some more error checking to see if values
-            # are reasonable, and if not fall back to header values (as GSI does).
+            lon = hdr[1]; lat = hdr[2]; time = hdr[3]
+            press = obs[0,nlev]
+            # use balloon drift lat/lon/time for sondes, pibals
+            # in obid string.
             if hdr[4] in [120,220,221]:
-                obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
-                (hdr[0].tostring(), hdr[4], obs[11,nlev], obs[12,nlev], obs[13,nlev], hdr[5], obs[0,nlev])
-            else:
-                obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
-                (hdr[0].tostring(), hdr[4], hdr[1], hdr[2], hdr[3], hdr[5], obs[0,nlev])
+                lon = obs[11,nlev]; lat = obs[12,nlev]
+                # only use drift corrected time if it is within
+                # assimilation window.
+                if obs[13,nlev] >= time_min and obs[13,nlev] < time_max:
+                    time = obs[13,nlev]
+            obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
+            (hdr[0].tostring(), hdr[4], lon, lat, time, hdr[5], press)
             # skip ob if there is already a matching obid string
+            # (do we need more checking here to make sure obs are
+            # really duplicates?)
             if obidstr not in obid_set:
                 obid_set.add(obidstr)
             else:
