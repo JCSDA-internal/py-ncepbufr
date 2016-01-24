@@ -8,9 +8,10 @@ print 'read netcdf'
 nc_prepbufr = Dataset(ncfile)
 # observation id (station id/type code/lon/lat/time/elevation/pressure)
 obidstrs = nc_prepbufr['obid'][:]
-obidstrs2 = np.array([obid[:-6] for obid in obidstrs])
-#for id in obidstrs:
-#    if id.startswith('NZSP'): print id[:-6]
+obidl = obidstrs.tolist()
+print('%s non-unique ob ids' % str(len(obidl)-len(set(obidl))))
+# observation id not include pressure.
+obidstrs_nop = np.array([obid[:-6] for obid in obidstrs])
 print 'total number of diag obs = ',diag_conv.nobs
 print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size 
 diag_conv.read_obs()
@@ -27,9 +28,8 @@ for nob in range(diag_conv.nobs):
     obtype = diag_conv.obtype[nob]
     obidstr = "%s %3i %6.2f %6.2f %6.2f %4i %6.1f" % \
     (stid,obcode,lon,lat,time,elev,press)
-    if str(obcode).startswith('18') or str(obcode).startswith('28'):
-        nobs_nc = np.nonzero(obidstrs2 == obidstr[:-6])[0]
-    else:
+    nobs_nc = np.nonzero(obidstrs_nop == obidstr[:-6])[0]
+    if len(nobs_nc) > 1: # if more than one match, include pressure
         nobs_nc = np.nonzero(obidstrs == obidstr)[0]
     print nob,obidstr,len(nobs_nc),'matches'
     if len(nobs_nc) == 0:
