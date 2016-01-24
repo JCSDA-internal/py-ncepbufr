@@ -1,9 +1,9 @@
 import read_diag
 from netCDF4 import Dataset
 import numpy as np
-obsfile = 'diag_conv_ges.2015100100_control'
-ncfile = 'prepbufr_2015100100.nc'
-diag_conv = read_diag.diag_conv(obsfile,endian='little')
+obsfile = 'diag_conv_ges.2010102700'
+ncfile = 'prepbufr_2010102700.nc'
+diag_conv = read_diag.diag_conv(obsfile,endian='big')
 print 'read netcdf'
 nc_prepbufr = Dataset(ncfile)
 # observation id (station id/type code/lon/lat/time/elevation/pressure)
@@ -13,6 +13,7 @@ print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size
 diag_conv.read_obs()
 count_nomatch = 0; count_multmatch = 0
 for nob in range(diag_conv.nobs):
+    if diag_conv.obtype[nob] == 'gps': continue
     stid = diag_conv.station_ids[nob]
     lon = diag_conv.lon[nob]
     lat = diag_conv.lat[nob]
@@ -30,9 +31,9 @@ for nob in range(diag_conv.nobs):
         #raise ValueError('no match found')
     elif len(nobs_nc) > 1:
         count_multmatch += 1
-        #print nobs_nc,obidstrs[nobs_nc]
-        #print nc_prepbufr['obdata'][nobs_nc]
-        #raise ValueError('multiple matches found')
+        print nobs_nc,obidstrs[nobs_nc]
+        print nc_prepbufr['obdata'][nobs_nc]
+        raise ValueError('multiple matches found')
 print(count_nomatch,' no matches')
 print(count_multmatch,' multiple matches')
 nc_prepbufr.close()
