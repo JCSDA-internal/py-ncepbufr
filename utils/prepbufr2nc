@@ -99,6 +99,7 @@ qcdata.desc = 'observation QC data'
 
 # read prepbufr data, write to netcdf.
 nob = 0
+obid_set = set()
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
 
@@ -115,26 +116,32 @@ while bufr.advance() == 0: # loop over messages.
         obs = bufr.read_subset(obstr)
         qc  = bufr.read_subset(qcstr)
         err = bufr.read_subset(oestr)
-        nlevs = obs.shape[-1] # number of levels in data.
-        nob += nlevs # total number  of obs
-        nobs_message += nlevs # obs for this message
-        for nlev in range(nlevs):
-            hdrarr.append(hdr.squeeze())
+	nlevs_use = 0
+	for nlev in range(obs.shape[-1]):
             # use balloon drift lat/lon/time for sondes, pibals.
             # probably needs some more error checking to see if values
             # are reasonable, and if not fall back to header values (as GSI does).
             if hdr[4] in [120,220,221]:
-                obidstr = "%s %3i %6.2f %6.2f %6.2f %4i %6.1f" % \
+                obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
                 (hdr[0].tostring(), hdr[4], obs[11,nlev], obs[12,nlev], obs[13,nlev], hdr[5], obs[0,nlev])
             else:
-                obidstr = "%s %3i %6.2f %6.2f %6.2f %4i %6.1f" % \
+                obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
                 (hdr[0].tostring(), hdr[4], hdr[1], hdr[2], hdr[3], hdr[5], obs[0,nlev])
+            # skip ob if there is already a matching obid string
+            if obidstr not in obid_set:
+                obid_set.add(obidstr)
+            else:
+                print('skipping duplicate ob')
+                continue
+            hdrarr.append(hdr.squeeze())
             obidarr.append(obidstr)
             obsarr.append(obs[:,nlev])
             errarr.append(err[:,nlev])
             qcarr.append(qc[:,nlev])
             msgnumarr.append(bufr.msg_counter)
             subsetnumarr.append(nsubset)
+            nob += 1; nlevs_use += 1
+        nobs_message += nlevs_use # obs for this message
     # make lists into arrays.
     hdrarr = np.array(hdrarr); obsarr = np.array(obsarr)
     errarr = np.array(errarr); qcarr = np.array(qcarr)
