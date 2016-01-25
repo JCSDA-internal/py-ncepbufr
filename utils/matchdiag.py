@@ -1,6 +1,7 @@
 import read_diag
 from netCDF4 import Dataset
 import numpy as np
+# match records in diag_conv file to records in prepbufr netcdf file.
 obsfile = 'diag_conv_ges.2010102700'
 ncfile = 'prepbufr_2010102700.nc'
 diag_conv = read_diag.diag_conv(obsfile,endian='big')
