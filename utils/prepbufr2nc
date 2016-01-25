@@ -122,7 +122,7 @@ while bufr.advance() == 0: # loop over messages.
 	nlevs_use = 0
 	for nlev in range(obs.shape[-1]):
             lon = hdr[1]; lat = hdr[2]; time = hdr[3]
-            press = obs[0,nlev]
+            press = obs[0,nlev]; z = hdr[5]
             # use balloon drift lat/lon/time for sondes, pibals
             # in obid string.
             if hdr[4] in [120,220,221]:
@@ -131,8 +131,10 @@ while bufr.advance() == 0: # loop over messages.
                 # assimilation window.
                 if obs[13,nlev] >= time_min and obs[13,nlev] < time_max:
                     time = obs[13,nlev]
+            elif hdr[4] >= 223 and hdr[4] <= 228:
+                z = obs[3,nlev] # use zob, not station elev
             obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
-            (hdr[0].tostring(), hdr[4], lon, lat, time, hdr[5], press)
+            (hdr[0].tostring(), hdr[4], lon, lat, time, z, press)
             # skip ob if there is already a matching obid string
             # (do we need more checking here to make sure obs are
             # really duplicates?)

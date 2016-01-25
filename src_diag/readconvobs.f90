@@ -199,7 +199,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_lon(nob) = rdiagbuf(4,n)
           x_press(nob) = rdiagbuf(6,n)
           x_time(nob) = rdiagbuf(8,n)
-          if (x_code(nob) >= 223 .or. x_code(nob) <= 228) then
+          if (x_code(nob) >= 223 .and. x_code(nob) <= 228) then
              x_stnelev(nob) = rdiagbuf(7,n)
           else
              x_stnelev(nob) = rdiagbuf(5,n)
