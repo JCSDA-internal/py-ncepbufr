@@ -32,13 +32,15 @@ for nob in range(diag_conv.nobs):
     elev = diag_conv.stnelev[nob]
     obcode = diag_conv.code[nob]
     obtype = diag_conv.obtype[nob]
+    used = diag_conv.used[nob]
     obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
     (stid,obcode,lon,lat,time,elev,press)
     nobs_nc = np.nonzero(obidstrs_nop == obidstr[:-6])[0]
     if len(nobs_nc) > 1: # if more than one match, include pressure
         nobs_nc = np.nonzero(obidstrs == obidstr)[0]
-    print nob,obidstr,len(nobs_nc),'matches'
-    if len(nobs_nc) == 0:
+    print nob,used,obidstr,len(nobs_nc),'matches'
+    if len(nobs_nc) == 0 and used == 1:
+        # count obs with no matches that were used by GSI
         count_nomatch += 1
         #raise ValueError('no match found')
     elif len(nobs_nc) > 1:
