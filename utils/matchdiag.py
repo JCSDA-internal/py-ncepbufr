@@ -18,7 +18,7 @@ obidstrs_nop = np.array([obid[:-6] for obid in obidstrs])
 print 'total number of diag obs = ',diag_conv.nobs
 print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size
 diag_conv.read_obs()
-count_nomatch = 0; count_multmatch = 0
+count_nomatch = 0
 for nob in range(diag_conv.nobs):
     if diag_conv.obtype[nob] in ['tcp','gps']: continue
     stid = diag_conv.station_ids[nob]
@@ -41,19 +41,6 @@ for nob in range(diag_conv.nobs):
         count_nomatch += 1
         #raise ValueError('no match found')
     elif len(nobs_nc) > 1:
-        count_multmatch += 1
-        hdrdat = nc_prepbufr['header'][nobs_nc]
-        qcdat = nc_prepbufr['qcdata'][nobs_nc]
-        obdat = nc_prepbufr['obdata'][nobs_nc]
-        print 'indices'
-        print nobs_nc
-        print 'headers'
-        print hdrdat
-        print 'qcinfo'
-        print qcdat
-        print 'obs'
-        print obdat
         raise ValueError('multiple matches found')
 print('%s no matches' % count_nomatch)
-print('%s duplicate matches' % count_multmatch)
 nc_prepbufr.close()
