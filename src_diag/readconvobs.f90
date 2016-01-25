@@ -396,7 +396,8 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_lon(nob) = rdiagbuf(4,n)
           x_press(nob) = rdiagbuf(6,n)
           x_time(nob) = rdiagbuf(8,n)
-          x_stnelev(nob) = rdiagbuf(5,n)
+          !x_stnelev(nob) = rdiagbuf(5,n)
+          x_stnelev(nob) = rdiagbuf(7,n) ! use ob height instead
           if (rdiagbuf(14,n) > 1.e-5) then
             x_errorig(nob) = (1.0/rdiagbuf(14,n))**2
           else
@@ -486,7 +487,8 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_lon(nob) = rdiagbuf(4,n)
           x_press(nob) = rdiagbuf(6,n)
           x_time(nob) = rdiagbuf(8,n)
-          x_stnelev(nob) = rdiagbuf(5,n)
+          !x_stnelev(nob) = rdiagbuf(5,n)
+          x_stnelev(nob) = rdiagbuf(7,n) ! use ob height instead
           if (rdiagbuf(14,n) > 1.e-5) then
             x_errorig(nob) = (1.0/rdiagbuf(14,n))**2
           else
@@ -536,7 +538,8 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_lon(nob) = rdiagbuf(4,n)
           x_press(nob) = rdiagbuf(6,n)
           x_time(nob) = rdiagbuf(8,n)
-          x_stnelev(nob) = rdiagbuf(5,n)
+          !x_stnelev(nob) = rdiagbuf(5,n)
+          x_stnelev(nob) = rdiagbuf(7,n) ! use ob height instead
           if (rdiagbuf(14,n) > 1.e-5) then
             x_errorig(nob) = (1.0/rdiagbuf(14,n))**2
           else
