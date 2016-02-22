@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 from .bufr_mnemonics import *
 
-__version__ = "0.9.2"
+__version__ = "0.9.3"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 
 # create list of allowed fortran unit numbers
@@ -290,7 +290,7 @@ class open:
         number of digits in the reference date is controlled by
         `ncepbufr.open.set_datelength`, and is 10 by default.
         """
-        _bufrlib.openmb(self.lunit,msg_type,int(msg_date))
+        _bufrlib.openmg(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         """
         close bufr message

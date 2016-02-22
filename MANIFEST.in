@@ -16,4 +16,5 @@ include src/*.F*
 include src/*.PRM*
 include src/makebufrlib.sh
 include src_diag/*90
-include utils/prepbufr2nc*
+include utils/prepbufr2nc
+include utils/nc2prepbufr

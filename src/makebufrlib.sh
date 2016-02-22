@@ -153,7 +153,7 @@ EOF
 #-------------------------------------------------------------------------------
 #     Generate the bufrlib.prm header file.
 
-cpp $CPPFLAGS -DBUILD=NORMAL bufrlib.PRM.orig bufrlib.prm
+cpp $CPPFLAGS -DBUILD=SUPERSIZE bufrlib.PRM.orig bufrlib.prm
 
 export LIB="libbufr.a"
 export FFLAGS=" -O2 -fPIC"
