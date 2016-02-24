@@ -1,4 +1,5 @@
 import ncepbufr
+from time import clock
 import numpy as np
 from netCDF4 import Dataset
 from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
@@ -178,10 +179,12 @@ obcol_dict[' pw'] = 5
 
 
 prnt_break=1000
-#test_stop=1000
+#test_stop=10000
 test_stop = nobs_diag #full run
 count_nomatch = 0
+ncount = 0
 
+tstart = clock()
 for nob in range(test_stop):
     if diag_conv_F.obtype[nob] in ['sst','tcp','gps']: continue
     stid = diag_conv_F.station_ids[nob]
@@ -208,10 +211,18 @@ for nob in range(test_stop):
     obidstr_nop_hash = hash(obidstr[:-6])
     obidstr_hash = hash(obidstr)
 
-    nobs_nc = np.argwhere(obidstrs_nop_hash == obidstr_nop_hash)[0]
+    nobs_nc = np.argwhere(obidstrs_nop_hash == obidstr_nop_hash)
+    try:
+       nobs_nc = nobs_nc[0]
+    except:
+       pass
 
     if len(nobs_nc) > 1: # if more than one match, include pressure
-        nobs_nc = np.argwhere(obidstrs_hash == obidstr_hash)[0]
+        nobs_nc = np.argwhere(obidstrs_hash == obidstr_hash)
+        try:
+           nobs_nc = nobs_nc[0]
+        except:
+           pass
     if len(nobs_nc) == 0 and used == 1:
         print 'no match %s' % obidstr
         count_nomatch += 1
@@ -219,15 +230,18 @@ for nob in range(test_stop):
         prepindx[nob] = nobs_nc[0]
     elif len(nobs_nc) > 1:
         raise ValueError('multiple matches found')
-    if not nob % prnt_break:
-        print nob,used,obidstr,len(nobs_nc),'matches'
+    if ncount % prnt_break == 0:
+        print ncount,nob,used,obidstr,len(nobs_nc),'matches'
     if prepindx[nob] > 0:
         gsigesdataarray[prepindx[nob],obcol[nob]] = obs_F
         gsianldataarray[prepindx[nob],obcol[nob]] = obs_A
         gsierrarray[prepindx[nob],obcol[nob]] = oberr_A
         gsiqcarray[prepindx[nob],obcol[nob]] = used_A
+    ncount += 1
 
 
+tend = clock()-tstart
+print('cpu time = %s' % tend)
 print('no matches found for %s nobs that GSI used' % count_nomatch)
 
 ######################################################################################
