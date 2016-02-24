@@ -1,0 +1,292 @@
+import ncepbufr
+import numpy as np
+from netCDF4 import Dataset
+from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
+import sys, os
+import read_diag
+
+if len(sys.argv) < 5:
+    raise SystemExit('matchdiag_writenc <input nc prepbufr> <input gsi anl diag> <input gsi ges diag> <output merged netcdf>')
+
+# input and output file names from command line args.
+prepbufrnc_file = sys.argv[1]
+diagfile_A = sys.argv[2]
+diagfile_F = sys.argv[3]
+prepbufrdiagnc_file = sys.argv[4]
+
+if prepbufrnc_file == prepbufrdiagnc_file:
+    raise IOError('cannot overwrite input prepbufr file')
+
+# match records in diag_conv_F file to records in prepbufr netcdf file.
+
+nc_out = Dataset(prepbufrdiagnc_file,'w',format='NETCDF4')
+
+## PREBUFR NC FILE made with prepbufr2nc ############################################
+print 'read netcdf'
+nc_prepbufr = Dataset(prepbufrnc_file)
+# observation id (station id/type code/lon/lat/time/elevation/pressure)
+obidstrs = nc_prepbufr['obid'][:]
+obidl = obidstrs.tolist()
+print('%s non-unique ob ids' % str(len(obidl)-len(set(obidl))))
+# observation id not including pressure.
+obidstrs_nop_hash = np.array([hash(obid[:-6]) for obid in obidstrs],np.int64) 
+obidstrs_hash = np.array([hash(obid) for obid in obidstrs],np.int64) 
+print 'total number of prepbufr obs = ',nc_prepbufr.dimensions['nobs'].size
+########## obidstrs (with an 's' at the end, comes from prepbufr
+######################################################################################
+prep_header = nc_prepbufr['header'][:]
+print 'prep header shape=',prep_header.shape
+prep_obdata = nc_prepbufr['obdata'][:]
+bufr_missing_value = nc_prepbufr['obdata']._FillValue
+print 'prepobdata whole shape = ',prep_obdata.shape
+obdata_shape = prep_obdata.shape
+obdata_nrows = prep_obdata.shape[0]
+obdata_ncols = prep_obdata.shape[1]
+print 'prepobdata rows = ',obdata_nrows
+print 'prepobdata columns = ',obdata_ncols
+prep_nobs = obdata_nrows
+prep_nvarb = obdata_ncols
+
+#print 'new message ',nc_prepbufr.msg_type
+print 'prepnobs ',prep_nobs
+
+######################################################################################
+hdstr='SID XOB YOB DHR TYP ELV SAID T29'
+hd = nc_out.createDimension('hdrinfo',len(hdstr.split()))
+nhdd = len(hd)
+obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS TDO PMO XDR YDR HRDR'
+ob = nc_out.createDimension('obinfo',len(obstr.split()))
+nobd = len(ob)
+qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
+qc = nc_out.createDimension('qcinfo',len(qcstr.split()))
+nqcd = len(qc)
+oestr='POE QOE TOE ZOE WOE PWE'
+oe = nc_out.createDimension('oeinfo',len(oestr.split()))
+noed = len(oe)
+diag_varbstr='QOB TOB UOB VOB PRSS PWO'
+diag_errstr='QOE TOE UOE VOE POE PWE'
+diag_qcstr='QQM TQM UQM VQM PQM PWQ'
+diag_obs = nc_out.createDimension('diaginfo',len(diag_varbstr.split()))
+ndiag_obd = len(diag_obs)
+
+nmsgs = nc_out.createDimension('nmsgs',obdata_nrows)
+nobsd = nc_out.createDimension('nobs',None)
+######################################################################################
+nobs_chunk = 200
+
+print 'nhdd=',nhdd
+
+hdrdata =\
+nc_out.createVariable('header',np.float32,('nobs','hdrinfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
+hdrdata.desc = 'observation header data'
+for key in hdstr.split():
+    hdrdata.setncattr(key,mnemonics_dict[key])
+hdrdata.hdrinfo = hdstr
+
+obid = nc_out.createVariable('obid',str,('nobs',),zlib=True)
+obid.desc = 'observation id (station id/type code/lon/lat/time/elevation/pressure)'
+
+obdata =\
+nc_out.createVariable('obdata',np.float32,('nobs','obinfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
+for key in obstr.split():
+    obdata.setncattr(key,mnemonics_dict[key])
+obdata.obinfo = obstr
+obdata.desc = 'observation data'
+
+oedata =\
+nc_out.createVariable('oberr',np.float32,('nobs','oeinfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
+for key in oestr.split():
+    oedata.setncattr(key,mnemonics_dict[key])
+oedata.oeinfo = oestr
+oedata.desc = 'observation error data'
+
+qc_fillval = 255
+qcdata =\
+nc_out.createVariable('qcdata',np.uint8,('nobs','qcinfo'),\
+fill_value=qc_fillval,zlib=True,chunksizes=(nobs_chunk,nqcd))
+for key in qcstr.split():
+    qcdata.setncattr(key,mnemonics_dict[key])
+qcdata.qcinfo = qcstr
+qcdata.desc = 'observation QC data'
+
+msgnum = nc_out.createVariable('msgnum',np.uint32,('nobs'),\
+zlib=True,chunksizes=(nobs_chunk,))
+msgnum.desc = 'bufr message number'
+subsetnum = nc_out.createVariable('subsetnum',np.uint16,('nobs'),\
+zlib=True,chunksizes=(nobs_chunk,))
+subsetnum.desc='subset number within bufr message'
+msgtype = nc_out.createVariable('msgtype',str,('nmsgs'),zlib=True)
+msgtype.desc='bufr message type'
+msgdate = nc_out.createVariable('msgdate',np.uint32,('nmsgs'),zlib=True)
+msgdate.desc='bufr message date'
+
+
+
+
+######################################################################################
+
+gsianldataarray = np.empty((obdata_nrows,ndiag_obd))
+gsigesdataarray = np.empty((obdata_nrows,ndiag_obd))
+gsierrarray = np.empty((obdata_nrows,ndiag_obd))
+gsiqcarray = np.empty((obdata_nrows,ndiag_obd))
+
+######################################################################################
+
+gsianldata =\
+nc_out.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+
+gsigesdata =\
+nc_out.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+
+gsierr =\
+nc_out.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
+fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+
+gsiqc =\
+nc_out.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
+fill_value=qc_fillval,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+
+
+## DIAG FILE from GSI ################################################################
+diag_conv_A = read_diag.diag_conv(diagfile_A,endian='big')
+diag_conv_A.read_obs()
+
+diag_conv_F = read_diag.diag_conv(diagfile_F,endian='big')
+diag_conv_F.read_obs()
+print 'total number of diag obs = ',diag_conv_F.nobs
+diag_conv_F.read_obs()
+
+nobs_diag=diag_conv_F.nobs
+prepindx = -1*np.ones(nobs_diag,np.int32)
+
+obcol = np.empty(nobs_diag,np.int)
+obcol_dict={}
+obcol_dict['  q'] = 0
+obcol_dict['  t'] = 1
+obcol_dict['  u'] = 2
+obcol_dict['  v'] = 3
+obcol_dict[' ps'] = 4
+obcol_dict[' pw'] = 5
+#obcol_dict['gps'] = 6
+#obcol_dict['sst'] = 7
+#obcol_dict['tcp'] = 8
+
+
+prnt_break=1000
+#test_stop=10000
+test_stop = nobs_diag #full run
+count_nomatch = 0
+
+for nob in range(test_stop):
+    if diag_conv_F.obtype[nob] in ['sst','tcp','gps']: continue
+    stid = diag_conv_F.station_ids[nob]
+    lon = diag_conv_F.lon[nob]
+    lat = diag_conv_F.lat[nob]
+    time = diag_conv_F.time[nob]
+    press = diag_conv_F.press[nob]
+    # skip if missing or invalid pressure
+    if press < 0 or press > 2.e3: continue
+    elev = diag_conv_F.stnelev[nob]
+    obcode = diag_conv_F.code[nob]
+    obtype = diag_conv_F.obtype[nob]
+    obcol[nob] = obcol_dict[obtype]
+    obs_F = diag_conv_F.obs[nob]
+    obs_A = diag_conv_A.obs[nob]
+    hx_A = diag_conv_A.hx[nob]
+    oberr_A = diag_conv_A.oberr[nob]
+    used_A = diag_conv_A.used[nob]
+
+    used = used_A
+
+    obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
+    (stid,obcode,lon,lat,time,elev,press)
+    obidstr_nop_hash = hash(obidstr[:-6])
+    obidstr_hash = hash(obidstr)
+
+    matchbool = obidstrs_nop_hash == obidstr_nop_hash # this is the long pole!
+    nobs_nc = np.nonzero(matchbool)[0]
+
+    if len(nobs_nc) > 1: # if more than one match, include pressure
+        matchbool= obidstrs_hash == obidstr_hash
+        nobs_nc = np.nonzero(matchbool)[0]
+    if len(nobs_nc) == 0 and used == 1:
+        count_nomatch += 1
+    elif len(nobs_nc) == 1:
+        prepindx[nob] = nobs_nc[0]
+    elif len(nobs_nc) > 1:
+        raise ValueError('multiple matches found')
+    if not nob % prnt_break:
+        print nob,used,obidstr,len(nobs_nc),'matches'
+    if prepindx[nob] > 0:
+        gsigesdataarray[prepindx[nob],obcol[nob]] = obs_F
+        gsianldataarray[prepindx[nob],obcol[nob]] = obs_A
+        gsierrarray[prepindx[nob],obcol[nob]] = oberr_A
+        gsiqcarray[prepindx[nob],obcol[nob]] = used_A
+
+
+print('%s no matches' % count_nomatch)
+
+######################################################################################
+for key in diag_varbstr.split():
+    gsianldata.setncattr(key,mnemonics_dict[key])
+    gsigesdata.setncattr(key,mnemonics_dict[key])
+for key in diag_errstr.split():
+    if key in ['UOE','VOE']:
+        val = key[0]+'-COMPONENT WIND OBSERVATION ERROR (M/S)'
+        gsierr.setncattr(key,val)
+    else:
+        gsierr.setncattr(key,mnemonics_dict[key])
+for key in diag_qcstr.split():
+    if key in ['UQM','VQM']:
+        val = key[0]+'-COMPONENT WIND QUALITY MARKER'
+        gsiqc.setncattr(key,val)
+    else:
+        gsiqc.setncattr(key,mnemonics_dict[key])
+
+
+gsianldata.diaginfo = diag_varbstr
+gsigesdata.diaginfo = diag_varbstr
+gsierr.diaginfo = diag_errstr
+gsiqc.diaginfo = diag_qcstr
+
+gsianldata.desc = 'gsi analysis data (model analysis in observation space)'
+gsigesdata.desc = 'gsi guess data (model guess in observation space)'
+gsierr.desc = 'observation errors used by GSI'
+gsiqc.desc = 'gsi QC flags (1: used, 0: not used)'
+
+
+######################################################################################
+
+prep_header = nc_prepbufr['header'][:]
+prep_oberr = nc_prepbufr['oberr'][:]
+prep_qcdata = nc_prepbufr['qcdata'][:]
+prep_obid = nc_prepbufr['obid'][:]
+prep_msgnum = nc_prepbufr['msgnum'][:]
+prep_subsetnum = nc_prepbufr['subsetnum'][:]
+
+#print nc_out['header'].shape
+#print prep_header.shape
+#print nc_out['obdata'].shape
+#print prep_obdata.shape
+
+nc_out['header'][:] = prep_header[:]
+nc_out['obdata'][:] = prep_obdata[:]
+nc_out['oberr'][:]  = prep_oberr[:]
+nc_out['qcdata'][:] = prep_qcdata[:]
+nc_out['obid'][:] = prep_obid[:]
+nc_out['msgnum'][:] = prep_msgnum[:]
+nc_out['subsetnum'][:] = prep_subsetnum[:]
+
+nc_out['gsianldata'][:] = gsianldataarray[:]
+nc_out['gsierr'][:] = gsierrarray[:]
+nc_out['gsiqc'][:] =  gsiqcarray[:]
+nc_out['gsigesdata'][:] = gsigesdataarray[:]
+
+nc_out.sync()
+nc_out.close()
+nc_prepbufr.close()
