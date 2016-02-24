@@ -21,7 +21,7 @@
 ###############################################################
 
 export FC=gfortran
-export CC=gcc
+export CC=cc
 #CPPFLAGS=" -P -traditional-cpp -C"
 CPPFLAGS=" -P -traditional-cpp"
 
