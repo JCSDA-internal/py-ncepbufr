@@ -7,7 +7,7 @@ import sys, os
 import read_diag
 
 # set to True is use_prepb_satwnd was .false. in GSI (satwinds from satwndbufr, not prepbufr file)
-#skipsatwind = True
+skipsatwind = False
 
 if len(sys.argv) < 5:
     raise SystemExit('matchdiag_writenc <input nc prepbufr> <input gsi anl diag> <input gsi ges diag> <output merged netcdf>')
