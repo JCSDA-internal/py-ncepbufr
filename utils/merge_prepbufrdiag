@@ -198,13 +198,10 @@ for nob in range(test_stop):
     obcode = diag_conv_F.code[nob]
     obtype = diag_conv_F.obtype[nob]
     obcol[nob] = obcol_dict[obtype]
-    obs_F = diag_conv_F.obs[nob]
-    obs_A = diag_conv_A.obs[nob]
     hx_A = diag_conv_A.hx[nob]
-    oberr_A = diag_conv_A.oberr[nob]
-    used_A = diag_conv_A.used[nob]
-
-    used = used_A
+    hx_F = diag_conv_F.hx[nob]
+    oberr = diag_conv_F.oberr[nob]
+    used = diag_conv_F.used[nob]
 
     obidstr = "%s %3i %6.2f %6.2f %9.5f %5i %6.1f" % \
     (stid,obcode,lon,lat,time,elev,press)
@@ -225,10 +222,10 @@ for nob in range(test_stop):
     if ncount % prnt_break == 0:
         print ncount,nob,used,obidstr,len(nobs_nc),'matches'
     if prepindx[nob] > 0:
-        gsigesdataarray[prepindx[nob],obcol[nob]] = obs_F
-        gsianldataarray[prepindx[nob],obcol[nob]] = obs_A
-        gsierrarray[prepindx[nob],obcol[nob]] = oberr_A
-        gsiqcarray[prepindx[nob],obcol[nob]] = used_A
+        gsigesdataarray[prepindx[nob],obcol[nob]] = hx_F
+        gsianldataarray[prepindx[nob],obcol[nob]] = hx_A
+        gsierrarray[prepindx[nob],obcol[nob]] = oberr
+        gsiqcarray[prepindx[nob],obcol[nob]] = used
     ncount += 1
 
 
