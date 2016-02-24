@@ -6,6 +6,9 @@ from ncepbufr import prepbufr_mnemonics_dict as mnemonics_dict
 import sys, os
 import read_diag
 
+# set to True is use_prepb_satwnd was .false. in GSI (satwinds from satwndbufr, not prepbufr file)
+skipsatwind = False
+
 if len(sys.argv) < 5:
     raise SystemExit('matchdiag_writenc <input nc prepbufr> <input gsi anl diag> <input gsi ges diag> <output merged netcdf>')
 
@@ -186,17 +189,21 @@ ncount = 0
 
 tstart = clock()
 for nob in range(test_stop):
-    if diag_conv_F.obtype[nob] in ['sst','tcp','gps']: continue
+    obtype = diag_conv_F.obtype[nob]
+    obcode = diag_conv_F.code[nob]
+    # gps data from gpsbufr, tcp from tcvitals.  
+    # don't know about sst?
+    if obtype in ['sst','tcp','gps']: continue
+    # skip if sat winds from satwndbufr
+    if skipsatwind and obcode >= 240 and obcode < 260: continue
+    press = diag_conv_F.press[nob]
+    # skip if missing or invalid pressure
+    if press < 0 or press > 2.e3: continue
     stid = diag_conv_F.station_ids[nob]
     lon = diag_conv_F.lon[nob]
     lat = diag_conv_F.lat[nob]
     time = diag_conv_F.time[nob]
-    press = diag_conv_F.press[nob]
-    # skip if missing or invalid pressure
-    if press < 0 or press > 2.e3: continue
     elev = diag_conv_F.stnelev[nob]
-    obcode = diag_conv_F.code[nob]
-    obtype = diag_conv_F.obtype[nob]
     obcol[nob] = obcol_dict[obtype]
     hx_A = diag_conv_A.hx[nob]
     hx_F = diag_conv_F.hx[nob]
