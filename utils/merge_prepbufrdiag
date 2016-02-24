@@ -200,6 +200,11 @@ for nob in range(test_stop):
     obcol[nob] = obcol_dict[obtype]
     hx_A = diag_conv_A.hx[nob]
     hx_F = diag_conv_F.hx[nob]
+    # convert temperatures from gsi diag file to degrees C
+    # NOTE:  still a problem with q, which is q/qsat in diag file.
+    if obtype == '  t': 
+         hx_A = hx_A - 273.15
+         hx_F = hx_F - 273.15
     oberr = diag_conv_F.oberr[nob]
     used = diag_conv_F.used[nob]
 
