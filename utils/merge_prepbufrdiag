@@ -178,7 +178,7 @@ obcol_dict[' pw'] = 5
 
 
 prnt_break=1000
-#test_stop=10000
+#test_stop=1000
 test_stop = nobs_diag #full run
 count_nomatch = 0
 
@@ -208,10 +208,10 @@ for nob in range(test_stop):
     obidstr_nop_hash = hash(obidstr[:-6])
     obidstr_hash = hash(obidstr)
 
-    nobs_nc = np.nonzero(obidstrs_nop_hash == obidstr_nop_hash)[0]
+    nobs_nc = np.argwhere(obidstrs_nop_hash == obidstr_nop_hash)[0]
 
     if len(nobs_nc) > 1: # if more than one match, include pressure
-        nobs_nc = np.nonzero(obidstrs_hash == obidstr_hash)[0]
+        nobs_nc = np.argwhere(obidstrs_hash == obidstr_hash)[0]
     if len(nobs_nc) == 0 and used == 1:
         print 'no match %s' % obidstr
         count_nomatch += 1
