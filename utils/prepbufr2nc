@@ -141,7 +141,7 @@ while bufr.advance() == 0: # loop over messages.
             if obidstr not in obid_set:
                 obid_set.add(obidstr)
             else:
-                print('skipping duplicate ob')
+                print('skipping duplicate ob %s' % obidstr)
                 continue
             hdrarr.append(hdr.squeeze())
             obidarr.append(obidstr)

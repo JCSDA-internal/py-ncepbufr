@@ -344,6 +344,16 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
        enddo
        deallocate(cdiagbuf,rdiagbuf)
     else if (obtype == '  q') then
+!       rdiagbuf(13,ii) = rwgt               ! nonlinear qc relative weight
+!       rdiagbuf(14,ii) = errinv_input       ! prepbufr inverse observation error
+!       rdiagbuf(15,ii) = errinv_adjst       ! read_prepbufr inverse obs error
+!       rdiagbuf(16,ii) = errinv_final       ! final inverse observation error
+
+!       rdiagbuf(17,ii) = data(iqob,i)       ! observation
+!       rdiagbuf(18,ii) = ddiff              ! obs-ges used in analysis
+!       rdiagbuf(19,ii) = qob-qges           ! obs-ges w/o bias correction (future slot)
+
+!       rdiagbuf(20,ii) = qsges              ! guess saturation specific humidity
        allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
        read(iunit) cdiagbuf(1:ii),rdiagbuf(:,1:ii)
        do n=1,ii
@@ -354,16 +364,22 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_press(nob) = rdiagbuf(6,n)
           x_time(nob) = rdiagbuf(8,n)
           x_stnelev(nob) = rdiagbuf(5,n)
-          if (rdiagbuf(14,n)*rdiagbuf(20,n) > 1.e-5) then
+! normalized q (q/qsat)
+!         if (rdiagbuf(14,n)*rdiagbuf(20,n) > 1.e-5) then
 ! normalize by qsatges
-            x_errorig(nob) = (1./(rdiagbuf(20,n)*rdiagbuf(14,n)))**2
-          else
-            x_errorig(nob) = 1.e10
-          endif
+!           x_errorig(nob) = (1./(rdiagbuf(20,n)*rdiagbuf(14,n)))**2
+!         else
+!           x_errorig(nob) = 1.e10
+!         endif
 ! normalize by qsatges
-          x_err(nob) = (1./(rdiagbuf(20,n)*rdiagbuf(16,n)))**2
-          x_obs(nob) = rdiagbuf(17,n)/rdiagbuf(20,n)
-          h_x(nob) = (rdiagbuf(17,n)-rdiagbuf(18,n))/rdiagbuf(20,n)
+!         x_err(nob) = (1./(rdiagbuf(20,n)*rdiagbuf(16,n)))**2
+!         x_obs(nob) = rdiagbuf(17,n)/rdiagbuf(20,n)
+!         h_x(nob) = (rdiagbuf(17,n)-rdiagbuf(18,n))/rdiagbuf(20,n)
+! un-normalized q
+          x_errorig(nob) = (1./rdiagbuf(14,n))**2
+          x_err(nob) = (1./rdiagbuf(16,n))**2
+          x_obs(nob) = rdiagbuf(17,n)
+          h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
