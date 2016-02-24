@@ -208,13 +208,12 @@ for nob in range(test_stop):
     obidstr_nop_hash = hash(obidstr[:-6])
     obidstr_hash = hash(obidstr)
 
-    matchbool = obidstrs_nop_hash == obidstr_nop_hash # this is the long pole!
-    nobs_nc = np.nonzero(matchbool)[0]
+    nobs_nc = np.nonzero(obidstrs_nop_hash == obidstr_nop_hash)[0]
 
     if len(nobs_nc) > 1: # if more than one match, include pressure
-        matchbool= obidstrs_hash == obidstr_hash
-        nobs_nc = np.nonzero(matchbool)[0]
+        nobs_nc = np.nonzero(obidstrs_hash == obidstr_hash)[0]
     if len(nobs_nc) == 0 and used == 1:
+        print 'no match %s' % obidstr
         count_nomatch += 1
     elif len(nobs_nc) == 1:
         prepindx[nob] = nobs_nc[0]
@@ -229,7 +228,7 @@ for nob in range(test_stop):
         gsiqcarray[prepindx[nob],obcol[nob]] = used_A
 
 
-print('%s no matches' % count_nomatch)
+print('no matches found for %s nobs that GSI used' % count_nomatch)
 
 ######################################################################################
 for key in diag_varbstr.split():
