@@ -90,7 +90,7 @@ subroutine get_num_convobs(obsfile,num_obs_tot,endian)
 20  continue
     print *,'error reading diag_conv file',obtype
 30  continue
-    print *,num_obs_tot,' obs in diag_conv_ges file'
+    print *,num_obs_tot,' obs in gsi diag file'
     write(6,100) 't',nobst
     write(6,100) 'q',nobsq
     write(6,100) 'ps',nobsps
