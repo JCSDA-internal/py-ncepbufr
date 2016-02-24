@@ -1,9 +1,10 @@
 from netCDF4 import Dataset
 import numpy as np
+import sys
 # ob type, code and level to check
-obtype = '  t'
+obtype = '  q'
 obcode = 120
-level = 500.
+level = 850.
 # define column in obs and gsi diag arrays
 if obtype == '  t':
     obcol1 = 2
@@ -20,13 +21,14 @@ elif obtype == '  v':
 else:
     raise ValueError('unrecognized ob type')
 print 'obtype, obcode, level = ',obtype,obcode,level
-nc = Dataset('test.nc')
+filename = sys.argv[1]
+nc = Dataset(filename)
 obdata = nc.variables['obdata'][:]
 gsigesdata = nc.variables['gsigesdata'][:]
 gsianldata = nc.variables['gsianldata'][:]
 header = nc.variables['header'][:]
 # set un-set values as not used
-gsiqc = nc.variables['gsiqc'][:].filled(fill_value=0)
+gsiqc = nc.variables['gsiqc'][:]
 idx = np.argwhere(\
    np.logical_and( header[:,4] == obcode, np.abs(level-obdata[:,0]) <= 1.0)\
    ).squeeze()
@@ -35,6 +37,7 @@ idx = np.compress(used,idx)
 obs = obdata[idx,obcol1]
 ges = gsigesdata[idx,obcol2]
 anl = gsianldata[idx,obcol2]
+print 'count = ',len(idx)
 print 'min/max for obs, ges, anl'
 print obs.min(), obs.max()
 print ges.min(), ges.max()
