@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import ncepbufr
 from time import clock
 import numpy as np

@@ -26,5 +26,6 @@ if __name__ == "__main__":
           url               = "http://github.com/jswhit/py-ncepbufr",
           ext_modules       = [ext_bufrlib,ext_diag_conv],
           packages          = ['ncepbufr','read_diag'],
-          scripts           = ['utils/prepbufr2nc'],
+          scripts           =
+          ['utils/prepbufr2nc','utils/nc2prepbufr','utils/merge_prepbufrdiag'],
           )
