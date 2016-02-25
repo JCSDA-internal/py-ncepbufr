@@ -71,31 +71,34 @@ gsigesdataarray = np.empty((obdata_nrows,ndiag_obd))
 gsierrarray = np.empty((obdata_nrows,ndiag_obd))
 gsiqcarray = np.empty((obdata_nrows,ndiag_obd))
 
+# preserve chunking
+nobs_chunk = nc_prepbufr['obdata'].chunking()[0]
+
 if 'gsianldata' not in nc_prepbufr.variables:
     gsianldata =\
     nc_prepbufr.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
-    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,ndiag_obd))
 else:
     gsianldata = nc_prepbufr['gsianldata']
 
 if 'gsigesdata' not in nc_prepbufr.variables:
     gsigesdata =\
     nc_prepbufr.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
-    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,ndiag_obd))
 else:
     gsigesdata = nc_prepbufr['gsigesdata']
 
 if 'gsierr' not in nc_prepbufr.variables:
     gsierr =\
     nc_prepbufr.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
-    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,ndiag_obd))
 else:
     gsierr = nc_prepbufr['gsierr']
     
 if 'gsiqc' not in nc_prepbufr.variables:
     gsiqc =\
     nc_prepbufr.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
-    fill_value=255,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+    fill_value=255,zlib=True,chunksizes=(nobs_chunk,ndiag_obd))
 else:
     gsiqc = nc_prepbufr['gsiqc']
 
