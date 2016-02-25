@@ -30,15 +30,16 @@ qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
 oestr='POE QOE TOE ZOE WOE PWE'
 
 # skip these report types
-skiptypes = []
-#skiptypes = ['SATWND'] # sat winds in a separate bufr file.
+#skiptypes = []
+skiptypes = ['SATWND'] # sat winds in a separate bufr file.
 
 # open prepbufr file.
 # find total number of messages, analysis date
 bufr = ncepbufr.open(prepbufr_filename)
+nmessages = 0
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
-nmessages = bufr.msg_counter
+    nmessages += 1
 bufr.rewind()
 
 # open netcdf file
@@ -103,6 +104,7 @@ qcdata.desc = 'observation QC data'
 # read prepbufr data, write to netcdf.
 nob = 0
 obid_set = set()
+nmsg = 0
 while bufr.advance() == 0: # loop over messages.
     if bufr.msg_type in skiptypes: continue
 
@@ -111,8 +113,9 @@ while bufr.advance() == 0: # loop over messages.
     msgnumarr = []; subsetnumarr = []
     nobs_message = 0
     nsubset = 0
-    nc['msgtype'][bufr.msg_counter-1] = bufr.msg_type
-    nc['msgdate'][bufr.msg_counter-1] = bufr.msg_date
+    nc['msgtype'][nmsg] = bufr.msg_type
+    nc['msgdate'][nmsg] = bufr.msg_date
+    nmsg += 1
     while bufr.load_subset() == 0: # loop over subsets in message.
         nsubset += 1
         hdr = bufr.read_subset(hdstr).squeeze()
@@ -148,7 +151,7 @@ while bufr.advance() == 0: # loop over messages.
             obsarr.append(obs[:,nlev])
             errarr.append(err[:,nlev])
             qcarr.append(qc[:,nlev])
-            msgnumarr.append(bufr.msg_counter)
+            msgnumarr.append(nmsg)
             subsetnumarr.append(nsubset)
             nob += 1; nlevs_use += 1
         nobs_message += nlevs_use # obs for this message
@@ -161,7 +164,7 @@ while bufr.advance() == 0: # loop over messages.
     # write all the data for this message
     nob1 = nob-nobs_message
     print('writing message %s out of %s, type %s with %s obs' %\
-    (bufr.msg_counter,nmessages,bufr.msg_type,nobs_message))
+    (nmsg,nmessages,bufr.msg_type,nobs_message))
     nc['header'][nob1:nob] = hdrarr
     nc['obdata'][nob1:nob] = obsarr
     nc['oberr'][nob1:nob]  = errarr
