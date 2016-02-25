@@ -7,27 +7,22 @@ import sys, os
 import read_diag
 
 # set to True is use_prepb_satwnd was .false. in GSI (satwinds from satwndbufr, not prepbufr file)
-skipsatwind = False
+skipsatwind = True
 
-if len(sys.argv) < 5:
-    raise SystemExit('matchdiag_writenc <input nc prepbufr> <input gsi anl diag> <input gsi ges diag> <output merged netcdf>')
+if len(sys.argv) < 4:
+    raise SystemExit('matchdiag_writenc <input nc prepbufr> <input gsi anl diag> <input gsi ges diag>')
 
-# input and output file names from command line args.
+# file names from command line args.
 prepbufrnc_file = sys.argv[1]
 diagfile_A = sys.argv[2]
 diagfile_F = sys.argv[3]
-prepbufrdiagnc_file = sys.argv[4]
-
-if prepbufrnc_file == prepbufrdiagnc_file:
-    raise IOError('cannot overwrite input prepbufr file')
 
 # match records in diag_conv_F file to records in prepbufr netcdf file.
 
-nc_out = Dataset(prepbufrdiagnc_file,'w',format='NETCDF4')
+nc_prepbufr = Dataset(prepbufrnc_file,'a')
 
 ## PREBUFR NC FILE made with prepbufr2nc ############################################
 print 'read netcdf'
-nc_prepbufr = Dataset(prepbufrnc_file)
 # observation id (station id/type code/lon/lat/time/elevation/pressure)
 obidstrs = nc_prepbufr['obid'][:]
 obidl = obidstrs.tolist()
@@ -60,106 +55,36 @@ prep_nvarb = obdata_ncols
 #print 'new message ',nc_prepbufr.msg_type
 print 'prepnobs ',prep_nobs
 
-######################################################################################
-hdstr='SID XOB YOB DHR TYP ELV SAID T29'
-hd = nc_out.createDimension('hdrinfo',len(hdstr.split()))
-nhdd = len(hd)
-obstr='POB QOB TOB ZOB UOB VOB PWO CAT PRSS TDO PMO XDR YDR HRDR'
-ob = nc_out.createDimension('obinfo',len(obstr.split()))
-nobd = len(ob)
-qcstr='PQM QQM TQM ZQM WQM PWQ PMQ'
-qc = nc_out.createDimension('qcinfo',len(qcstr.split()))
-nqcd = len(qc)
-oestr='POE QOE TOE ZOE WOE PWE'
-oe = nc_out.createDimension('oeinfo',len(oestr.split()))
-noed = len(oe)
+# append new dimension and variables.
+
 diag_varbstr='QOB TOB UOB VOB PRSS PWO'
 diag_errstr='QOE TOE UOE VOE POE PWE'
 diag_qcstr='QQM TQM UQM VQM PQM PWQ'
-diag_obs = nc_out.createDimension('diaginfo',len(diag_varbstr.split()))
+diag_obs = nc_prepbufr.createDimension('diaginfo',len(diag_varbstr.split()))
 ndiag_obd = len(diag_obs)
 
-nmsgs = nc_out.createDimension('nmsgs',obdata_nrows)
-nobsd = nc_out.createDimension('nobs',None)
-######################################################################################
 nobs_chunk = 200
-
-print 'nhdd=',nhdd
-
-hdrdata =\
-nc_out.createVariable('header',np.float32,('nobs','hdrinfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,nhdd))
-hdrdata.desc = 'observation header data'
-for key in hdstr.split():
-    hdrdata.setncattr(key,mnemonics_dict[key])
-hdrdata.hdrinfo = hdstr
-
-obid = nc_out.createVariable('obid',str,('nobs',),zlib=True)
-obid.desc = 'observation id (station id/type code/lon/lat/time/elevation/pressure)'
-
-obdata =\
-nc_out.createVariable('obdata',np.float32,('nobs','obinfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,nobd))
-for key in obstr.split():
-    obdata.setncattr(key,mnemonics_dict[key])
-obdata.obinfo = obstr
-obdata.desc = 'observation data'
-
-oedata =\
-nc_out.createVariable('oberr',np.float32,('nobs','oeinfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(nobs_chunk,noed))
-for key in oestr.split():
-    oedata.setncattr(key,mnemonics_dict[key])
-oedata.oeinfo = oestr
-oedata.desc = 'observation error data'
-
-qc_fillval = 255
-qcdata =\
-nc_out.createVariable('qcdata',np.uint8,('nobs','qcinfo'),\
-fill_value=qc_fillval,zlib=True,chunksizes=(nobs_chunk,nqcd))
-for key in qcstr.split():
-    qcdata.setncattr(key,mnemonics_dict[key])
-qcdata.qcinfo = qcstr
-qcdata.desc = 'observation QC data'
-
-msgnum = nc_out.createVariable('msgnum',np.uint32,('nobs'),\
-zlib=True,chunksizes=(nobs_chunk,))
-msgnum.desc = 'bufr message number'
-subsetnum = nc_out.createVariable('subsetnum',np.uint16,('nobs'),\
-zlib=True,chunksizes=(nobs_chunk,))
-subsetnum.desc='subset number within bufr message'
-msgtype = nc_out.createVariable('msgtype',str,('nmsgs'),zlib=True)
-msgtype.desc='bufr message type'
-msgdate = nc_out.createVariable('msgdate',np.uint32,('nmsgs'),zlib=True)
-msgdate.desc='bufr message date'
-
-
-
-
-######################################################################################
 
 gsianldataarray = np.empty((obdata_nrows,ndiag_obd))
 gsigesdataarray = np.empty((obdata_nrows,ndiag_obd))
 gsierrarray = np.empty((obdata_nrows,ndiag_obd))
 gsiqcarray = np.empty((obdata_nrows,ndiag_obd))
 
-######################################################################################
-
 gsianldata =\
-nc_out.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
+nc_prepbufr.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
 fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
 
 gsigesdata =\
-nc_out.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
+nc_prepbufr.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
 fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
 
 gsierr =\
-nc_out.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
+nc_prepbufr.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
 fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
 
 gsiqc =\
-nc_out.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
-fill_value=qc_fillval,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+nc_prepbufr.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
+fill_value=255,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
 
 
 ## DIAG FILE from GSI ################################################################
@@ -288,34 +213,9 @@ gsigesdata.desc = 'gsi guess data (model guess in observation space)'
 gsierr.desc = 'observation errors used by GSI'
 gsiqc.desc = 'gsi QC flags (1: used, 0: not used)'
 
+nc_prepbufr['gsianldata'][:] = gsianldataarray[:]
+nc_prepbufr['gsierr'][:] = gsierrarray[:]
+nc_prepbufr['gsiqc'][:] =  gsiqcarray[:]
+nc_prepbufr['gsigesdata'][:] = gsigesdataarray[:]
 
-######################################################################################
-
-prep_header = nc_prepbufr['header'][:]
-prep_oberr = nc_prepbufr['oberr'][:]
-prep_qcdata = nc_prepbufr['qcdata'][:]
-prep_obid = nc_prepbufr['obid'][:]
-prep_msgnum = nc_prepbufr['msgnum'][:]
-prep_subsetnum = nc_prepbufr['subsetnum'][:]
-
-#print nc_out['header'].shape
-#print prep_header.shape
-#print nc_out['obdata'].shape
-#print prep_obdata.shape
-
-nc_out['header'][:] = prep_header[:]
-nc_out['obdata'][:] = prep_obdata[:]
-nc_out['oberr'][:]  = prep_oberr[:]
-nc_out['qcdata'][:] = prep_qcdata[:]
-nc_out['obid'][:] = prep_obid[:]
-nc_out['msgnum'][:] = prep_msgnum[:]
-nc_out['subsetnum'][:] = prep_subsetnum[:]
-
-nc_out['gsianldata'][:] = gsianldataarray[:]
-nc_out['gsierr'][:] = gsierrarray[:]
-nc_out['gsiqc'][:] =  gsiqcarray[:]
-nc_out['gsigesdata'][:] = gsigesdataarray[:]
-
-nc_out.sync()
-nc_out.close()
 nc_prepbufr.close()
