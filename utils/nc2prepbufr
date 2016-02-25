@@ -50,6 +50,8 @@ bufr = ncepbufr.open(prepbufr_filename,'w',table=prepbufr_table)
 for nmsg in range(3449,nmessages+1):
     analdate = msgdates[nmsg-1]
     msgtype = msgtypes[nmsg-1]
+    # analdate or msgtype missing, skip
+    if not analdate or not msgtype: continue
     bufr.open_message(msgtype, analdate) # open message
     # indices obs associated with this message in nc file 
     nobsmsg = np.nonzero(msgnums == nmsg)[0]
