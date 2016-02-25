@@ -46,15 +46,22 @@ header = nc.variables['header']
 # open prepbufr file
 bufr = ncepbufr.open(prepbufr_filename,'w',table=prepbufr_table)
 
-for nmsg in range(1,nmessages+1):
+# loop over bufr messages
+for nmsg in range(3449,nmessages+1):
     analdate = msgdates[nmsg-1]
     msgtype = msgtypes[nmsg-1]
     bufr.open_message(msgtype, analdate) # open message
+    # indices obs associated with this message in nc file 
     nobsmsg = np.nonzero(msgnums == nmsg)[0]
+    # subset number within bufr message for each of these obs
     subsetsmsg = subsets[nobsmsg]
     print('writing message %s' % nmsg)
+    # loop over all subsets
     for nsub in range(1,subsetsmsg.max()+1):
-        nobs_subset = nobsmsg[np.nonzero(subsetsmsg == nsub)[0]]
+        subset_match = np.nonzero(subsetsmsg == nsub)[0]
+        # if this subset is not in nc file, skip
+        if not subset_match.size: continue
+        nobs_subset = nobsmsg[subset_match]
         obdat = obdata[nobs_subset]
         oberrdat = oberr[nobs_subset]
         qcdat = qcdata[nobs_subset]
