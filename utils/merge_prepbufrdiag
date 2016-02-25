@@ -60,32 +60,70 @@ print 'prepnobs ',prep_nobs
 diag_varbstr='QOB TOB UOB VOB PRSS PWO'
 diag_errstr='QOE TOE UOE VOE POE PWE'
 diag_qcstr='QQM TQM UQM VQM PQM PWQ'
-diag_obs = nc_prepbufr.createDimension('diaginfo',len(diag_varbstr.split()))
+if 'diaginfo' not in nc_prepbufr.dimensions:
+    diag_obs = nc_prepbufr.createDimension('diaginfo',len(diag_varbstr.split()))
+else:
+    diag_obs = nc_prepbufr.dimensions['diaginfo']
 ndiag_obd = len(diag_obs)
-
-nobs_chunk = 200
 
 gsianldataarray = np.empty((obdata_nrows,ndiag_obd))
 gsigesdataarray = np.empty((obdata_nrows,ndiag_obd))
 gsierrarray = np.empty((obdata_nrows,ndiag_obd))
 gsiqcarray = np.empty((obdata_nrows,ndiag_obd))
 
-gsianldata =\
-nc_prepbufr.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+if 'gsianldata' not in nc_prepbufr.variables:
+    gsianldata =\
+    nc_prepbufr.createVariable('gsianldata',np.float32,('nobs','diaginfo'),\
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+else:
+    gsianldata = nc_prepbufr['gsianldata']
 
-gsigesdata =\
-nc_prepbufr.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+if 'gsigesdata' not in nc_prepbufr.variables:
+    gsigesdata =\
+    nc_prepbufr.createVariable('gsigesdata',np.float32,('nobs','diaginfo'),\
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+else:
+    gsigesdata = nc_prepbufr['gsigesdata']
 
-gsierr =\
-nc_prepbufr.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
-fill_value=bufr_missing_value,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+if 'gsierr' not in nc_prepbufr.variables:
+    gsierr =\
+    nc_prepbufr.createVariable('gsierr',np.float32,('nobs','diaginfo'),\
+    fill_value=bufr_missing_value,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+else:
+    gsierr = nc_prepbufr['gsierr']
+    
+if 'gsiqc' not in nc_prepbufr.variables:
+    gsiqc =\
+    nc_prepbufr.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
+    fill_value=255,zlib=True,chunksizes=(obdata_nrows,ndiag_obd))
+else:
+    gsiqc = nc_prepbufr['gsiqc']
 
-gsiqc =\
-nc_prepbufr.createVariable('gsiqc',np.uint8,('nobs','diaginfo'),\
-fill_value=255,zlib=True,chunksizes=(prep_nobs,ndiag_obd))
+for key in diag_varbstr.split():
+    gsianldata.setncattr(key,mnemonics_dict[key])
+    gsigesdata.setncattr(key,mnemonics_dict[key])
+for key in diag_errstr.split():
+    if key in ['UOE','VOE']:
+        val = key[0]+'-COMPONENT WIND OBSERVATION ERROR (M/S)'
+        gsierr.setncattr(key,val)
+    else:
+        gsierr.setncattr(key,mnemonics_dict[key])
+for key in diag_qcstr.split():
+    if key in ['UQM','VQM']:
+        val = key[0]+'-COMPONENT WIND QUALITY MARKER'
+        gsiqc.setncattr(key,val)
+    else:
+        gsiqc.setncattr(key,mnemonics_dict[key])
 
+gsianldata.diaginfo = diag_varbstr
+gsigesdata.diaginfo = diag_varbstr
+gsierr.diaginfo = diag_errstr
+gsiqc.diaginfo = diag_qcstr
+
+gsianldata.desc = 'gsi analysis data (model analysis in observation space)'
+gsigesdata.desc = 'gsi guess data (model guess in observation space)'
+gsierr.desc = 'observation errors used by GSI'
+gsiqc.desc = 'gsi QC flags (1: used, 0: not used)'
 
 ## DIAG FILE from GSI ################################################################
 diag_conv_A = read_diag.diag_conv(diagfile_A,endian='big')
@@ -184,34 +222,6 @@ for nob in range(test_stop):
 tend = clock()-tstart
 print('cpu time = %s' % tend)
 print('no matches found for %s nobs that GSI used' % count_nomatch)
-
-######################################################################################
-for key in diag_varbstr.split():
-    gsianldata.setncattr(key,mnemonics_dict[key])
-    gsigesdata.setncattr(key,mnemonics_dict[key])
-for key in diag_errstr.split():
-    if key in ['UOE','VOE']:
-        val = key[0]+'-COMPONENT WIND OBSERVATION ERROR (M/S)'
-        gsierr.setncattr(key,val)
-    else:
-        gsierr.setncattr(key,mnemonics_dict[key])
-for key in diag_qcstr.split():
-    if key in ['UQM','VQM']:
-        val = key[0]+'-COMPONENT WIND QUALITY MARKER'
-        gsiqc.setncattr(key,val)
-    else:
-        gsiqc.setncattr(key,mnemonics_dict[key])
-
-
-gsianldata.diaginfo = diag_varbstr
-gsigesdata.diaginfo = diag_varbstr
-gsierr.diaginfo = diag_errstr
-gsiqc.diaginfo = diag_qcstr
-
-gsianldata.desc = 'gsi analysis data (model analysis in observation space)'
-gsigesdata.desc = 'gsi guess data (model guess in observation space)'
-gsierr.desc = 'observation errors used by GSI'
-gsiqc.desc = 'gsi QC flags (1: used, 0: not used)'
 
 nc_prepbufr['gsianldata'][:] = gsianldataarray[:]
 nc_prepbufr['gsierr'][:] = gsierrarray[:]
