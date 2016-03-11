@@ -13,9 +13,11 @@ ext_bufrlib = Extension(name  = '_bufrlib',
                 libraries     = ['bufr'],
                 library_dirs  = ['src'])
 
-# module for reading GSI diagnostic files.
+# modules for reading GSI diagnostic files.
 ext_diag_conv = Extension(name     = '_read_convobs',
                           sources  = ['src_diag/readconvobs.f90'])
+ext_diag_sat = Extension(name     = '_read_satobs',
+                         sources  = ['src_diag/_readsatobs.pyf','src_diag/readsatobs.f90', 'src_diag/read_diag.f90'])
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
@@ -24,8 +26,7 @@ if __name__ == "__main__":
           author            = "Jeff Whitaker",
           author_email      = "jeffrey.s.whitaker@noaa.gov",
           url               = "http://github.com/jswhit/py-ncepbufr",
-          ext_modules       = [ext_bufrlib,ext_diag_conv],
+          ext_modules       = [ext_bufrlib,ext_diag_conv,ext_diag_sat],
           packages          = ['ncepbufr','read_diag'],
-          scripts           =
-          ['utils/prepbufr2nc','utils/nc2prepbufr','utils/merge_prepbufrdiag'],
+          scripts           = ['utils/prepbufr2nc'],
           )

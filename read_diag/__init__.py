@@ -1,6 +1,7 @@
 import numpy as np
-import _read_convobs
-__version__ = '0.0.1'
+import _read_convobs, _read_satobs
+__version__ = '0.0.2'
+
 class diag_conv(object):
     # read diag_conv file.
     def __init__(self,filename,endian='native'):
@@ -27,3 +28,28 @@ class diag_conv(object):
         np.array((x_type.tostring()).replace('\x00','')[:-1].split('|'))
         self.station_ids =\
         np.array((x_station_id.tostring()).replace('\x00','')[:-1].split('|'))
+
+class diag_rad(object):
+    # read diag_rad file.
+    def __init__(self,filename,endian='native'):
+        npred, nobs = _read_satobs.get_num_satobs(filename,endian=endian)
+        self.endian = endian
+        self.nobs = nobs
+        self.filename = filename
+        self.npred = npred
+    def read_obs(self):
+        h_x,h_xnobc,x_obs,x_err,x_lon,x_lat,x_time,\
+        x_channum,x_errorig,x_biaspred,x_use,x_qcmark = \
+        _read_satobs.get_satobs_data(self.filename,self.nobs,self.npred,endian=self.endian)
+        self.hx = h_x
+        self.biascorr = h_x - h_xnobc
+        self.obs = x_obs
+        self.oberr = x_err
+        self.lon = x_lon
+        self.lat = x_lat
+        self.time = x_time
+        self.channel = x_channum
+        self.biaspred = x_biaspred
+        self.oberr_orig = x_errorig
+        self.used = x_use
+        self.qcmark = x_qcmark
