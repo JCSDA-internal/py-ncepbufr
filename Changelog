@@ -3,10 +3,12 @@ version 0.9.3
 * have read_diag return specific humidity in kg/kg (not q/qsat)
 * add nc2prepbufr and merge_prepbufrdiag utilities.
 * numerous bug fixes.
+* add read_diag.diag_rad for reading radiance diag files.
 
 version 0.9.2
 =============
-* include module for reading GSI diagnostic files (read_diag).
+* include module for reading GSI diagnostic files for conventional 
+  data (read_diag.diag_conv).
 
 10/11/2015: version 0.9.1 (tag v0.9.1rel)
 =========================================
