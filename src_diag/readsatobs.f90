@@ -60,7 +60,8 @@ subroutine get_num_satobs(obsfile,npred,num_obs_tot,endian)
 end subroutine get_num_satobs
 
 subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err, &
-           x_lon, x_lat, x_time, x_channum, x_errorig, x_biaspred, x_use, x_qcmark,endian)
+           x_lon, x_lat, x_time, x_channum, x_errorig, x_biaspred, x_use, x_qcmark, &
+           x_water_frac, x_land_frac, x_ice_frac, x_snow_frac, endian)
   use read_diag, only: diag_data_fix_list,diag_header_fix_list,diag_header_chan_list, &
   diag_data_chan_list,diag_data_extra_list,read_radiag_data,read_radiag_header, &
   diag_data_name_list
@@ -68,11 +69,12 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err,
   character(len=6), optional, intent(in) :: endian
   character*500, intent(in) :: obsfile
   integer, intent(in) :: nobs_max, npred
-  real, dimension(nobs_max) :: h_x,h_xnobc,x_obs,x_err,x_lon,&
+  real, dimension(nobs_max), intent(out) :: h_x,h_xnobc,x_obs,x_err,x_lon,&
                                x_lat,x_time,x_errorig
-  integer, dimension(nobs_max) :: x_use, x_qcmark
-  real, dimension(npred+1,nobs_max) :: x_biaspred
-  integer, dimension(nobs_max) ::  x_channum
+  integer, dimension(nobs_max), intent(out) :: x_use, x_qcmark
+  real, dimension(nobs_max), intent(out) :: x_water_frac, x_land_frac, x_ice_frac, x_snow_frac
+  real, dimension(npred+1,nobs_max), intent(out) :: x_biaspred
+  integer, dimension(nobs_max), intent(out) ::  x_channum
 
   integer iunit, iflag, nobs, n, ios
   logical fexist,lretrieval,lverbose,adp_anglebc,emiss_bc
@@ -161,6 +163,11 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err,
          x_biaspred(npred,nobs)  = data_chan(n)%bifix(3) ! 2nd order scan angle (predictor)
          x_biaspred(npred+1,nobs)    = data_chan(n)%bifix(4) ! 1st order scan angle (predictor)
       endif
+
+      x_water_frac(nobs) = data_fix%water_frac ! fractional coverage by water
+      x_land_frac(nobs)  = data_fix%land_frac  ! fractional coverage by land
+      x_ice_frac(nobs)   = data_fix%ice_frac   ! fractional coverage by ice
+      x_snow_frac(nobs)  = data_fix%snow_frac  ! fractional coverage by snow
 
   enddo chan
  enddo

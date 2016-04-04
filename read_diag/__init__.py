@@ -39,7 +39,8 @@ class diag_rad(object):
         self.npred = npred
     def read_obs(self):
         h_x,h_xnobc,x_obs,x_err,x_lon,x_lat,x_time,\
-        x_channum,x_errorig,x_biaspred,x_use,x_qcmark = \
+        x_channum,x_errorig,x_biaspred,x_use,x_qcmark, \
+        x_water_frac,x_land_frac,x_ice_frac,x_snow_frac = \
         _read_satobs.get_satobs_data(self.filename,self.nobs,self.npred,endian=self.endian)
         self.hx = h_x
         self.biascorr = h_x - h_xnobc
@@ -53,3 +54,7 @@ class diag_rad(object):
         self.oberr_orig = x_errorig
         self.used = x_use
         self.qcmark = x_qcmark
+        self.water_frac = x_water_frac
+        self.land_frac = x_land_frac
+        self.ice_frac = x_ice_frac
+        self.snow_frac = x_snow_frac
