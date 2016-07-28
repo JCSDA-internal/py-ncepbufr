@@ -68,7 +68,7 @@ for date in dates:
     indxv = np.logical_and(indxv,used)
     indxt = np.logical_and(indxt,used)
     if hem == 'NH':
-        latcond = diag_conv.lat > 20. 
+        latcond = diag_conv.lat > 20.
     elif hem == 'SH':
         latcond = diag_conv.lat < -20.
     elif hem == 'TR':
@@ -80,15 +80,11 @@ for date in dates:
     if not (indxu.sum() == indxv.sum()) or \
        not np.all(np.flatnonzero(indxu)+1 == np.flatnonzero(indxv)):
        raise IndexError('error in u,v indices')
-    omf_u = diag_conv.hx[indxu]-diag_conv.obs[indxu] 
-    omf_v = diag_conv.hx[indxv]-diag_conv.obs[indxv] 
-    omf_t = diag_conv.hx[indxt]-diag_conv.obs[indxt] 
+    omf_u = diag_conv.hx[indxu]-diag_conv.obs[indxu]
+    omf_v = diag_conv.hx[indxv]-diag_conv.obs[indxv]
+    omf_t = diag_conv.hx[indxt]-diag_conv.obs[indxt]
     press_u = diag_conv.press[indxu]
-    press_v = diag_conv.press[indxv]
     press_t = diag_conv.press[indxt]
-    lat_u = diag_conv.lat[indxu]
-    lat_v = diag_conv.lat[indxv]
-    lat_t = diag_conv.lat[indxt]
     # compute innovation stats for temperature.
     pindx =  np.digitize(press_t,pbins)-1
     # check on pindx calculation
