@@ -9,7 +9,9 @@ runid = sys.argv[4] # suffix for diag file
 hem = sys.argv[5] # NH,TR,SH,GL
 outfile = sys.argv[6] # profile stats saved here
 endian = 'little'
-sondesonly = False # use only 120,132,220,232 (sondes,drops)
+if len(sys.argv) > 7: # is diag file big endian?
+    endian = sys.argv[7]
+sondesonly = False # use only 120,132,220,221,232 (sondes,pibals,drops)
 # if sondesonly False, aircraft, pibals and surface data included also
 
 dates = dateutils.daterange(date1,date2,6)
@@ -44,31 +46,37 @@ for date in dates:
     diag_conv = read_diag.diag_conv(obsfile,endian=endian)
     diag_conv.read_obs()
     if sondesonly:
-        insitu_wind = np.logical_or(diag_conv.code == 220,
-                                    diag_conv.code == 232)
+        insitu_wind = np.logical_or(diag_conv.code == 220, # sondes
+                                    diag_conv.code == 232) # drops
+        insitu_wind = np.logical_or(insitu_wind, diag_conv.code == 221) # pibals
     else:
-        insitu_wind = np.logical_and(diag_conv.code >= 280, diag_conv.code <= 282)
+        insitu_wind = np.logical_and(diag_conv.code >= 280, diag_conv.code <= 282) #sfc
+        # sones, pibals
         insitu_wind = np.logical_or(insitu_wind,\
-                      np.logical_or(diag_conv.code == 220, diag_conv.code == 221))
+                      np.logical_or(diag_conv.code == 220, diag_conv.code == 221)) 
+        # aircraft, drops
         insitu_wind = np.logical_or(insitu_wind,\
                       np.logical_and(diag_conv.code >= 230, diag_conv.code <= 235))
     if sondesonly:
-        insitu_temp = np.logical_or(diag_conv.code == 120,
-                                    diag_conv.code == 132)
+        insitu_temp = np.logical_or(diag_conv.code == 120, # sondes
+                                    diag_conv.code == 132) # drops
     else:
-        insitu_temp = np.logical_and(diag_conv.code >= 180, diag_conv.code <= 182)
-        insitu_temp = np.logical_or(insitu_temp, diag_conv.code == 120)
+        insitu_temp = np.logical_and(diag_conv.code >= 180, diag_conv.code <= 182) #sfc
+        insitu_temp = np.logical_or(insitu_temp, diag_conv.code == 120) # sondes
+        # aircraft, drops
         insitu_temp = np.logical_or(insitu_temp,\
                       np.logical_and(diag_conv.code >= 130, diag_conv.code <= 135))
     indxt=np.logical_and(diag_conv.obtype=='  t',insitu_temp)
     indxu=np.logical_and(diag_conv.obtype=='  u',insitu_wind)
     indxv=np.logical_and(diag_conv.obtype=='  v',insitu_wind)
-    used = np.logical_and(diag_conv.used == 1, np.isfinite(diag_conv.press))
+    # consider this of if used flag is 1, oberr is < 1.e5 and a valid pressure level is included
+    used = np.logical_and(diag_conv.used == 1, diag_conv.oberr < 1.e5)
+    used = np.logical_and(used, np.isfinite(diag_conv.press))
     indxu = np.logical_and(indxu,used)
     indxv = np.logical_and(indxv,used)
     indxt = np.logical_and(indxt,used)
     if hem == 'NH':
-        latcond = diag_conv.lat > 20.
+        latcond = diag_conv.lat > 20. 
     elif hem == 'SH':
         latcond = diag_conv.lat < -20.
     elif hem == 'TR':
@@ -80,9 +88,9 @@ for date in dates:
     if not (indxu.sum() == indxv.sum()) or \
        not np.all(np.flatnonzero(indxu)+1 == np.flatnonzero(indxv)):
        raise IndexError('error in u,v indices')
-    omf_u = diag_conv.hx[indxu]-diag_conv.obs[indxu]
-    omf_v = diag_conv.hx[indxv]-diag_conv.obs[indxv]
-    omf_t = diag_conv.hx[indxt]-diag_conv.obs[indxt]
+    omf_u = diag_conv.hx[indxu]-diag_conv.obs[indxu] 
+    omf_v = diag_conv.hx[indxv]-diag_conv.obs[indxv] 
+    omf_t = diag_conv.hx[indxt]-diag_conv.obs[indxt] 
     press_u = diag_conv.press[indxu]
     press_t = diag_conv.press[indxt]
     # compute innovation stats for temperature.
