@@ -217,6 +217,12 @@ class open:
             _bufrlib.ufdump(self.lunit,6)
         else:
             _bufrlib.ufbdmp(self.lunit,6)
+    def copy_subset(self,bufrin):
+        """
+        copy the currently loaded subset from the specified bufr file object
+        and write to the current grib message"""
+        _bufrlib.ufbcpy(bufrin.lunit, self.lunit) 
+        _bufrlib.writsb(self.lunit)
     def dump_subset(self,filename,append=False,verbose=False):
         """
         dump a textual representation of the decoded
