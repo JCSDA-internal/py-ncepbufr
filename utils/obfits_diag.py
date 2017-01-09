@@ -2,6 +2,11 @@ import read_diag
 import numpy as np
 import os, sys, dateutils
 
+msg = 'date1 date2 datapath runid hem outfile <endian>'
+if len(sys.argv) < 6:
+    print msg
+    raise SystemExit
+
 date1 = sys.argv[1] # date range
 date2 = sys.argv[2]
 datapath = sys.argv[3] # path to diag files.
@@ -40,6 +45,7 @@ rms_temp = np.zeros(len(levs),np.float)
 bias_temp = np.zeros(len(levs),np.float)
 count_temp = np.zeros(len(levs),np.int)
 count_wind = np.zeros(len(levs),np.int)
+
 for date in dates:
     obsfile = os.path.join(datapath,'%s/diag_conv_ges.%s_%s' % (date,date,runid))
     print obsfile
@@ -102,10 +108,11 @@ for date in dates:
     #    if not (p < levs1[ip] and p >= levs2[ip]):
     #        print p, levs2[ip], levs1[ip]
     #        raise IndexError('wind p mismatch')
-    rms_temp += np.bincount(pindx,weights=omf_t**2)
-    bias_temp += np.bincount(pindx,weights=omf_t)
+    rms_temp += np.bincount(pindx,minlength=nlevs,weights=omf_t**2)
+    bias_temp += np.bincount(pindx,minlength=nlevs,weights=omf_t)
     counts, bin_edges = np.histogram(press_t,pbins[::-1])
     count_temp += counts[::-1]
+    rms_temp_mean = np.sqrt(np.bincount(pindx,minlength=nlevs,weights=omf_t**2)/counts[::-1])[0:18].mean()
     # compute innovation stats for wind.
     pindx =  np.digitize(press_u,pbins)-1
     # check on pindx calculation
@@ -115,9 +122,11 @@ for date in dates:
     #    if not (p < levs1[ip] and p >= levs2[ip]):
     #        print p, levs2[ip], levs1[ip]
     #        raise IndexError('wind p mismatch')
-    rms_wind += np.bincount(pindx,weights=np.sqrt(omf_u**2+omf_v**2))
+    rms_wind += np.bincount(pindx,minlength=nlevs,weights=np.sqrt(omf_u**2+omf_v**2))
     counts, bin_edges = np.histogram(press_u,pbins[::-1])
     count_wind += counts[::-1]
+    rms_wind_mean = (np.bincount(pindx,minlength=nlevs,weights=np.sqrt(omf_u**2+omf_v**2))/counts[::-1])[0:18].mean()
+    print 'vertical mean:',date, rms_wind_mean, rms_temp_mean
 
 rms_wind = rms_wind/count_wind
 rms_temp = np.sqrt(rms_temp/count_temp)
