@@ -45,6 +45,7 @@ class table_descriptor(tables.IsDescription):
     solar_zenith_angle   = tables.Float32Col()    
     solar_azimuth_angle  = tables.Float32Col()    
     local_azimuth_angle  = tables.Float32Col()    
+    sensor_channel       = tables.Int16Col(shape=(nchanl,))
     tb                   = tables.Float32Col(shape=(nchanl,))
 filter = tables.Filters(complevel=4,complib='zlib',shuffle=True)
 table = f.create_table('/', table_name, table_descriptor, "%s data" % table_name, filters=filter)
@@ -56,6 +57,8 @@ while bufr.advance() == 0:
         hdr2 = bufr.read_subset(hdstr2).squeeze()
         yyyymmddhhss ='%04i%02i%02i%02i%02i%02i' % tuple(hdr1[3:9])
         obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        channum = bufr.read_subset('CHNM',rep=True).squeeze()
+        #coldspacecorr = bufr.read_subset('CSTC',rep=True).squeeze()
         nchanls = len(obs)
         if nchanl != nchanls:
             raise ValueError('unexpected number of channels')
@@ -76,6 +79,7 @@ while bufr.advance() == 0:
         table.row['solar_zenith_angle'] = hdr2[1]
         table.row['solar_azimuth_angle'] = hdr2[3]
         table.row['local_azimuth_angle'] = hdr2[2]
+        table.row['sensor_channel'] = channum
         table.row['tb'] = obs
         table.row.append()
     # only loop over first few subsets

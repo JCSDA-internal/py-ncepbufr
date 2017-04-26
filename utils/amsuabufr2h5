@@ -31,7 +31,8 @@ bufr.rewind()
 
 dtlist = [('sat_id', 'i4'),('sensor_id', 'i4'), ('lat', 'f4'), ('lon', 'f4'), ('datetime','i8'),
           ('land_surface_height','f4'),('field_of_view_number','i4'),('sat_zenith_angle','f4'),
-          ('solar_zenith_angle','f4'),('solar_azimuth_angle','f4'),('local_azimuth_angle','f4'),('tb','f4',(nchanl,))]
+          ('solar_zenith_angle','f4'),('solar_azimuth_angle','f4'),('local_azimuth_angle','f4'),
+          ('sensor_channel','f4',(nchanl,)),('tb','f4',(nchanl,))]
 data_dtype = np.dtype(dtlist)
 nobs_chunk = 200
 dset = f.create_dataset(dset_name,(nobs_chunk,),maxshape=(None,),chunks=(nobs_chunk,),dtype=data_dtype,compression="gzip",compression_opts=4)
@@ -48,6 +49,8 @@ while bufr.advance() == 0:
         # for sensor id, see common code table c-8
         # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
         obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        channum = bufr.read_subset('CHNM',rep=True).squeeze()
+        #coldspacecorr = bufr.read_subset('CSTC',rep=True).squeeze()
         nchanls = len(obs)
         if nchanl != nchanls:
             raise ValueError('unexpected number of channels')
@@ -70,6 +73,7 @@ while bufr.advance() == 0:
         data[nob]['solar_zenith_angle'] = hdr2[1]
         data[nob]['solar_azimuth_angle'] = hdr2[3]
         data[nob]['local_azimuth_angle'] = hdr2[2]
+        data[nob]['sensor_channel'] = channum
         data[nob]['tb'] = obs
         nob += 1
         nobtot += 1
