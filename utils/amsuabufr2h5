@@ -31,11 +31,12 @@ bufr.rewind()
 
 dtlist = [('sat_id', 'i4'),('sensor_id', 'i4'), ('lat', 'f4'), ('lon', 'f4'), ('datetime','i8'),
           ('land_surface_height','f4'),('field_of_view_number','i4'),('sat_zenith_angle','f4'),
-          ('solar_zenith_angle','f4'),('solar_azimuth_angle','f4'),('local_azimuth_angle','f4'),
-          ('tb','f4',(nchanl,))]
+          ('solar_zenith_angle','f4'),('solar_azimuth_angle','f4'),('local_azimuth_angle','f4'),('tb','f4',(nchanl,))]
 data_dtype = np.dtype(dtlist)
+nobs_chunk = 200
+dset = f.create_dataset(dset_name,(nobs_chunk,),maxshape=(None,),chunks=(nobs_chunk,),dtype=data_dtype,compression="gzip",compression_opts=4)
 
-data_list = []
+nobtot = 0; nob = 0; nob1 = 0
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0:
@@ -47,28 +48,38 @@ while bufr.advance() == 0:
         # for sensor id, see common code table c-8
         # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
         obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        nchanls = len(obs)
+        if nchanl != nchanls:
+            raise ValueError('unexpected number of channels')
         lat1 = hdr1[9]; lon1 = hdr1[10]
         lat2 = hdr1[11]; lon2 = hdr1[12]
         if lat2 <= 90 and lon2 <= 360:
             lat = lat2; lon = lon2
         else:
             lat = lat1; lon = lon1
-        data_tuple = (int(hdr1[0]),int(hdr1[1]),lat,lon,yyyymmddhhss,
-                      hdr1[13],int(hdr1[2]),hdr2[0],hdr2[1],hdr2[3],hdr2[2],obs)
-        nchanls = len(obs)
-        if nchanl != nchanls:
-            raise ValueError('unexpected number of channels')
-        data_list.append(data_tuple)
-    ## only loop over first 4 subsets
-    #if bufr.msg_counter == 4: break
+        if nob == 0:
+            data = np.empty((nobs_chunk,), dtype=data_dtype)
+        data[nob]['sat_id'] = int(hdr1[0])
+        data[nob]['sensor_id'] = int(hdr1[1])
+        data[nob]['lat'] = lat
+        data[nob]['lon'] = lon
+        data[nob]['datetime'] = yyyymmddhhss
+        data[nob]['land_surface_height'] = hdr1[13]
+        data[nob]['field_of_view_number'] = int(hdr1[2])
+        data[nob]['sat_zenith_angle'] = hdr2[0]
+        data[nob]['solar_zenith_angle'] = hdr2[1]
+        data[nob]['solar_azimuth_angle'] = hdr2[3]
+        data[nob]['local_azimuth_angle'] = hdr2[2]
+        data[nob]['tb'] = obs
+        nob += 1
+        nobtot += 1
+        if nob == nobs_chunk:
+            dset[nob1:nob1+nobs_chunk] = data # write nobs_chunk obs.
+            # resize dataset, making for an extra nobs_chunk obs.
+            dset.resize((nobtot+nobs_chunk,))
+            nob = 0; nob1 = nobtot # reset counters
 
-# convert to numpy structured array, write out to hdf5 file.
-data = np.empty(len(data_list),dtype=data_dtype)
-nobs = data.shape[0]
-# resizable, compressed dataset.
-dset = f.create_dataset(dset_name,(nobs,),maxshape=(None,),chunks=True,dtype=data.dtype,compression="gzip",compression_opts=4)
-for n in range(nobs):
-    data[n] = data_list[n]
-dset[:] = data
+print('total number of observations = %s' % nobtot)
+dset.resize((nobtot,)) # resize dataset to actual size
 f.close()
 bufr.close()
