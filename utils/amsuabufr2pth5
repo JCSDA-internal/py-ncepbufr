@@ -1,0 +1,86 @@
+"""create h5 file (using pytables) from amsua bufr file"""
+from __future__ import print_function
+import ncepbufr
+import tables
+import numpy as np
+import sys
+
+hdstr1 ='SAID SIID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
+hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
+
+# input and output file names, plus h5 dataset name, from command line args.
+bufr_filename = sys.argv[1]
+h5_filename = sys.argv[2]
+table_name = sys.argv[3]
+
+if bufr_filename == h5_filename:
+    raise IOError('cannot overwrite input bufr file')
+
+bufr = ncepbufr.open(bufr_filename)
+
+# get number of channels from 1st message in bufr file.
+nchanl = None
+while bufr.advance() == 0:
+    while bufr.load_subset() == 0:
+        obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        nchanl = len(obs)
+        break
+    if nchanl is not None: break
+bufr.rewind()
+
+f = tables.open_file(h5_filename,'w',title='amsua bufr')
+class table_descriptor(tables.IsDescription):
+    # for satellite id, see common code table c-5
+    # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c1-c5.htm#c-5)
+    sat_id               = tables.Int32Col()   
+    # for sensor id, see common code table c-8
+    # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
+    sensor_id            = tables.Int32Col()     
+    lat                  = tables.Float32Col()   
+    lon                  = tables.Float32Col()   
+    datetime             = tables.Int64Col()     
+    land_surface_height  = tables.Float32Col()   
+    field_of_view_number = tables.Int32Col()    
+    sat_zenith_angle     = tables.Float32Col()    
+    solar_zenith_angle   = tables.Float32Col()    
+    solar_azimuth_angle  = tables.Float32Col()    
+    local_azimuth_angle  = tables.Float32Col()    
+    tb                   = tables.Float32Col(shape=(nchanl,))
+filter = tables.Filters(complevel=4,complib='zlib',shuffle=True)
+table = f.create_table('/', table_name, table_descriptor, "%s data" % table_name, filters=filter)
+
+while bufr.advance() == 0:
+    print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
+    while bufr.load_subset() == 0:
+        hdr1 = bufr.read_subset(hdstr1).squeeze()
+        hdr2 = bufr.read_subset(hdstr2).squeeze()
+        yyyymmddhhss ='%04i%02i%02i%02i%02i%02i' % tuple(hdr1[3:9])
+        obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        nchanls = len(obs)
+        if nchanl != nchanls:
+            raise ValueError('unexpected number of channels')
+        lat1 = hdr1[9]; lon1 = hdr1[10]
+        lat2 = hdr1[11]; lon2 = hdr1[12]
+        if lat2 <= 90 and lon2 <= 360:
+            lat = lat2; lon = lon2
+        else:
+            lat = lat1; lon = lon1
+        table.row['sat_id'] = int(hdr1[0])
+        table.row['sensor_id'] = int(hdr1[1])
+        table.row['lat'] = lat
+        table.row['lon'] = lon
+        table.row['datetime'] = yyyymmddhhss
+        table.row['land_surface_height'] = hdr1[13]
+        table.row['field_of_view_number'] = int(hdr1[2])
+        table.row['sat_zenith_angle'] = hdr2[0]
+        table.row['solar_zenith_angle'] = hdr2[1]
+        table.row['solar_azimuth_angle'] = hdr2[3]
+        table.row['local_azimuth_angle'] = hdr2[2]
+        table.row['tb'] = obs
+        table.row.append()
+    # only loop over first few subsets
+    #if bufr.msg_counter == 4: break
+
+table.flush()
+f.close()
+bufr.close()
