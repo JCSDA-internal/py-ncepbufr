@@ -1,10 +1,10 @@
 """merge information from GSI diagnostic file into h5 file created by
-amsuabufr2pth5"""
+amsuabufr2h5"""
 from __future__ import print_function
 import tables
 import numpy as np
 import sys, read_diag, datetime, glob
-from utils import floatstr, splitdate, sat_id_dict, sat_sensor_dict, quantize
+from utils import splitdate, sat_id_dict, sat_sensor_dict, quantize
 
 h5_filename = sys.argv[1]
 
@@ -12,7 +12,7 @@ f = tables.open_file(h5_filename,'r+')
 
 table = f.root.amsua
 
-
+# loop over diag files in present working directory.
 for diagfile in glob.glob("diag*"):
     print('processing %s' % diagfile)
     diagfile_split = diagfile.split('_')
@@ -29,6 +29,7 @@ for diagfile in glob.glob("diag*"):
     diag_rad = read_diag.diag_rad(diagfile,endian='big')
     diag_rad.read_obs()
     
+    # loop over obs in diag file.
     for nob in range(diag_rad.nobs):
         lon = diag_rad.lon[nob].astype(np.float)
         if lon > 180: lon -= 360

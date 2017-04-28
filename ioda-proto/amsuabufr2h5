@@ -4,7 +4,7 @@ import ncepbufr
 import tables
 import numpy as np
 import sys, datetime
-from utils import floatstr, quantize
+from utils import quantize
 
 hdstr1 ='SAID SIID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
 hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
