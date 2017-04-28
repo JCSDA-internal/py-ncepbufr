@@ -44,7 +44,9 @@ def get_dist(lon1,lons,lat1,lats):
     arg = np.clip(arg,-1.,1.)
     return np.arccos(arg)
 
-# map satellite id number to string
+# map satellite id string to code number
+# see common code table c-5
+# (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c1-c5.htm#c-5)
 sat_id_dict = {}
 sat_id_dict['n05']=705
 sat_id_dict['n06']=706
@@ -68,7 +70,9 @@ sat_id_dict['npp']=224
 sat_id_dict['aqua']=784
 sat_id_dict['aura']=785
 
-# map sensor id number to string
+# map sensor id string to code number.
+# see common code table c-8
+# (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
 sat_sensor_dict={}
 sat_sensor_dict['amsua']=570
 sat_sensor_dict['amsub']=574
