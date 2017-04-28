@@ -118,10 +118,8 @@ while bufr.advance() == 0:
                 ncount += 1
             else:
                 print('skipping duplicate ob with id %s' % obid)
-    # only loop over first few subsets
-    #if bufr.msg_counter == 4: break
 
-# index obid columns for faster searches.
+# flus data and index obid columns for faster searches.
 table.flush()
 indexrows = table.cols.obid.create_index()
 f.close()
