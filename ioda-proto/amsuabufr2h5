@@ -26,8 +26,8 @@ class table_descriptor(tables.IsDescription):
     # for sensor id, see common code table c-8
     # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
     sensor_id            = tables.Int16Col()     
-    lat                  = tables.Float64Col()   
-    lon                  = tables.Float64Col()   
+    lat                  = tables.Float32Col()
+    lon                  = tables.Float32Col()
     channel_number       = tables.Int16Col()   
     yyyymmddhhmmss       = tables.Int64Col()     
     land_surface_height  = tables.Float32Col()   
