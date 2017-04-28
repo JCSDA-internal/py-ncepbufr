@@ -1,0 +1,128 @@
+"""create h5 file (using pytables) from amsua bufr file"""
+from __future__ import print_function
+import ncepbufr
+import tables
+import numpy as np
+import sys, datetime
+from utils import floatstr, quantize
+
+hdstr1 ='SAID SIID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
+hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
+
+# input and output file names, plus h5 dataset name, from command line args.
+bufr_filename = sys.argv[1]
+h5_filename = sys.argv[2]
+
+if bufr_filename == h5_filename:
+    raise IOError('cannot overwrite input bufr file')
+
+bufr = ncepbufr.open(bufr_filename)
+
+f = tables.open_file(h5_filename,'w',title='amsua bufr')
+class table_descriptor(tables.IsDescription):
+    # for satellite id, see common code table c-5
+    # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c1-c5.htm#c-5)
+    sat_id               = tables.Int16Col()   
+    # for sensor id, see common code table c-8
+    # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
+    sensor_id            = tables.Int16Col()     
+    lat                  = tables.Float64Col()   
+    lon                  = tables.Float64Col()   
+    channel_number       = tables.Int16Col()   
+    yyyymmddhhmmss       = tables.Int64Col()     
+    land_surface_height  = tables.Float32Col()   
+    field_of_view_number = tables.Int32Col()    
+    sat_zenith_angle     = tables.Float32Col()    
+    solar_zenith_angle   = tables.Float32Col()    
+    solar_azimuth_angle  = tables.Float32Col()    
+    local_azimuth_angle  = tables.Float32Col()    
+    water_frac           = tables.Float32Col()    
+    ice_frac             = tables.Float32Col()    
+    snow_frac            = tables.Float32Col()    
+    qc_flag              = tables.Int8Col()    
+    use_flag             = tables.Int8Col()    
+    obid                 = tables.StringCol(46)
+    tb                   = tables.Float32Col()
+    tb_model             = tables.Float32Col()
+    tb_biascorr          = tables.Float32Col()
+    oberr_orig           = tables.Float32Col()
+    oberr_used           = tables.Float32Col()
+filter = tables.Filters(complevel=4,complib='zlib',shuffle=True)
+table = f.create_table('/', 'amsua', table_descriptor, "amsua data", filters=filter)
+
+obid_set = set()
+ncount = 0
+while bufr.advance() == 0:
+    print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
+    while bufr.load_subset() == 0:
+        hdr1 = bufr.read_subset(hdstr1).squeeze()
+        hdr2 = bufr.read_subset(hdstr2).squeeze()
+        hour = int(hdr1[6])
+        min = int(hdr1[7])
+        sec = int(hdr1[8])
+        if sec == 60:
+           sec = 59
+           d = datetime.datetime(int(hdr1[3]),int(hdr1[4]),int(hdr1[5]),hour,min,sec)
+           d = d + datetime.timedelta(seconds=1)
+        else:
+           d = datetime.datetime(int(hdr1[3]),int(hdr1[4]),int(hdr1[5]),hour,min,sec)
+        yyyymmddhhmmss = int(d.strftime('%Y%m%d%H%M%S'))
+        obs = bufr.read_subset('TMBR',rep=True).squeeze()
+        channum = bufr.read_subset('CHNM',rep=True).squeeze()
+        #coldspacecorr = bufr.read_subset('CSTC',rep=True).squeeze()
+        lat1 = hdr1[9]; lon1 = hdr1[10]
+        lat2 = hdr1[11]; lon2 = hdr1[12]
+        if lat2 <= 90 and lon2 <= 360:
+            lat = lat2; lon = lon2
+        else:
+            lat = lat1; lon = lon1
+        if lon > 180: lon -= 360
+        sat_id = int(hdr1[0])
+        sensor_id = int(hdr1[1])
+        for channel,ob in zip(channum,obs):
+            latstr = '%8.4f' % quantize(lat,2)
+            lonstr = '%9.4f' % quantize(lon,2)
+            obid = "%3s %3s %8s %9s %4s %14s" % \
+            (sat_id,sensor_id,latstr,lonstr,int(channel),yyyymmddhhmmss)
+            # skip ob if there is already a matching obid string
+            # (do we need more checking here to make sure obs are
+            # really duplicates?)
+            if obid not in obid_set:
+                obid_set.add(obid)
+                #print(ncount,obid)
+                table.row['obid'] = obid
+                table.row['sat_id'] = sat_id
+                table.row['sensor_id'] = sensor_id
+                table.row['lat'] = lat
+                table.row['lon'] = lon
+                table.row['yyyymmddhhmmss'] = yyyymmddhhmmss
+                table.row['land_surface_height'] = hdr1[13]
+                table.row['field_of_view_number'] = int(hdr1[2])
+                table.row['sat_zenith_angle'] = hdr2[0]
+                table.row['solar_zenith_angle'] = hdr2[1]
+                table.row['solar_azimuth_angle'] = hdr2[3]
+                table.row['local_azimuth_angle'] = hdr2[2]
+                table.row['tb'] = ob
+                table.row['channel_number'] = int(channel)
+                # following rows to be populated later from GSI diag file
+                table.row['tb_model'] = np.nan
+                table.row['tb_biascorr'] = np.nan
+                table.row['water_frac'] = np.nan
+                table.row['snow_frac'] = np.nan
+                table.row['ice_frac'] = np.nan
+                table.row['use_flag'] = 255  
+                table.row['qc_flag'] = 255  
+                table.row['oberr_orig'] = np.nan
+                table.row['oberr_used'] = np.nan
+                table.row.append()
+                ncount += 1
+            else:
+                print('skipping duplicate ob with id %s' % obid)
+    # only loop over first few subsets
+    #if bufr.msg_counter == 4: break
+
+# index obid columns for faster searches.
+table.flush()
+indexrows = table.cols.obid.create_index()
+f.close()
+bufr.close()
