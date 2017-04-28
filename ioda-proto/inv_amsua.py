@@ -10,3 +10,4 @@ satids = table.col('sat_id').tolist()
 seen = set()
 uniq = [sat_id_dict_inv[x]+' ' for x in satids if x not in seen and not seen.add(x)]
 print('satellite ids in file: %s' % ''.join(uniq))
+f.close()
