@@ -9,6 +9,7 @@ from utils import splitdate, sat_id_dict, sat_sensor_dict, quantize
 h5_filename = sys.argv[1]
 
 f = tables.open_file(h5_filename,'r+')
+#f = tables.open_file(h5_filename,'r+',driver="H5FD_CORE") # read into memory
 
 table = f.root.amsua
 
@@ -38,7 +39,7 @@ for diagfile in glob.glob("diag*"):
         nchan = int(diag_rad.channel[nob])
         # construct ob id
         d1 = d0 + datetime.timedelta(seconds = int(round(time*3600)))
-        yyyymmddhhmmss = int(d1.strftime('%Y%m%d%H%M%S'))
+        yyyymmddhhmmss = d1.strftime('%Y%m%d%H%M%S')
         latstr = '%8.4f' % quantize(lat,2)
         lonstr = '%9.4f' % quantize(lon,2)
         # construct obid
