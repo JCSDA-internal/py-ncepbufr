@@ -9,6 +9,8 @@
 
 * `utils.py`:  some utilities used in the above scripts.
 
+Requires: numpy, [pytables](http://www.pytables.org) and py-ncepbufr.
+
 screenshot of [vitables](http://vitables.org) showing structure of `amsua.h5` file.
 
 ![amsua.h5](vitables.png?raw=true "AMSUA pytables file")
