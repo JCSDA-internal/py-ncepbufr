@@ -8,3 +8,7 @@
 * `inv_amsua.py`: inventory of satellite ids in amsua hdf5 file (`python inv_amsua.py amsua.h5`).
 
 * `utils.py`:  some utilities used in the above scripts.
+
+screenshot of [vitables](http://vitables.org) showing structure of `amsua.h5` file.
+
+![amsua.h5](vitables.png?raw=true "AMSUA pytables file")
