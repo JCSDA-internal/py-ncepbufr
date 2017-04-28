@@ -2,7 +2,7 @@ import tables
 import sys
 import numpy as np
 h5_filename = sys.argv[1]
-f = tables.open_file(h5_filename,'a')
+f = tables.open_file(h5_filename,'r')
 table = f.root.amsua
 print """
 index sat_id sensor_id lat lon channel yyyymmddhhmmss tb tb_model biascorr
