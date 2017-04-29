@@ -13,9 +13,11 @@ f = tables.open_file(h5_filename,'r+')
 
 table = f.root.amsua
 
-# loop over diag files in present working directory.
-for diagfile in glob.glob("diag*"):
+# loop over amsua diag files in present working directory.
+for diagfile in glob.glob("diag_amsua*"):
+
     print('processing %s' % diagfile)
+
     diagfile_split = diagfile.split('_')
     sensor_id_str = diagfile_split[1]
     sat_id_str = diagfile_split[2]
