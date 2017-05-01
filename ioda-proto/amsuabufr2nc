@@ -140,6 +140,8 @@ if nob != 0:
     for vname in vnames:
         vv,va = var_dict[vname]
         vv[nob1:nob1+nob] = va 
-print('total number of observations = %s, number of obs in file %s' % (nobtot,len(obsdim)))
+if nobtot != len(obsdim):
+    raise ValueError('not all obs written to file!')
+print('total number of observations written to netcdf file= %s' % nobtot)
 f.close()
 bufr.close()
