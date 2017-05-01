@@ -30,7 +30,7 @@ while bufr.advance() == 0:
 bufr.rewind()
 
 # create netCDF variables.
-f.createDimension('nobs',None)
+obsdim = f.createDimension('nobs',None)
 complevel = 4 # compression level
 nobs_chunk = 2000 # write data in nobs_chunk chunks
 # chunking and compression parameters for all variables.
@@ -140,6 +140,6 @@ if nob != 0:
     for vname in vnames:
         vv,va = var_dict[vname]
         vv[nob1:nob1+nob] = va 
-print('total number of observations = %s' % nobtot)
+print('total number of observations = %s, number of obs in file %s' % (nobtot,len(obsdim)))
 f.close()
 bufr.close()
