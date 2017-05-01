@@ -135,6 +135,11 @@ while bufr.advance() == 0:
             else:
                 print('skipping duplicate ob with id %s' % obid)
 
+# write remaining obs.
+if nob != 0:
+    for vname in vnames:
+        vv,va = var_dict[vname]
+        vv[nob1:nob1+nob] = va 
 print('total number of observations = %s' % nobtot)
 f.close()
 bufr.close()
