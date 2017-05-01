@@ -9,7 +9,7 @@ from utils import quantize
 hdstr1 ='SAID SIID FOVN YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CLATH CLONH HOLS'
 hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
 
-# input and output file names, plus h5 dataset name, from command line args.
+# input and output file names from command line args.
 bufr_filename = sys.argv[1]
 nc_filename = sys.argv[2]
 
@@ -49,6 +49,7 @@ local_azimuth_anglev = f.createVariable("local_azimuth_angle","f4","nobs",**kwar
 channel_numberv = f.createVariable("channel_number","i2","nobs",**kwargs)
 tbv = f.createVariable("tb","f4","nobs",**kwargs)
 vnames = f.variables.keys()
+
 # these will be filled in later (merged from GSI diagnostic file)
 tb_modelv = f.createVariable("tb_model","f4","nobs",**kwargs)
 tb_biascorrv = f.createVariable("tb_biascorr","f4","nobs",**kwargs)
@@ -123,8 +124,7 @@ while bufr.advance() == 0:
                 var_dict['local_azimuth_angle'][1][nob] = hdr2[2]
                 var_dict['tb'][1][nob] = ob
                 var_dict['channel_number'][1][nob] = int(channel_number)
-                nob += 1
-                nobtot += 1
+                nob += 1; nobtot += 1
                 if nob == nobs_chunk:
                     # write nobs_chunk obs.
                     for vname in vnames:
@@ -140,8 +140,14 @@ if nob != 0:
     for vname in vnames:
         vv,va = var_dict[vname]
         vv[nob1:nob1+nob] = va 
+    f.sync()
+
+# check that total number of obs processed is the same as
+# total number of obs written to file.
 if nobtot != len(obsdim):
     raise ValueError('not all obs written to file!')
 print('total number of observations written to netcdf file= %s' % nobtot)
+
+# all done, close files.
 f.close()
 bufr.close()
