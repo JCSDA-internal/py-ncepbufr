@@ -20,6 +20,12 @@ screenshot of [vitables](http://vitables.org) showing structure of `amsua.h5` fi
 
 ![amsua.h5](vitables.png?raw=true "AMSUA pytables file")
 
+screenshot of `ncdump -h` showing structure of `amsua.nc` file.
+
+![amsua.nc](ncdump.png?raw=true "AMSUA netcdf file")
+
+
+
 
 TODO:
 
