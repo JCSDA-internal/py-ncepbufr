@@ -145,7 +145,7 @@ if nob != 0:
 # check that total number of obs processed is the same as
 # total number of obs written to file.
 if nobtot != len(obsdim):
-    raise ValueError('not all obs written to file!')
+    raise ValueError('not all obs written to file! (wrote %s, processed %s)' % (len(obsdim),nobtot))
 print('total number of observations written to netcdf file= %s' % nobtot)
 
 # all done, close files.
