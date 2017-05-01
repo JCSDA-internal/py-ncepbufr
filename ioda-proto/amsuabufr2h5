@@ -51,8 +51,8 @@ filter = tables.Filters(complevel=5,complib='zlib',shuffle=True)
 #filter = tables.Filters(complevel=5,complib='blosc')
 table = f.create_table('/','amsua',table_descriptor,'amsua data',expectedrows=5000000,filters=filter)
 
-obid_set = set()
 ncount = 0
+obid_set = set()
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0:
@@ -73,16 +73,20 @@ while bufr.advance() == 0:
         #coldspacecorr = bufr.read_subset('CSTC',rep=True).squeeze()
         lat1 = hdr1[9]; lon1 = hdr1[10]
         lat2 = hdr1[11]; lon2 = hdr1[12]
-        if lat2 <= 90 and lon2 <= 360:
+        if np.abs(lat2) <= 90 and np.abs(lon2) <= 360:
             lat = lat2; lon = lon2
         else:
             lat = lat1; lon = lon1
         if lon > 180: lon -= 360
+        latstr = '%8.4f' % quantize(lat,2)
+        lonstr = '%9.4f' % quantize(lon,2)
+        # for satellite id, see common code table c-5
+        # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c1-c5.htm#c-5)
+        # for sensor id, see common code table c-8
+        # (http://www.emc.ncep.noaa.gov/mmb/data_processing/common_tbl_c8-c14.htm#c-8)
         sat_id = int(hdr1[0])
         sensor_id = int(hdr1[1])
         for channel,ob in zip(channum,obs):
-            latstr = '%8.4f' % quantize(lat,2)
-            lonstr = '%9.4f' % quantize(lon,2)
             obid = "%3s %3s %8s %9s %4s %14s" % \
             (sat_id,sensor_id,latstr,lonstr,int(channel),yyyymmddhhmmss)
             # skip ob if there is already a matching obid string

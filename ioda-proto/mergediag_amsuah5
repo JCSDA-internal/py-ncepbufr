@@ -31,19 +31,20 @@ for diagfile in glob.glob("diag_amsua*"):
     
     diag_rad = read_diag.diag_rad(diagfile,endian='big')
     diag_rad.read_obs()
+    lon_diag = diag_rad.lon
+    lon_diag = np.where(lon_diag > 180, lon_diag-360, lon_diag)
+    lat_diag = diag_rad.lat
+    lon_diag = quantize(lon_diag,2)
+    lat_diag = quantize(lat_diag,2)
     
     # loop over obs in diag file.
     for nob in range(diag_rad.nobs):
-        lon = diag_rad.lon[nob].astype(np.float)
-        if lon > 180: lon -= 360
-        lat = diag_rad.lat[nob].astype(np.float)
-        time = diag_rad.time[nob]
         nchan = int(diag_rad.channel[nob])
         # construct ob id
-        d1 = d0 + datetime.timedelta(seconds = int(round(time*3600)))
+        d1 = d0 + datetime.timedelta(seconds = int(round(diag_rad.time[nob]*3600)))
         yyyymmddhhmmss = d1.strftime('%Y%m%d%H%M%S')
-        latstr = '%8.4f' % quantize(lat,2)
-        lonstr = '%9.4f' % quantize(lon,2)
+        latstr = '%8.4f' % lat_diag[nob]
+        lonstr = '%9.4f' % lon_diag[nob]
         # construct obid
         obid = "%3s %3s %8s %9s %4s %14s" % \
         (sat_id,sensor_id,latstr,lonstr,nchan,yyyymmddhhmmss)
