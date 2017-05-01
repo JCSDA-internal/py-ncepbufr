@@ -139,7 +139,7 @@ while bufr.advance() == 0:
 if nob != 0:
     for vname in vnames:
         vv,va = var_dict[vname]
-        vv[nob1:nob1+nob] = va 
+        vv[nob1:nob1+nob] = va[0:nob]
     f.sync()
 
 # check that total number of obs processed is the same as
