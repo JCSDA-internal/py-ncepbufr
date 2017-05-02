@@ -65,7 +65,7 @@ for diagfile in glob.glob("diag_amsua*"):
         nchan = int(diag_rad.channel[nob])
         # construct ob id
         d1 = d0 + datetime.timedelta(seconds = int(round(diag_rad.time[nob]*3600)))
-        yyyymmddhhmmss_diag = int(d1.strftime('%Y%m%d%H%M%S'))
+        yyyymmddhhmmss_diag = d1.strftime('%Y%m%d%H%M%S')
         latstr = '%8.4f' % lat_diag[nob]
         lonstr = '%9.4f' % lon_diag[nob]
         # construct obid
