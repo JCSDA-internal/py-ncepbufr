@@ -32,7 +32,7 @@ bufr.rewind()
 # create netCDF variables.
 obsdim = f.createDimension('nobs',None)
 complevel = 4 # compression level
-nobs_chunk = 2000 # write data in nobs_chunk chunks
+nobs_chunk = 20000 # write data in nobs_chunk chunks
 # chunking and compression parameters for all variables.
 kwargs = {'zlib':True,'shuffle':True,'complevel':complevel,'chunksizes':(nobs_chunk,)}
 sat_idv = f.createVariable("sat_id","i4","nobs",**kwargs)
