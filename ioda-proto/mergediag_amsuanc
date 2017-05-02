@@ -73,6 +73,7 @@ for diagfile in glob.glob("diag_amsua*"):
         (sat_id_diag,sensor_id_diag,latstr,lonstr,nchan,yyyymmddhhmmss_diag)
         # find matching obid in netcdf dataset by searching numpy array of ob ids.
         obidhash = hash(obid)
+        # this is much faster than np.nonzero(obids == obidhash)
         n = obids_argsort[np.searchsorted(obids_sorted, obidhash)]
         if obids[n] == obidhash:
             # fill in fields from diag file
