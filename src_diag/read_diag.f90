@@ -45,7 +45,7 @@ module read_diag
   public :: diag_data_extra_list
   public :: read_radiag_header
   public :: read_radiag_data
-! public :: iversion_radiag
+  public :: iversion_radiag
 ! public :: iversion_radiag_1
 ! public :: iversion_radiag_2
 ! public :: iversion_radiag_3
@@ -83,6 +83,7 @@ module read_diag
      integer :: angord           ! order of polynomial for adp_anglebc option
      integer :: iversion         ! radiance diagnostic file version number
      integer :: inewpc           ! indicator of newpc4pred (1 on, 0 off)
+     integer :: ijacob           ! indicates whether jacobian included (1 yes, 0 no)
      integer :: isens            ! sensitivity index
   end type diag_header_fix_list
 
@@ -139,6 +140,7 @@ module read_diag
      real :: tbobs              ! Tb (obs) (K)
      real :: omgbc              ! Tb_(obs) - Tb_(simulated w/ bc)  (K)
      real :: omgnbc             ! Tb_(obs) - Tb_(simulated_w/o bc) (K)
+     real :: sprd               ! ensemble spread
      real :: errinv             ! inverse error (K**(-1))
      real :: qcmark             ! quality control mark
      real :: emiss              ! surface emissivity
@@ -165,6 +167,7 @@ module read_diag
   integer,parameter:: iversion_radiag_2 = 13784   ! Version when NSST entries were added 
   integer,parameter:: iversion_radiag_3 = 19180   ! Version when SSMIS added
   integer,parameter:: iversion_radiag_4 = 30303   ! Version when emissivity predictor added
+  integer,parameter:: iversion_radiag_5 = 40000   ! Version when ensemble spread added
 
   real,parameter::  rmiss_radiag    = -9.9e11
 
@@ -236,7 +239,7 @@ subroutine read_radiag_header(ftin,retrieval,header_fix,header_chan,data_name,if
   character(len=20):: sensat
   integer :: i,ich
   integer:: jiter,nchanl,npred,ianldate,ireal,ipchan,iextra,jextra
-  integer:: idiag,angord,iversion,inewpc,isens
+  integer:: idiag,angord,iversion,inewpc,isens,ijacob
   integer:: iuse_tmp,nuchan_tmp,iochan_tmp
   real :: freq_tmp,polar_tmp,wave_tmp,varch_tmp,tlapmean_tmp
   logical loutall
@@ -246,12 +249,18 @@ subroutine read_radiag_header(ftin,retrieval,header_fix,header_chan,data_name,if
 
 ! Read header (fixed_part).
   read(ftin,IOSTAT=iflag)  sensat,satid,sentype,jiter,nchanl,npred,ianldate,&
-          ireal,ipchan,iextra,jextra,idiag,angord,iversion,inewpc,isens
+          ireal,ipchan,iextra,jextra,idiag,angord,iversion,inewpc,isens,ijacob
   if (iflag/=0) then
      rewind(ftin)
      read(ftin,IOSTAT=iflag) sensat,satid,sentype,jiter,nchanl,npred,ianldate,&
-          ireal,ipchan,iextra,jextra,idiag,angord,iversion,inewpc
-     isens=0
+          ireal,ipchan,iextra,jextra,idiag,angord,iversion,inewpc,isens
+     ijacob=0
+     if (iflag/=0) then
+        rewind(ftin)
+        read(ftin,IOSTAT=iflag) sensat,satid,sentype,jiter,nchanl,npred,ianldate,&
+             ireal,ipchan,iextra,jextra,idiag,angord,iversion,inewpc
+        isens=0
+     end if
   end if
 
   if (iflag/=0) then
@@ -281,6 +290,7 @@ subroutine read_radiag_header(ftin,retrieval,header_fix,header_chan,data_name,if
   header_fix%iextra  = iextra
   header_fix%jextra  = jextra
   header_fix%idiag   = idiag
+  header_fix%ijacob  = ijacob
   header_fix%angord  = angord
   header_fix%iversion= iversion
   header_fix%inewpc  = inewpc
@@ -294,7 +304,8 @@ subroutine read_radiag_header(ftin,retrieval,header_fix,header_chan,data_name,if
           ' idiag=',header_fix%idiag,&
           ' iversion=',header_fix%iversion,&
           ' inewpc=',header_fix%inewpc,&
-          ' isens=',header_fix%isens
+          ' isens=',header_fix%isens,&
+          ' ijacob=',header_fix%ijacob
      
      if ( header_fix%iextra /= 0) &
           write(6,*)'READ_RADIAG_HEADER:  extra diagnostic information available, ',&
@@ -505,6 +516,7 @@ subroutine read_radiag_data(ftin,header_fix,retrieval,data_fix,data_chan,data_ex
      read(ftin,IOSTAT=iflag) fix_tmp, data_tmp, extra_tmp
   endif
 
+  if (iflag /= 0) return
 
 ! Transfer fix_tmp record to output structure
   data_fix%lat = fix_tmp(1)
@@ -616,7 +628,7 @@ subroutine read_radiag_data(ftin,header_fix,retrieval,data_fix,data_chan,data_ex
         end do
         data_chan(ich)%bisst = data_tmp(15+header_fix%angord+2,ich)
      end do
-  else
+  elseif ( header_fix%iversion < iversion_radiag_5 .and. header_fix%iversion >= iversion_radiag_4 ) then
      do ich=1,header_fix%nchan
         data_chan(ich)%bicons=data_tmp(9,ich)
         data_chan(ich)%biang =data_tmp(10,ich)
@@ -631,7 +643,25 @@ subroutine read_radiag_data(ftin,header_fix,retrieval,data_fix,data_chan,data_ex
         do iang=1,header_fix%angord+1
            data_chan(ich)%bifix(iang)=data_tmp(16+iang,ich)
         end do
+        data_chan(ich)%bisst = data_tmp(16+header_fix%angord+2,ich)
+     end do
+  else
+     do ich=1,header_fix%nchan
+        data_chan(ich)%bicons=data_tmp(9,ich)
+        data_chan(ich)%biang =data_tmp(10,ich)
+        data_chan(ich)%biclw =data_tmp(11,ich)
+        data_chan(ich)%bilap2=data_tmp(12,ich)
+        data_chan(ich)%bilap =data_tmp(13,ich)
+        data_chan(ich)%bicos =data_tmp(14,ich)
+        data_chan(ich)%bisin =data_tmp(15,ich)
+        data_chan(ich)%biemis=data_tmp(16,ich)
+     end do
+     do ich=1,header_fix%nchan
+        do iang=1,header_fix%angord+1
+           data_chan(ich)%bifix(iang)=data_tmp(16+iang,ich)
+        end do
         data_chan(ich)%bisst = data_tmp(16+header_fix%angord+2,ich)  
+        data_chan(ich)%sprd  = data_tmp(16+header_fix%angord+3,ich)
      end do
   endif
 

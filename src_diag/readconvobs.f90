@@ -4,7 +4,7 @@ subroutine get_num_convobs(obsfile,num_obs_tot,endian)
     character(len=6), optional, intent(in) :: endian
     ! local vars
     character(len=3) :: obtype
-    integer iunit, nchar, nreal, ii, mype,ios, idate
+    integer iunit, nchar, nreal, ii, mype,ios, idate,ioff0
     integer :: nn,nobst, nobsps, nobsq, nobsuv, nobsgps, &
          nobstcp, nobssst, nobsspd, nobsdw, nobsrw, nobspw, nobssrw
     character(len=8),allocatable,dimension(:):: cdiagbuf
@@ -41,7 +41,7 @@ subroutine get_num_convobs(obsfile,num_obs_tot,endian)
     read(iunit) idate
     !print *,idate
 10  continue
-    read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype
+    read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
     allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
     read(iunit) cdiagbuf(1:ii),rdiagbuf(:,1:ii)
     !print *,obtype,nchar,nreal,ii,mype
@@ -106,13 +106,13 @@ subroutine get_num_convobs(obsfile,num_obs_tot,endian)
     close(iunit)
 end subroutine get_num_convobs
 
-subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
+subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_sprd, x_err, &
            x_lon, x_lat, x_press, x_time, x_code, x_errorig, x_type, &
            x_use, x_station_id, x_stnelev, endian)
 
   character(len=500), intent(in) :: obsfile
   character(len=6), optional, intent(in) :: endian
-  double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_err,x_lon,&
+  double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_sprd,x_err,x_lon,&
                                x_lat,x_press,x_time,x_errorig,x_stnelev
   integer, dimension(nobs_max), intent(out) :: x_code, x_use
   integer, dimension(nobs_max,4), intent(out) ::  x_type
@@ -120,7 +120,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
   ! local vars
   character(len=6) :: convert_endian
   character(len=3) :: obtype
-  integer iunit, nobs_max, nob, n, nchar, nreal, ii, mype, ios, idate
+  integer iunit, nobs_max, nob, n, nchar, nreal, ii, mype, ios, idate, ioff0
   character(len=8),allocatable,dimension(:):: cdiagbuf
   real,allocatable,dimension(:,:)::rdiagbuf
 
@@ -133,6 +133,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
   iunit = 7
 
   nob  = 0
+  x_sprd = 1.e10
   !print *,obsfile
   if (trim(convert_endian) == 'big') then
      open(iunit,form="unformatted",file=trim(obsfile),iostat=ios,convert='big_endian')
@@ -143,7 +144,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
   endif
   read(iunit) idate
 10 continue
-  read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype
+  read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
   !print *,obtype,nchar,nreal,ii,mype
     if (obtype == '  t') then
        allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
@@ -164,6 +165,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 19) x_sprd(nob) = rdiagbuf(20,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -212,6 +214,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 24) x_sprd(nob) = rdiagbuf(24,n)
           obtype = '  u'
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -231,6 +234,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(20,n)
           h_x(nob) = rdiagbuf(20,n)-rdiagbuf(21,n)
+          if (nreal > 24) x_sprd(nob) = rdiagbuf(25,n)
           obtype = '  v'
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -284,9 +288,11 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_err(nob) = (1.0/rdiagbuf(15,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           ! background adjusted to station height
-          h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
+!          h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
-          x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+!          x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+          h_x(nob) = rdiagbuf(17,n) - rdiagbuf(18,n)
+          if (nreal > 19) x_sprd(nob) = rdiagbuf(20,n)
           x_use(nob) = rdiagbuf(12,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -335,9 +341,11 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           !x_err(nob) = (1.0/rdiagbuf(15,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           ! background adjusted to station height
-          h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
+!          h_x(nob) = rdiagbuf(17,n)-rdiagbuf(19,n)
           ! apply adjustment to ob instead of background
-          x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+!          x_obs(nob) = x_obs(nob) + rdiagbuf(18,n)-rdiagbuf(19,n)
+          h_x(nob) = rdiagbuf(17,n) - rdiagbuf(18,n)
+          if (nreal > 19) x_sprd(nob) = rdiagbuf(20,n)
           x_use(nob) = rdiagbuf(12,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -380,6 +388,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1./rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 20) x_sprd(nob) = rdiagbuf(21,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -426,6 +435,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 20) x_sprd(nob) = rdiagbuf(21,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -517,6 +527,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 24) x_sprd(nob) = rdiagbuf(25,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -568,6 +579,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 23) x_sprd(nob) = rdiagbuf(23,n)
           obtype = '  u'
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -587,6 +599,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(20,n)
           h_x(nob) = rdiagbuf(20,n)-rdiagbuf(21,n)
+          if (nreal > 23) x_sprd(nob) = rdiagbuf(24,n)
           obtype = '  v'
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
@@ -638,6 +651,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_obs(nob) = rdiagbuf(17,n)
 ! Convert to innovation (as pointed out by Lidia)
           h_x(nob) = rdiagbuf(17,n) - (rdiagbuf(5,n)*rdiagbuf(17,n))
+          if (nreal > 21) x_sprd(nob) = rdiagbuf(22,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -724,6 +738,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 26) x_sprd(nob) = rdiagbuf(27,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)
@@ -777,6 +792,7 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_err, &
           x_err(nob) = (1.0/rdiagbuf(16,n))**2
           x_obs(nob) = rdiagbuf(17,n)
           h_x(nob) = rdiagbuf(17,n)-rdiagbuf(18,n)
+          if (nreal > 19) x_sprd(nob) = rdiagbuf(20,n)
           call strtoarr(obtype, x_type(nob,:), 3)
           call strtoarr(cdiagbuf(n), x_station_id(nob,:), 8)
           x_use(nob) = rdiagbuf(12,n)

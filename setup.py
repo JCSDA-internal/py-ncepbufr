@@ -17,7 +17,7 @@ ext_bufrlib = Extension(name  = '_bufrlib',
 ext_diag_conv = Extension(name     = '_read_convobs',
                           sources  = ['src_diag/readconvobs.f90'])
 ext_diag_sat = Extension(name     = '_read_satobs',
-                         sources  = ['src_diag/_readsatobs.pyf','src_diag/readsatobs.f90', 'src_diag/read_diag.f90'])
+                         sources  = ['src_diag/_readsatobs.pyf','src_diag/readsatobs.f90', 'src_diag/sparsearr.f90', 'src_diag/read_diag.f90'])
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',

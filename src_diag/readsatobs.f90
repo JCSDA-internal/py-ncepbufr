@@ -44,6 +44,7 @@ subroutine get_num_satobs(obsfile,npred,num_obs_tot,endian)
        open(iunit,form="unformatted",file=trim(obsfile),iostat=ios)
     endif
     rewind(iunit)
+
     call read_radiag_header(iunit,lretrieval,header_fix0,header_chan0,data_name0,iflag,lverbose)
     npred = header_fix0%npred
 
@@ -59,17 +60,17 @@ subroutine get_num_satobs(obsfile,npred,num_obs_tot,endian)
 
 end subroutine get_num_satobs
 
-subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err, &
+subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_sprd, x_obs, x_err, &
            x_lon, x_lat, x_time, x_channum, x_errorig, x_biaspred, x_use, x_qcmark, &
            x_water_frac, x_land_frac, x_ice_frac, x_snow_frac, endian)
   use read_diag, only: diag_data_fix_list,diag_header_fix_list,diag_header_chan_list, &
   diag_data_chan_list,diag_data_extra_list,read_radiag_data,read_radiag_header, &
-  diag_data_name_list
+  diag_data_name_list,iversion_radiag
   implicit none
   character(len=6), optional, intent(in) :: endian
   character*500, intent(in) :: obsfile
   integer, intent(in) :: nobs_max, npred
-  real, dimension(nobs_max), intent(out) :: h_x,h_xnobc,x_obs,x_err,x_lon,&
+  real, dimension(nobs_max), intent(out) :: h_x,h_xnobc,x_sprd,x_obs,x_err,x_lon,&
                                x_lat,x_time,x_errorig
   integer, dimension(nobs_max), intent(out) :: x_use, x_qcmark
   real, dimension(nobs_max), intent(out) :: x_water_frac, x_land_frac, x_ice_frac, x_snow_frac
@@ -104,6 +105,7 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err,
   emiss_bc = .true.
   adp_anglebc = .true.
   x_biaspred = 0
+  x_sprd = 0
 
   nobs = 0
 
@@ -129,17 +131,18 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_obs, x_err,
           print *,'warning:  exceeding array bounds in get_satobs_data',&
           nobs,nobs_max
       end if
-      x_channum(nobs) = n
+      x_channum(nobs) = header_chan(n)%nuchan  !n
       x_lon(nobs) = data_fix%lon
       x_lat(nobs) = data_fix%lat
       x_time(nobs) = data_fix%obstime
       x_obs(nobs) = data_chan(n)%tbobs 
       x_use(nobs) = header_chan(n)%iuse
-      x_qcmark(nobs) = data_chan(n)%qcmark
+      x_qcmark(nobs) = nint(data_chan(n)%qcmark)
       ! bias corrected Hx
       h_x(nobs) = x_obs(nobs) - data_chan(n)%omgbc 
       ! un-bias corrected Hx
       h_xnobc(nobs) = x_obs(nobs) - data_chan(n)%omgnbc
+      if (iversion_radiag >= 40000) x_sprd(nobs) = data_chan(n)%sprd
       ! data_chan%errinv is inverse error variance.
       x_errorig(nobs) = header_chan(n)%varch**2
       x_err(nobs) = (1./data_chan(n)%errinv)**2
