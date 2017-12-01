@@ -368,7 +368,8 @@ class open:
             data = np.empty((ndim,_maxdim),np.float,order='F')
             levs = _bufrlib.ufbrep(self.lunit,data,mnemonics,ndim,_maxdim)
         elif events:
-            data = np.empty((ndim,_maxdim,maxevent),np.float,order='F')
+            #data = np.empty((ndim,_maxdim,maxevents),np.float,order='F')
+            data = np.empty((ndim,_maxdim,_maxevents),np.float,order='F')
             levs = _bufrlib.ufbevn(self.lunit,data,mnemonics,ndim,_maxdim,_maxevents)
         else:
             data = np.empty((ndim,_maxdim),np.float,order='F')
