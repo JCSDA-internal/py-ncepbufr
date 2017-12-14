@@ -10,13 +10,14 @@ python module _read_satobs ! in
             integer intent(out) :: num_obs_tot
             character*6, optional,intent(in) :: endian
         end subroutine get_num_satobs
-        subroutine get_satobs_data(obsfile,nobs_max,npred,h_x,h_xnobc,x_obs,x_err,x_lon,x_lat,x_time,x_channum,x_errorig,x_biaspred,x_use,x_qcmark,x_water_frac,x_land_frac,x_ice_frac,x_snow_frac,endian) ! in :_read_satobs:readsatobs.f90
+        subroutine get_satobs_data(obsfile,nobs_max,npred,h_x,h_xnobc,x_sprd,x_obs,x_err,x_lon,x_lat,x_time,x_channum,x_errorig,x_biaspred,x_use,x_qcmark,x_water_frac,x_land_frac,x_ice_frac,x_snow_frac,endian) ! in :_read_satobs:readsatobs.f90
             use read_diag, only: diag_data_chan_list,diag_header_chan_list,diag_data_name_list,diag_header_fix_list,diag_data_fix_list,read_radiag_header,diag_data_extra_list,read_radiag_data
             character*500 intent(in) :: obsfile
             integer intent(in) :: nobs_max
             integer intent(in) :: npred
             real dimension(nobs_max),intent(out),depend(nobs_max) :: h_x
             real dimension(nobs_max),intent(out),depend(nobs_max) :: h_xnobc
+            real dimension(nobs_max),intent(out),depend(nobs_max) :: x_sprd
             real dimension(nobs_max),intent(out),depend(nobs_max) :: x_obs
             real dimension(nobs_max),intent(out),depend(nobs_max) :: x_err
             real dimension(nobs_max),intent(out),depend(nobs_max) :: x_lon

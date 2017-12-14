@@ -4,15 +4,16 @@ __version__ = '0.0.2'
 
 class diag_conv(object):
     # read diag_conv file.
-    def __init__(self,filename,endian='native'):
-        nobs = _read_convobs.get_num_convobs(filename,endian=endian)
+    def __init__(self,filename,endian='native',fformat='new'):
+        nobs = _read_convobs.get_num_convobs(filename,endian=endian,fformat=fformat)
         self.endian = endian
+        self.fformat = fformat
         self.nobs = nobs; self.filename = filename
     def read_obs(self):
         h_x,x_obs,x_sprd,x_err,x_lon,x_lat,x_press,x_time,\
         x_code,x_errorig,x_type,x_use,x_station_id,x_stnelev =\
         _read_convobs.get_convobs_data(self.filename, self.nobs,\
-        endian=self.endian)
+        endian=self.endian,fformat=self.fformat)
         self.hx = h_x
         self.obs = x_obs
         self.sprd = x_sprd

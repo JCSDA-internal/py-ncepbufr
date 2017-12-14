@@ -1,19 +1,24 @@
-subroutine get_num_convobs(obsfile,num_obs_tot,endian)
+subroutine get_num_convobs(obsfile,num_obs_tot,endian,fformat)
     character(len=500), intent(in) :: obsfile
     integer, intent(out) :: num_obs_tot
-    character(len=6), optional, intent(in) :: endian
+    character(len=6), optional, intent(in) :: endian, fformat
     ! local vars
     character(len=3) :: obtype
     integer iunit, nchar, nreal, ii, mype,ios, idate,ioff0
     integer :: nn,nobst, nobsps, nobsq, nobsuv, nobsgps, &
          nobstcp, nobssst, nobsspd, nobsdw, nobsrw, nobspw, nobssrw
     character(len=8),allocatable,dimension(:):: cdiagbuf
-    character(len=6) :: convert_endian
+    character(len=6) :: convert_endian,fileformat
     real,allocatable,dimension(:,:)::rdiagbuf
     if (.not. present(endian)) then
       convert_endian = 'native'
     else
       convert_endian = endian
+    endif
+    if (.not. present(fformat)) then
+      fileformat = 'new'
+    else
+      fileformat = fformat
     endif
     iunit = 7
     num_obs_tot = 0
@@ -41,7 +46,11 @@ subroutine get_num_convobs(obsfile,num_obs_tot,endian)
     read(iunit) idate
     !print *,idate
 10  continue
-    read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
+    if (trim(fileformat) == 'old') then
+      read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype
+    else
+      read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
+    endif
     allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
     read(iunit) cdiagbuf(1:ii),rdiagbuf(:,1:ii)
     !print *,obtype,nchar,nreal,ii,mype
@@ -108,17 +117,17 @@ end subroutine get_num_convobs
 
 subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_sprd, x_err, &
            x_lon, x_lat, x_press, x_time, x_code, x_errorig, x_type, &
-           x_use, x_station_id, x_stnelev, endian)
+           x_use, x_station_id, x_stnelev, endian, fformat)
 
   character(len=500), intent(in) :: obsfile
-  character(len=6), optional, intent(in) :: endian
+  character(len=6), optional, intent(in) :: endian, fformat
   double precision, dimension(nobs_max), intent(out) :: h_x,x_obs,x_sprd,x_err,x_lon,&
                                x_lat,x_press,x_time,x_errorig,x_stnelev
   integer, dimension(nobs_max), intent(out) :: x_code, x_use
   integer, dimension(nobs_max,4), intent(out) ::  x_type
   integer, dimension(nobs_max,9), intent(out) ::  x_station_id
   ! local vars
-  character(len=6) :: convert_endian
+  character(len=6) :: convert_endian, fileformat
   character(len=3) :: obtype
   integer iunit, nobs_max, nob, n, nchar, nreal, ii, mype, ios, idate, ioff0
   character(len=8),allocatable,dimension(:):: cdiagbuf
@@ -129,6 +138,12 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_sprd, x_err, &
   else
     convert_endian = endian
   endif
+  if (.not. present(fformat)) then
+    fileformat = 'new'
+  else
+    fileformat = fformat
+  endif
+
 
   iunit = 7
 
@@ -144,7 +159,12 @@ subroutine get_convobs_data(obsfile, nobs_max, h_x, x_obs, x_sprd, x_err, &
   endif
   read(iunit) idate
 10 continue
-  read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
+    if (trim(fileformat) == 'old') then
+      read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype
+    else
+      read(iunit,err=20,end=30) obtype,nchar,nreal,ii,mype,ioff0
+    endif
+
   !print *,obtype,nchar,nreal,ii,mype
     if (obtype == '  t') then
        allocate(cdiagbuf(ii),rdiagbuf(nreal,ii))
