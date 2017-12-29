@@ -1,0 +1,73 @@
+"""merge information from GSI diagnostic file into h5 file created by
+amsuabufr2h5"""
+from __future__ import print_function
+import tables
+import numpy as np
+import sys, read_diag, datetime, glob
+from utils import splitdate, sat_id_dict, sat_sensor_dict, quantize
+
+h5_filename = sys.argv[1]
+
+f = tables.open_file(h5_filename,'r+')
+#f = tables.open_file(h5_filename,'r+',driver="H5FD_CORE") # read into memory
+
+table = f.root.amsua
+
+# loop over amsua diag files in present working directory.
+for diagfile in glob.glob("diag_amsua*"):
+
+    print('processing %s' % diagfile)
+
+    diagfile_split = diagfile.split('_')
+    sensor_id_str = diagfile_split[1]
+    sat_id_str = diagfile_split[2]
+    analdate = diagfile_split[3].split('.')[1]
+    
+    sat_id = sat_id_dict[sat_id_str]
+    sensor_id = sat_sensor_dict[sensor_id_str]
+     
+    yyyy,mm,dd,hh = splitdate(analdate)
+    d0 = datetime.datetime(yyyy,mm,dd,hh)
+    
+    diag_rad = read_diag.diag_rad(diagfile,endian='big')
+    diag_rad.read_obs()
+    lon_diag = diag_rad.lon
+    lon_diag = np.where(lon_diag > 180, lon_diag-360, lon_diag)
+    lat_diag = diag_rad.lat
+    lon_diag = quantize(lon_diag,2)
+    lat_diag = quantize(lat_diag,2)
+    
+    # loop over obs in diag file.
+    for nob in range(diag_rad.nobs):
+        nchan = int(diag_rad.channel[nob])
+        # construct ob id
+        d1 = d0 + datetime.timedelta(seconds = int(round(diag_rad.time[nob]*3600)))
+        yyyymmddhhmmss = d1.strftime('%Y%m%d%H%M%S')
+        latstr = '%8.4f' % lat_diag[nob]
+        lonstr = '%9.4f' % lon_diag[nob]
+        # construct obid
+        obid = "%3s %3s %8s %9s %4s %14s" % \
+        (sat_id,sensor_id,latstr,lonstr,nchan,yyyymmddhhmmss)
+        # find rows with matching obid in table
+        cond = 'obid == "%46s"' % obid
+        rows = table.where(cond) 
+        # fill in fields from diag file
+        nmatches = 0
+        for row in rows:
+            row['tb_model'] = diag_rad.hx[nob]
+            row['tb_biascorr'] = diag_rad.biascorr[nob]
+            row['water_frac'] = diag_rad.water_frac[nob]
+            row['snow_frac'] = diag_rad.water_frac[nob]
+            row['ice_frac'] = diag_rad.ice_frac[nob]
+            row['use_flag'] = diag_rad.used[nob]
+            row['qc_flag'] = diag_rad.qcmark[nob]
+            row['oberr_orig'] = diag_rad.oberr_orig[nob]
+            row['oberr_used'] = diag_rad.oberr[nob]
+            row.update()
+            #print(obid,row['tb'],row['tb_model'],row['tb_biascorr'])
+            nmatches += 1
+        if nmatches != 1:
+            print('warning: %s matches found for obid = %s' % (nmatches,obid))
+
+    table.flush()
+f.close()

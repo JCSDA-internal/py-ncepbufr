@@ -1,0 +1,94 @@
+"""merge information from GSI diagnostic file into netcdf file created by
+amsuabufr2nc"""
+from __future__ import print_function
+from netCDF4 import Dataset
+import numpy as np
+import sys, read_diag, datetime, glob
+from utils import splitdate, sat_id_dict, sat_sensor_dict, quantize
+
+nc_filename = sys.argv[1]
+
+f = Dataset(nc_filename,'a')
+
+# load data from netcdf needed to create ob ids.
+nobs = len(f.dimensions['nobs'])
+sat_id = f['sat_id'][:]; sensor_id = f['sensor_id'][:]
+lat = f['lat'][:]; lon = f['lon'][:]
+channum = f['channel_number'][:]
+yyyymmddhhmmss = f['yyyymmddhhmmss'][:].astype(np.int64)
+obids = np.empty(nobs, np.int64)
+latq = quantize(lat,2); lonq = quantize(lon,2)
+for n in range(nobs):
+    latstr = '%8.4f' % latq[n]
+    lonstr = '%9.4f' % lonq[n]
+    # construct obid
+    obid = "%3s %3s %8s %9s %4s %14s" % \
+    (sat_id[n],sensor_id[n],latstr,lonstr,\
+     channum[n],yyyymmddhhmmss[n])
+    obids[n] = hash(obid) # convert string to int64 using python hash function
+# create sorted array for searching
+obids_sorted = np.sort(obids)
+obids_argsort = np.argsort(obids)
+
+# loop over amsua diag files in present working directory.
+for diagfile in glob.glob("diag_amsua*"):
+
+    print('processing %s' % diagfile)
+
+    diagfile_split = diagfile.split('_')
+    sensor_id_str = diagfile_split[1]
+    sat_id_str = diagfile_split[2]
+    analdate = diagfile_split[3].split('.')[1]
+    
+    sat_id_diag = sat_id_dict[sat_id_str]
+    sensor_id_diag = sat_sensor_dict[sensor_id_str]
+     
+    yyyy,mm,dd,hh = splitdate(analdate)
+    d0 = datetime.datetime(yyyy,mm,dd,hh)
+    
+    diag_rad = read_diag.diag_rad(diagfile,endian='big')
+    diag_rad.read_obs()
+ 
+    yyyy,mm,dd,hh = splitdate(analdate)
+    d0 = datetime.datetime(yyyy,mm,dd,hh)
+    
+    obsfile = 'diag_%s_%s_ges.%s_ensmean' % (sensor_id_str,sat_id_str,analdate)
+    diag_rad = read_diag.diag_rad(obsfile,endian='big')
+    diag_rad.read_obs()
+    lon_diag = diag_rad.lon
+    lon_diag = np.where(lon_diag > 180, lon_diag-360, lon_diag)
+    lat_diag = diag_rad.lat
+    lon_diag = quantize(lon_diag,2)
+    lat_diag = quantize(lat_diag,2)
+
+    for nob in range(diag_rad.nobs):
+        nchan = int(diag_rad.channel[nob])
+        # construct ob id
+        d1 = d0 + datetime.timedelta(seconds = int(round(diag_rad.time[nob]*3600)))
+        yyyymmddhhmmss_diag = d1.strftime('%Y%m%d%H%M%S')
+        latstr = '%8.4f' % lat_diag[nob]
+        lonstr = '%9.4f' % lon_diag[nob]
+        # construct obid
+        obid = "%3s %3s %8s %9s %4s %14s" % \
+        (sat_id_diag,sensor_id_diag,latstr,lonstr,nchan,yyyymmddhhmmss_diag)
+        # find matching obid in netcdf dataset by searching numpy array of ob ids.
+        obidhash = hash(obid)
+        # this is much faster than np.nonzero(obids == obidhash)
+        n = obids_argsort[np.searchsorted(obids_sorted, obidhash)]
+        if obids[n] == obidhash:
+            # fill in fields from diag file
+            f['tb_model'][n] = diag_rad.hx[nob]
+            f['tb_biascorr'][n] = diag_rad.biascorr[nob]
+            f['water_frac'][n] = diag_rad.water_frac[nob]
+            f['snow_frac'][n] = diag_rad.water_frac[nob]
+            f['ice_frac'][n] = diag_rad.ice_frac[nob]
+            f['use_flag'][n] = diag_rad.used[nob]
+            f['qc_flag'][n] = diag_rad.qcmark[nob]
+            f['oberr_orig'][n] = diag_rad.oberr_orig[nob]
+            f['oberr_used'][n] = diag_rad.oberr[nob]
+        else:
+            print('no match found for %s' % obid)
+
+    f.sync()
+
+f.close()
