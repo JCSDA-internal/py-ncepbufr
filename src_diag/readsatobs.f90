@@ -65,7 +65,7 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_sprd, x_obs
            x_water_frac, x_land_frac, x_ice_frac, x_snow_frac, endian)
   use read_diag, only: diag_data_fix_list,diag_header_fix_list,diag_header_chan_list, &
   diag_data_chan_list,diag_data_extra_list,read_radiag_data,read_radiag_header, &
-  diag_data_name_list,iversion_radiag
+  diag_data_name_list
   implicit none
   character(len=6), optional, intent(in) :: endian
   character*500, intent(in) :: obsfile
@@ -142,7 +142,7 @@ subroutine get_satobs_data(obsfile, nobs_max, npred, h_x, h_xnobc, x_sprd, x_obs
       h_x(nobs) = x_obs(nobs) - data_chan(n)%omgbc 
       ! un-bias corrected Hx
       h_xnobc(nobs) = x_obs(nobs) - data_chan(n)%omgnbc
-      if (iversion_radiag >= 40000) x_sprd(nobs) = data_chan(n)%sprd
+      if (header_fix%iversion >= 40000) x_sprd(nobs) = data_chan(n)%sprd
       ! data_chan%errinv is inverse error variance.
       x_errorig(nobs) = header_chan(n)%varch**2
       x_err(nobs) = (1./data_chan(n)%errinv)**2
