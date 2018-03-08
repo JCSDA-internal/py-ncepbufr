@@ -220,8 +220,8 @@ class open:
     def copy_subset(self,bufrin):
         """
         copy the currently loaded subset from the specified bufr file object
-        and write to the current grib message"""
-        _bufrlib.ufbcpy(bufrin.lunit, self.lunit) 
+        and write to the current bufr message"""
+        _bufrlib.ufbcpy(bufrin.lunit, self.lunit)
         _bufrlib.writsb(self.lunit)
     def dump_subset(self,filename,append=False,verbose=False):
         """
@@ -261,7 +261,7 @@ class open:
         return _bufrlib.ufbqcd(self.lunit, mnemonic)
     def get_flag_table_bits(self, mnemonic, val):
         """
-        return bit settings associated with 
+        return bit settings associated with
         a specifed value and flag table mnemonic
         (see src/upftbv.f for more details)
         """
