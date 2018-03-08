@@ -259,6 +259,14 @@ class open:
         (see `src/ufbqcd.f` for more details)
         """
         return _bufrlib.ufbqcd(self.lunit, mnemonic)
+    def get_flag_table_bits(self, mnemonic, val):
+        """
+        return bit settings associated with 
+        a specifed value and flag table mnemonic
+        (see src/upftbv.f for more details)
+        """
+        ibits, nbits = _bufrlib.upftbv(self.lunit, mnemonic, val, _maxevents)
+        return ibits[:nbits]
     def checkpoint(self):
         """
         mark where we are in the bufr file,

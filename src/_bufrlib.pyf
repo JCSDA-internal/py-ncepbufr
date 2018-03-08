@@ -3703,12 +3703,12 @@ subroutine upds3(mbay,lcds3,cds3,nds3) ! in upds3.f
     integer :: nds3
 end subroutine upds3
 subroutine upftbv(lunit,nemo,val,mxib,ibit,nib) ! in upftbv.f
-    integer :: lunit
-    character*(*) :: nemo
-    real*8 :: val
-    integer :: mxib
-    integer dimension(*) :: ibit
-    integer :: nib
+    integer,intent(in) :: lunit
+    character*(*),intent(in) :: nemo
+    real*8, intent(in) :: val
+    integer, intent(in) :: mxib
+    integer, intent(out) ::  dimension(mxib) :: ibit
+    integer, intent(out) :: nib
     real*8 :: bmiss
     integer dimension(33) :: ntba
     integer dimension(33) :: ntbb
