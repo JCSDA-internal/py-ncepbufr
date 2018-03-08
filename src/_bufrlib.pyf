@@ -3707,7 +3707,7 @@ subroutine upftbv(lunit,nemo,val,mxib,ibit,nib) ! in upftbv.f
     character*(*),intent(in) :: nemo
     real*8, intent(in) :: val
     integer, intent(in) :: mxib
-    integer, intent(out) ::  dimension(mxib) :: ibit
+    integer, intent(out) :: ibit(mxib)
     integer, intent(out) :: nib
     real*8 :: bmiss
     integer dimension(33) :: ntba
