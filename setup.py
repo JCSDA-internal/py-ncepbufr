@@ -15,7 +15,7 @@ ext_bufrlib = Extension(name  = '_bufrlib',
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
-          version           = "0.9.3",
+          version           = "1.0.0",
           description       = "Python interface to NCEP bufrlib",
           author            = "Jeff Whitaker",
           author_email      = "jeffrey.s.whitaker@noaa.gov",
