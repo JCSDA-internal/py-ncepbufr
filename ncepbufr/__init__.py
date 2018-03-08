@@ -265,7 +265,7 @@ class open:
         a specifed value and flag table mnemonic
         (see src/upftbv.f for more details)
         """
-        ibits, nbits = _bufrlib.upftbv(self.lunit, mnemonic, val, _maxevents)
+        ibits, nbits = _bufrlib.upftbv(self.lunit, mnemonic, float(val), _maxevents)
         return ibits[:nbits]
     def checkpoint(self):
         """
