@@ -894,7 +894,6 @@ table {
 .codehilite .nv { color: #19177C } /* Name.Variable */
 .codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
 .codehilite .w { color: #bbbbbb } /* Text.Whitespace */
-.codehilite .mb { color: #666666 } /* Literal.Number.Bin */
 .codehilite .mf { color: #666666 } /* Literal.Number.Float */
 .codehilite .mh { color: #666666 } /* Literal.Number.Hex */
 .codehilite .mi { color: #666666 } /* Literal.Number.Integer */
@@ -1059,6 +1058,7 @@ table {
     <li class="mono"><a href="#ncepbufr.open.copy_subset">copy_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.dump_subset">dump_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.dump_table">dump_table</a></li>
+    <li class="mono"><a href="#ncepbufr.open.get_flag_table_bits">get_flag_table_bits</a></li>
     <li class="mono"><a href="#ncepbufr.open.get_program_code">get_program_code</a></li>
     <li class="mono"><a href="#ncepbufr.open.inventory">inventory</a></li>
     <li class="mono"><a href="#ncepbufr.open.load_subset">load_subset</a></li>
@@ -1326,7 +1326,7 @@ used to go back to this state.</p></div>
     
   
     <div class="desc"><p>copy the currently loaded subset from the specified bufr file object
-and write to the current grib message</p></div>
+and write to the current bufr message</p></div>
   <div class="source_cont">
 </div>
 
@@ -1363,6 +1363,23 @@ trying to print the decoded subset using <a href="#ncepbufr.open.dump_subset"><c
     
   
     <div class="desc"><p>dump embedded bufr table to a file</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="ncepbufr.open.get_flag_table_bits">
+    <p>def <span class="ident">get_flag_table_bits</span>(</p><p>self, mnemonic, val)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return bit settings associated with
+a specifed value and flag table mnemonic
+(see src/upftbv.f for more details)</p></div>
   <div class="source_cont">
 </div>
 
