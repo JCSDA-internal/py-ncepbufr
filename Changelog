@@ -1,7 +1,7 @@
 version 1.0.0
 =============
 * add function for computing bit flags from integer and mnemonic
-* remove GSI diag reader stuff
+* remove GSI diag reader stuff (still in branch gsidiag)
 
 version 0.9.3
 =============
