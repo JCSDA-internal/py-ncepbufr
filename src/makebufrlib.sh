@@ -20,8 +20,8 @@
 #
 ###############################################################
 
-export FC=gfortran
-export CC=cc
+export FC=${FC:-gfortran}
+export CC=${CC:-cc}
 #CPPFLAGS=" -P -traditional-cpp -C"
 CPPFLAGS=" -P -traditional-cpp"
 
