@@ -1,3 +1,8 @@
+version 1.0.0
+=============
+* add function for computing bit flags from integer and mnemonic
+* remove GSI diag reader stuff
+
 version 0.9.3
 =============
 * have read_diag return specific humidity in kg/kg (not q/qsat)
