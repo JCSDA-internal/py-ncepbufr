@@ -122,8 +122,8 @@ while bufr.advance() == 0: # loop over messages.
         obs = bufr.read_subset(obstr)
         qc  = bufr.read_subset(qcstr)
         err = bufr.read_subset(oestr)
-	nlevs_use = 0
-	for nlev in range(obs.shape[-1]):
+        nlevs_use = 0
+        for nlev in range(obs.shape[-1]):
             lon = hdr[1]; lat = hdr[2]; time = hdr[3]
             press = obs[0,nlev]; z = hdr[5]
             # use balloon drift lat/lon/time for sondes, pibals
