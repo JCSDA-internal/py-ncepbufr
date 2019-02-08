@@ -5,7 +5,7 @@ hdrstr ='YEAR MNTH DAYS HOUR MINU PCCF ELRC SAID PTID GEODU'
 
 # read gpsro file.
 
-bufr = ncepbufr.open('gpsbufr')
+bufr = ncepbufr.open('data/gpsbufr')
 bufr.print_table()
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)

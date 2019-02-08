@@ -2,6 +2,8 @@ from __future__ import print_function
 import ncepbufr
 import numpy as np
 
+# run test.py first to create prepbufr.table file.
+
 hdstr='SID XOB YOB DHR TYP ELV SAID T29'
 obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
 qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
@@ -9,7 +11,7 @@ oestr='POE QOE TOE NUL WOE NUL PWE'
 
 # open prepbufr file.
 
-bufr = ncepbufr.open('prepbufr2','w',table='prepbufr.table')
+bufr = ncepbufr.open('data/prepbufr2','w',table='prepbufr.table')
 idate=2010050700 # cycle time: YYYYMMDDHH
 subset='ADPSFC'  # surface land (SYNOPTIC, METAR) reports
 bufr.open_message(subset, idate)
@@ -103,7 +105,7 @@ bufr.close_message()
 bufr.close()
 
 # open bufr file, append another message to it.
-bufr = ncepbufr.open('prepbufr2','a')
+bufr = ncepbufr.open('data/prepbufr2','a')
 # set data values
 hdr = bufr.missing_value*np.ones(len(hdstr.split()),np.float)
 obs = bufr.missing_value*np.ones(len(obstr.split()),np.float)
@@ -124,7 +126,7 @@ bufr.close()
 
 # read prepbufr file back in.
 
-bufr = ncepbufr.open('prepbufr2')
+bufr = ncepbufr.open('data/prepbufr2')
 bufr.print_table() # print embedded table
 while bufr.advance() == 0: # loop over messages.
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)

@@ -6,7 +6,7 @@ hdstr2 ='SAZA SOZA BEARAZ SOLAZI'
 
 # read amsua radiance file.
 
-bufr = ncepbufr.open('1bamua')
+bufr = ncepbufr.open('data/1bamua')
 bufr.print_table()
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
