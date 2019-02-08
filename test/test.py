@@ -8,11 +8,11 @@ oestr='POE QOE TOE NUL WOE NUL PWE'
 
 # read prepbufr file.
 
-bufr = ncepbufr.open('prepbufr')
+bufr = ncepbufr.open('data/prepbufr')
 bufr.print_table() # print embedded table
 bufr.dump_table('prepbufr.table') # dump table to file
 while bufr.advance() == 0: # loop over messages.
-    print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
+    print(bufr.msg_counter, bufr.msg_type, bufr.msg_date, bufr.receipt_time)
     #bufr.read_subset(obstr) # should raise subset not loaded error
     while bufr.load_subset() == 0: # loop over subsets in message.
         hdr = bufr.read_subset(hdstr).squeeze()
