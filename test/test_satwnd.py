@@ -1,13 +1,13 @@
 from __future__ import print_function
 import ncepbufr
 
-hdrstr = 'SAID CLAT CLON YEAR MNTH DAYS HOUR MINU SWCM SAZA GCLONG SCCF SWQM' 
-obstr = 'HAMD PRLC WDIR WSPD' 
+hdrstr = 'SAID CLAT CLON YEAR MNTH DAYS HOUR MINU SWCM SAZA GCLONG SCCF SWQM'
+obstr = 'HAMD PRLC WDIR WSPD'
 qcstr = 'OGCE GNAP PCCF'
 
 # read satellite wind file.
 
-bufr = ncepbufr.open('satwndbufr')
+bufr = ncepbufr.open('data/satwndbufr')
 bufr.print_table()
 while bufr.advance() == 0:
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
