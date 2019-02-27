@@ -41,6 +41,7 @@ class open:
         """
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
+        self.filename = filename
         '''bufr file opened with this fortran unit number'''
         _funits.remove(self.lunit)
         if not _funits:
