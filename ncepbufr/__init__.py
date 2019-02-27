@@ -33,7 +33,10 @@ class open:
         `mode`: `'r'` for read, `'w'` for write, `'a'` for append (default
         `'r'`).
 
-        `table`:  bufr table filename.  Must be specified for `mode='w'`.
+        `table`:  bufr table filename or ncepbufr.open instance.
+        Must be specified for `mode='w'`, optional for `mode='r'`.
+        If table is an existing ncepbufr.open instance, the table
+        will be shared. If not, it is assumed to be the filename of a bufr table.
         For `mode='r'`, bufr table embedded in file will be used if not specified.
 
         `datelen`:  number of digits for date specification (default 10, gives
@@ -65,26 +68,32 @@ class open:
             if table is None:
                 # table embedded in bufr file
                 _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
-                self.lundx = None
-                self.table = None
+                self.lundx = self.lunit # table unit number same as bufr unit number
             else:
-                # external table file specified
-                self.lundx = random.choice(_funits)
-                self.table = table
-                iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
-                if iret != 0:
-                    msg='error opening %s' % filename
-                    raise IOError(msg)
-                _funits.remove(self.lundx)
-                self.table = table
+                try:
+                    # share a bufr table with another instance
+                    self.lundx = table.lunit
+                except AttributeError:
+                    # external table file specified
+                    self.lundx = random.choice(_funits)
+                    iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
+                    if iret != 0:
+                        msg='error opening %s' % filename
+                        raise IOError(msg)
+                    _funits.remove(self.lundx)
                 _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         elif mode == 'w':
-            self.lundx = random.choice(_funits)
-            iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
-            if iret != 0:
-                msg='error opening %s' % table
-                raise IOError(msg)
-            _funits.remove(self.lundx)
+            try:
+                # share a bufr table with another instance
+                self.lundx = table.lunit
+            except AttributeError:
+                # read bufr table from a file.
+                self.lundx = random.choice(_funits)
+                iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
+                if iret != 0:
+                    msg='error opening %s' % table
+                    raise IOError(msg)
+                _funits.remove(self.lundx)
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
@@ -160,12 +169,12 @@ class open:
         _bufrlib.closbf(self.lunit)
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
-        if self.lundx is not None:
+        if self.lundx != self.lunit:
             iret = _bufrlib.fortran_close(self.lundx)
             if iret == 0:
                 bisect.insort_left(_funits,self.lundx)
             else:
-                raise IOError('error closing %s' % self.table)
+                raise IOError('error closing bufr table')
     def advance(self):
         """
         advance to the next msg in the bufr file
