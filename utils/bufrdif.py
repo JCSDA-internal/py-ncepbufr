@@ -78,7 +78,7 @@ for bkey in bufr_dict2:
         else:
            uniq_messages[nmsg] = [nsubset]
         if verbose: print('msg/subset %s/%s in bufr 2 not in bufr 1' % (nmsg,nsubset))
-print('%s unique message subsets in bufr 2' % ncount)
+print('%s unique message subsets (out of %s) in bufr 2' % (ncount,len(bufr_dict2)))
 
 # write unique messages in bufr 2 to new file
 # dump prepbufr table from input file.
