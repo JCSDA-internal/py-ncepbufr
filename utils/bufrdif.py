@@ -81,13 +81,10 @@ for bkey in bufr_dict2:
 print('%s unique message subsets (out of %s) in bufr 2' % (ncount,len(bufr_dict2)))
 
 # write unique messages in bufr 2 to new file
-# dump prepbufr table from input file.
-tablefile = tempfile.mktemp()
-bufr.dump_table(tablefile)
 # open output bufr file using same prepbufr table.
 print('creating %s' % filename_out)
-bufrout = ncepbufr.open(filename_out,'w',tablefile)
 bufr.rewind()
+bufrout = ncepbufr.open(filename_out,'w',bufr)
 while bufr.advance() == 0: 
     if bufr.msg_counter in uniq_messages: # this message has a unique subset
         bufrout.open_message(bufr.msg_type,bufr.msg_date) # open output message
@@ -100,4 +97,3 @@ while bufr.advance() == 0:
 
 # close up shop.
 bufr.close(); bufrout.close()
-os.remove(tablefile)
