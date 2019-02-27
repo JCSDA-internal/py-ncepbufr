@@ -33,6 +33,9 @@ class open:
         `mode`: `'r'` for read, `'w'` for write, `'a'` for append (default
         `'r'`).
 
+        `table`:  bufr table filename.  Must be specified for `mode='w'`.
+        For `mode='r'`, bufr table embedded in file will be used if not specified.
+
         `datelen`:  number of digits for date specification (default 10, gives
         `YYYYMMDDHH`).
         """
@@ -54,23 +57,37 @@ class open:
         else:
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
-            # table embedded in bufr file
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
                 raise IOError(msg)
-            _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
-            self.lundx = None
-            self.table = None
+            if table is None:
+                # table embedded in bufr file
+                _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
+                self.lundx = None
+                self.table = None
+            else:
+                # external table file specified
+                self.lundx = random.choice(_funits)
+                self.table = table
+                iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
+                if iret != 0:
+                    msg='error opening %s' % filename
+                    raise IOError(msg)
+                _funits.remove(self.lundx)
+                self.table = table
+                _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         elif mode == 'w':
             self.lundx = random.choice(_funits)
-            self.table = table
             iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
             if iret != 0:
                 msg='error opening %s' % table
+                raise IOError(msg)
+            _funits.remove(self.lundx)
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
+                raise IOError(msg)
             _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
