@@ -5,6 +5,7 @@ version 0.1: Jeff Whitaker 20190227
 """
 from __future__ import print_function
 import ncepbufr, sys, os, tempfile, hashlib
+from datetime import datetime, timedelta
 
 if len(sys.argv) < 5:
     msg = """python prepbufrdif.py <bufr 1> <bufr 2> <bufr2-bufr1> <bufr_type>
@@ -35,13 +36,35 @@ else:
     msg="unrecognized bufr_type, must be one of 'prep','satwnd'"
     raise SystemExit(msg)
 
-def get_bufr_dict(bufr,verbose=False):
+def splitdate(yyyymmddhh):
+    """
+ yyyy,mm,dd,hh = splitdate(yyyymmddhh)
+
+ give an date string (yyyymmddhh) return integers yyyy,mm,dd,hh.
+    """
+    yyyymmddhh = str(yyyymmddhh)
+    yyyy = int(yyyymmddhh[0:4])
+    mm = int(yyyymmddhh[4:6])
+    dd = int(yyyymmddhh[6:8])
+    hh = int(yyyymmddhh[8:10])
+    return yyyy,mm,dd,hh
+
+def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
     bufr_dict = {}
     ndup = 0
+    delta = timedelta(seconds=1)
     while bufr.advance() == 0: 
         nsubset = 0
+        if bufr_type == 'prep':
+            yyyy,mm,dd,hh = splitdate(bufr.msg_date)
+            refdate = datetime(yyyy,mm,dd,hh)
         while bufr.load_subset() == 0: # loop over subsets in message.
-            hdrhash = hash(bufr.read_subset(hdstr).tostring())
+            hdr = bufr.read_subset(hdstr).squeeze()
+            if bufr_type == 'prep':
+                secs = int(hdr[3]*3600.)
+                obdate = refdate + secs*delta
+                hdr[3]=float(obdate.strftime('%Y%m%d%H%M%S')) # YYYYMMDDHHMMSS
+            hdrhash = hash(hdr.tostring())
             obshash = hash(bufr.read_subset(obstr).tostring())
             qchash = hash(bufr.read_subset(qcstr).tostring())
             key = '%s %s %s %s' % (bufr.msg_type,hdrhash,obshash,qchash)
@@ -57,12 +80,12 @@ def get_bufr_dict(bufr,verbose=False):
 # create dictionaries with md5 hashes for each message as keys, 
 # (msg number,subset number) tuple as values.
 bufr = ncepbufr.open(filename_in1)
-bufr_dict1,ndup = get_bufr_dict(bufr,verbose=verbose)
+bufr_dict1,ndup = get_bufr_dict(bufr,verbose=verbose,bufr_type=bufr_type)
 print('%s duplicate keys found in %s' % (ndup,filename_in1))
 bufr.close()
 
 bufr = ncepbufr.open(filename_in2)
-bufr_dict2,ndup = get_bufr_dict(bufr,verbose=verbose)
+bufr_dict2,ndup = get_bufr_dict(bufr,verbose=verbose,bufr_type=bufr_type)
 print('%s duplicate keys found in %s' % (ndup,filename_in2))
 
 # find message subsets in bufr 2 that aren't in bufr 1
