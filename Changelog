@@ -1,3 +1,8 @@
+since version 1.0.0
+===================
+* added difbufr.py utility.
+* ncepbufr.open table kwarg can be an existing ncepbufr.open instance.
+
 version 1.0.0
 =============
 * add function for computing bit flags from integer and mnemonic
