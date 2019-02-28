@@ -63,6 +63,7 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
             if bufr_type == 'prep':
                 secs = int(hdr[3]*3600.)
                 obdate = refdate + secs*delta
+                # 4th element in header must be DHR (obs time - cycle time in hours) !!
                 hdr[3]=float(obdate.strftime('%Y%m%d%H%M%S')) # YYYYMMDDHHMMSS
             hdrhash = hash(hdr.tostring())
             obshash = hash(bufr.read_subset(obstr).tostring())
