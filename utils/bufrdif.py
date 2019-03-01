@@ -4,28 +4,37 @@ that is unique in the 2nd file
 version 0.1: Jeff Whitaker 20190227
 """
 from __future__ import print_function
-import ncepbufr, sys, os, tempfile, hashlib
+import ncepbufr, sys, os, tempfile, hashlib, argparse
 from datetime import datetime, timedelta
 
-if len(sys.argv) < 5:
-    msg = """python prepbufrdif.py <bufr 1> <bufr 2> <bufr2-bufr1> <bufr_type>
-where <bufr 1> is input bufr file (early cutoff)
-      <bufr 2> is input bufr file (late cutoff)
-      <bufr2-bufr1> is output bufr file containing obs in 2 not in 1
-      <bufr_type> is type of bufr file ('prep','satwnd')\n"""
-    raise SystemExit(msg)
-filename_in1 = sys.argv[1]
-filename_in2 = sys.argv[2]
-filename_out = sys.argv[3]
-bufr_type = sys.argv[4]
+# Parse command line args
+ap = argparse.ArgumentParser()
+ap.add_argument("input_bufr1", help="path to first input BUFR file")
+ap.add_argument("input_bufr2", help="path to second input BUFR file")
+ap.add_argument("output_bufr", help="output BUFR containing data in BUFR 2 that is not in BUFR 1")
+ap.add_argument("--bufr_type", type=str, default='prep',help="bufr file type ('prep' or 'satwnd')")
+ap.add_argument('--verbose', '-v', action='store_true')
+
+MyArgs = ap.parse_args()
+
+filename_in1 = MyArgs.input_bufr1
+filename_in2 = MyArgs.input_bufr2
+filename_out = MyArgs.output_bufr
+bufr_type = MyArgs.bufr_type
+verbose=MyArgs.verbose
+print("""input_bufr1=%s 
+input_bufr2=%s
+output_bufr=%s
+bufr_type=%s""" % (filename_in1,filename_in2,filename_out,bufr_type))
+
 if filename_out == filename_in1 or filename_out == filename_in2:
     msg="output file must not have same name as input files"
     raise SystemExit(msg)
 
-verbose = False # controls level of output
-
 if bufr_type == 'prep':
     hdstr='SID XOB YOB DHR TYP ELV T29'
+    if hdstr.split()[3] != 'DHR':
+        raise ValueError("DHR mnemonic must be 4th in header list")
     obstr='POB QOB TOB UOB VOB PMO PRSS PWO'
     qcstr='PQM QQM TQM WQM PMQ PWQ'
 elif bufr_type == 'satwnd':
@@ -63,7 +72,6 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
             if bufr_type == 'prep':
                 secs = int(hdr[3]*3600.)
                 obdate = refdate + secs*delta
-                # 4th element in header must be DHR (obs time - cycle time in hours) !!
                 hdr[3]=float(obdate.strftime('%Y%m%d%H%M%S')) # YYYYMMDDHHMMSS
             hdrhash = hash(hdr.tostring())
             obshash = hash(bufr.read_subset(obstr).tostring())
