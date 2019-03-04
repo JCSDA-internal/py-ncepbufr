@@ -4,8 +4,7 @@ with receipt time later than specified time.
 version 0.1: Jeff Whitaker 20190305
 """
 from __future__ import print_function
-import ncepbufr, sys, os, tempfile, hashlib, argparse
-from datetime import datetime, timedelta
+import ncepbufr, sys, argparse
 
 # Parse command line args
 ap = argparse.ArgumentParser()
