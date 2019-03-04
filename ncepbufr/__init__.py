@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 from .bufr_mnemonics import *
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 
 # create list of allowed fortran unit numbers
