@@ -1,5 +1,5 @@
-"""bufrsubset.py - read in a bufr files, write out a subset of bufr data 
-with receipt time later than specified time.
+"""bufrsubset.py - read in a bufr file, copy a subset of bufr data 
+with receipt time later than specified time to a new file.
 
 version 0.1: Jeff Whitaker 20190305
 """
