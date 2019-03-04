@@ -319,7 +319,7 @@ class open:
         to `ncepbufr.open.checkpoint`.
         """
         _bufrlib.rewnbf(self.lunit,1)
-    def open_message(self,msg_type,msg_date):
+    def open_message(self,msg_type,msg_date,msg_receipt_time=None):
         """
         open new bufr message.
 
@@ -330,7 +330,20 @@ class open:
         `msg_date`: reference date (e.g. `YYYYMMDDHH`) for message. The
         number of digits in the reference date is controlled by
         `ncepbufr.open.set_datelength`, and is 10 by default.
+
+        `msg_receipt_time` bufr tank receipt time YYYYMMDDHHMM (optional).
         """
+        if msg_receipt_time is not None:
+            yyyymmddhhmm = str(msg_receipt_time)
+            try:
+                yyyy = int(yyyymmddhhmm[0:4])
+                mm = int(yyyymmddhhmm[4:6])
+                dd = int(yyyymmddhhmm[6:8])
+                hh = int(yyyymmddhhmm[8:10])
+                mm = int(yyyymmddhhmm[10:12])
+                _bufrlib.strcpt('Y',yyyy,mm,dd,hh,mm)
+            except IndexError:
+                pass # don't write receipt time
         _bufrlib.openmg(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         """
