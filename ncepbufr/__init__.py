@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 from .bufr_mnemonics import *
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 
 # create list of allowed fortran unit numbers
@@ -33,11 +33,18 @@ class open:
         `mode`: `'r'` for read, `'w'` for write, `'a'` for append (default
         `'r'`).
 
+        `table`:  bufr table filename or ncepbufr.open instance.
+        Must be specified for `mode='w'`, optional for `mode='r'`.
+        If table is an existing ncepbufr.open instance, the table
+        will be shared. If not, it is assumed to be the filename of a bufr table.
+        For `mode='r'`, bufr table embedded in file will be used if not specified.
+
         `datelen`:  number of digits for date specification (default 10, gives
         `YYYYMMDDHH`).
         """
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
+        self.filename = filename
         '''bufr file opened with this fortran unit number'''
         _funits.remove(self.lunit)
         if not _funits:
@@ -54,23 +61,43 @@ class open:
         else:
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
-            # table embedded in bufr file
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
                 raise IOError(msg)
-            _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
-            self.lundx = None
-            self.table = None
+            if table is None:
+                # table embedded in bufr file
+                _bufrlib.openbf(self.lunit,self._ioflag,self.lunit)
+                self.lundx = self.lunit # table unit number same as bufr unit number
+            else:
+                try:
+                    # share a bufr table with another instance
+                    self.lundx = table.lunit
+                except AttributeError:
+                    # external table file specified
+                    self.lundx = random.choice(_funits)
+                    iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
+                    if iret != 0:
+                        msg='error opening %s' % filename
+                        raise IOError(msg)
+                    _funits.remove(self.lundx)
+                _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         elif mode == 'w':
-            self.lundx = random.choice(_funits)
-            self.table = table
-            iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
-            if iret != 0:
-                msg='error opening %s' % table
+            try:
+                # share a bufr table with another instance
+                self.lundx = table.lunit
+            except AttributeError:
+                # read bufr table from a file.
+                self.lundx = random.choice(_funits)
+                iret = _bufrlib.fortran_open(table,self.lundx,"formatted","rewind")
+                if iret != 0:
+                    msg='error opening %s' % table
+                    raise IOError(msg)
+                _funits.remove(self.lundx)
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
+                raise IOError(msg)
             _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
         # set date length (default 10 means YYYYMMDDHH)
         self.set_datelength()
@@ -142,12 +169,12 @@ class open:
         _bufrlib.closbf(self.lunit)
         # add fortran unit number back to pool
         bisect.insort_left(_funits,self.lunit)
-        if self.lundx is not None:
+        if self.lundx != self.lunit:
             iret = _bufrlib.fortran_close(self.lundx)
             if iret == 0:
                 bisect.insort_left(_funits,self.lundx)
             else:
-                raise IOError('error closing %s' % self.table)
+                raise IOError('error closing bufr table')
     def advance(self):
         """
         advance to the next msg in the bufr file
@@ -292,7 +319,7 @@ class open:
         to `ncepbufr.open.checkpoint`.
         """
         _bufrlib.rewnbf(self.lunit,1)
-    def open_message(self,msg_type,msg_date):
+    def open_message(self,msg_type,msg_date,msg_receipt_time=None):
         """
         open new bufr message.
 
@@ -303,7 +330,20 @@ class open:
         `msg_date`: reference date (e.g. `YYYYMMDDHH`) for message. The
         number of digits in the reference date is controlled by
         `ncepbufr.open.set_datelength`, and is 10 by default.
+
+        `msg_receipt_time` bufr tank receipt time YYYYMMDDHHMM (optional).
         """
+        if msg_receipt_time is not None:
+            yyyymmddhhmm = str(msg_receipt_time)
+            try:
+                yyyy = int(yyyymmddhhmm[0:4])
+                mm = int(yyyymmddhhmm[4:6])
+                dd = int(yyyymmddhhmm[6:8])
+                hh = int(yyyymmddhhmm[8:10])
+                mm = int(yyyymmddhhmm[10:12])
+                _bufrlib.strcpt('Y',yyyy,mm,dd,hh,mm)
+            except IndexError:
+                pass # don't write receipt time
         _bufrlib.openmg(self.lunit,msg_type,int(msg_date))
     def close_message(self):
         """

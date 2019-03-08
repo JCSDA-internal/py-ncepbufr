@@ -1,3 +1,10 @@
+version 1.1.0
+=============
+* added bufrdif.py utility.
+* ncepbufr.open table kwarg can be an existing ncepbufr.open instance.
+* ncepbufr.openmsg now has msg_receipt_time kwarg (YYYYMMDDHHMM).
+* added bufrsubset.py (subset bufr file by receipt time).
+
 version 1.0.0
 =============
 * add function for computing bit flags from integer and mnemonic
