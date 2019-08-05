@@ -3,8 +3,9 @@ import random
 import bisect
 import numpy as np
 from .bufr_mnemonics import *
+import os
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 
 # create list of allowed fortran unit numbers
@@ -61,6 +62,9 @@ class open:
         else:
             raise ValueError("mode must be 'r', 'w' or 'a'")
         if mode == 'r' or mode == 'a':
+            if not os.path.isfile(filename):
+                msg='%s does not exist' % filename
+                raise IOError(msg)
             iret = _bufrlib.fortran_open(filename,self.lunit,"unformatted","rewind")
             if iret != 0:
                 msg='error opening %s' % filename
@@ -344,7 +348,12 @@ class open:
                 _bufrlib.strcpt('Y',yyyy,mm,dd,hh,mm)
             except IndexError:
                 pass # don't write receipt time
-        _bufrlib.openmg(self.lunit,msg_type,int(msg_date))
+        _bufrlib.openmb(self.lunit,msg_type,int(msg_date))
+    def copy_message(self,bufrin):
+        """
+        copy the currently loaded message from the specified bufr file object
+        and write to the file"""
+        _bufrlib.copymg(bufrin.lunit, self.lunit)
     def close_message(self):
         """
         close bufr message
