@@ -41,6 +41,9 @@ elif bufr_type == 'satwnd':
     hdstr = 'SAID CLAT CLON CLATH CLONH YEAR MNTH DAYS HOUR MINU SWCM SAZA SCCF SWQM'
     obstr = 'EHAM HAMD PRLC WDIR WSPD'
     qcstr = 'OGCE GNAP PCCF'
+elif bufr_type == 'goesfv':
+    hdstr = 'CLON CLAT ELEV SOEL BEARAZ SOLAZI SAID DINU YEAR MNTH DAYS HOUR MINU SECO ACAV' 
+    obstr = 'TMBR'
 else:
     msg="unrecognized bufr_type, must be one of 'prep','satwnd'"
     raise SystemExit(msg)
@@ -69,15 +72,21 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
             refdate = datetime(yyyy,mm,dd,hh)
         while bufr.load_subset() == 0: # loop over subsets in message.
             hdr = bufr.read_subset(hdstr).squeeze()
+            hdr = hdr.filled()
             if bufr_type == 'prep':
                 secs = int(hdr[3]*3600.)
                 obdate = refdate + secs*delta
                 hdr[3]=float(obdate.strftime('%Y%m%d%H%M%S')) # YYYYMMDDHHMMSS
             hdrhash = hash(hdr.tostring())
             obshash = hash(bufr.read_subset(obstr).tostring())
-            qchash = hash(bufr.read_subset(qcstr).tostring())
-            key = '%s %s %s %s' % (bufr.msg_type,hdrhash,obshash,qchash)
-            key = hashlib.md5(key).hexdigest()
+            if bufr_type == 'goesfv':
+                key = '%s %s %s' % (bufr.msg_type,hdrhash,obshash)
+            else:
+                qchash = hash(bufr.read_subset(qcstr).tostring())
+                key = '%s %s %s %s' % (bufr.msg_type,hdrhash,obshash,qchash)
+            # human readable header string
+            #if bufr_type == 'prep':
+            #    hdrstr = '%8s %8.3f %7.3f %14s %3i %5i %3i' % (hdr[0].tostring(),hdr[1],hdr[2],int(hdr[3]),int(hdr[4]),int(hdr[5]),int(hdr[6])))
             nsubset += 1
             if key in bufr_dict:
                 ndup += 1
