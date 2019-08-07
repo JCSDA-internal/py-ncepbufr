@@ -38,6 +38,7 @@ C 2003-11-04  D. KEYSER  -- UNIFIED/PORTABLE FOR WRF; ADDED HISTORY
 C                           DOCUMENTATION; OUTPUTS MORE COMPLETE
 C                           DIAGNOSTIC INFO WHEN ROUTINE TERMINATES
 C                           ABNORMALLY
+C 2014-12-10  J. ATOR    -- USE MODULES INSTEAD OF COMMON BLOCKS
 C
 C USAGE:    CALL STATUS ( LUNIT, LUN, IL, IM )
 C   INPUT ARGUMENT LIST:
@@ -69,20 +70,21 @@ C    THIS ROUTINE CALLS:        BORT
 C    THIS ROUTINE IS CALLED BY: CLOSBF   CLOSMG   COPYBF   COPYMG
 C                               COPYSB   CPYMEM   DATEBF   DRFINI
 C                               DUMPBF   DXDUMP   GETABDB  GETTAGPR
-C                               GETVALNB IFBGET   IGETSC   INVMRG
-C                               IUPVS01  LCMGDF   MESGBC   MINIMG
-C                               MSGWRT   NMSUB    OPENBF   OPENMB
-C                               OPENMG   POSAPX   RDMEMM   RDMEMS
-C                               RDMGSB   READDX   READERME READLC
-C                               READMG   READNS   READSB   REWNBF
-C                               RTRCPT   STNDRD   UFBCNT   UFBCPY
+C                               GETTAGRE GETVALNB IFBGET   IGETSC
+C                               INVMRG   IUPVS01  LCMGDF   MESGBC
+C                               MINIMG   MSGWRT   NEMDEFS  NEMSPECS
+C                               NMSUB    OPENBF   OPENMB   OPENMG
+C                               POSAPX   RDMEMM   RDMEMS   RDMGSB
+C                               READDX   READERME READLC   READMG
+C                               READNS   READSB   REWNBF   RTRCPT
+C                               SETVALNB STNDRD   UFBCNT   UFBCPY
 C                               UFBCUP   UFBDMP   UFBEVN   UFBGET
 C                               UFBIN3   UFBINT   UFBINX   UFBMMS
 C                               UFBOVR   UFBPOS   UFBQCD   UFBQCP
 C                               UFBREP   UFBRMS   UFBSEQ   UFBSTP
 C                               UFBTAB   UFBTAM   UFDUMP   UPFTBV
 C                               WRCMPS   WRDXTB   WRITLC   WRITSA
-C                               WRITSB
+C                               WRITSB   GETCFMNG
 C                               Also called by application programs.
 C
 C ATTRIBUTES:
@@ -91,9 +93,9 @@ C   MACHINE:  PORTABLE TO ALL PLATFORMS
 C
 C$$$
 
-      INCLUDE 'bufrlib.prm'
+      USE MODA_STBFR
 
-      COMMON /STBFR/ IOLUN(NFILES),IOMSG(NFILES)
+      INCLUDE 'bufrlib.prm'
 
       CHARACTER*128 BORT_STR
 

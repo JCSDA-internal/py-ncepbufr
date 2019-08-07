@@ -2199,17 +2199,6 @@ subroutine rdmgsb(lunit,imsg,isub) ! in rdmgsb.f
     common /bufrbmiss/ bmiss
     common /bitbuf/ maxbyt,ibit,ibay,mbyt,mbay
 end subroutine rdmgsb
-subroutine rdmsgb(lunit,mesg,iret) ! in rdmsgb.f
-    integer :: lunit
-    integer dimension(*) :: mesg
-    integer :: iret
-    integer :: nbytw
-    integer :: nbitw
-    integer dimension(8) :: iord
-    real*8 :: bmiss
-    common /hrdwrd/ nbytw,nbitw,iord
-    common /bufrbmiss/ bmiss
-end subroutine rdmsgb
 subroutine rdmsgw(lunit,mesg,iret) ! in rdmsgw.f
     integer :: lunit
     integer dimension(*) :: mesg
@@ -2417,37 +2406,6 @@ subroutine readmm(imsg,subset,jdate,iret) ! in readmm.f
     integer :: jdate
     integer :: iret
 end subroutine readmm
-subroutine readmt(imt,imtv,iogce,imtvl) ! in readmt.f
-    integer :: imt
-    integer :: imtv
-    integer :: iogce
-    integer :: imtvl
-    real*8 :: bmiss
-    integer :: iprt
-    integer :: nmtb
-    integer dimension(4000) :: ibfxyn
-    character dimension(4000,4),intent(c) :: cbscl
-    character dimension(4000,12),intent(c) :: cbsref
-    character dimension(4000,4),intent(c) :: cbbw
-    character dimension(4000,14),intent(c) :: cbunit
-    character dimension(4000,8),intent(c) :: cbmnem
-    character dimension(4000,120),intent(c) :: cbelem
-    integer :: nmtd
-    integer dimension(1000) :: idfxyn
-    character dimension(1000,120),intent(c) :: cdseq
-    character dimension(1000,8),intent(c) :: cdmnem
-    integer dimension(1000) :: ndelem
-    integer dimension(250000) :: idefxy
-    character dimension(250000,120),intent(c) :: cdelem
-    integer :: lun1
-    integer :: lun2
-    integer :: lmtd
-    character*100 :: mtdir
-    common /bufrbmiss/ bmiss
-    common /quiet/ iprt
-    common /mstabs/ nmtb,ibfxyn,cbscl,cbsref,cbbw,cbunit,cbmnem,cbelem,nmtd,idfxyn,cdseq,cdmnem,ndelem,idefxy,cdelem
-    common /mstinf/ lun1,lun2,lmtd,mtdir
-end subroutine readmt
 subroutine readns(lunit,subset,jdate,iret) ! in readns.f
     integer :: lunit
     character*8 :: subset
