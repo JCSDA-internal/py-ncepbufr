@@ -1,0 +1,56 @@
+This file explains how to compile the NCEP BUFRLIB software, which is
+described in detail at https://www.emc.ncep.noaa.gov/?branch=BUFRLIB
+and whose usage is governed by the terms and conditions of the disclaimer
+https://www.weather.gov/disclaimer
+
+The NCEP BUFRLIB software has been compiled and tested across a wide variety
+of UNIX platforms, so it should port with minimal difficulty to any UNIX system
+by following the steps below:
+
+1)  Define two environment variables on the local machine:
+
+	$FC to point to the local FORTRAN compiler
+
+	$CC to point to the local C compiler
+
+2)  Run the command:
+
+	$CC -c `./getdefflags_C.sh` *.c
+
+    This command first calls the "getdefflags_C.sh" script to generate define
+    flags for the C compiler.  These are returned as standard output and then
+    passed directly to the C compiler in order to compile all of the C source
+    files within this same directory.
+
+    Note that the define flag "-DUNDERSCORE" should also be added to this command
+    if the local FORTRAN compiler appends an underscore character to subprogram
+    names in its object namespace.  In such cases, specifying "-DUNDERSCORE" to
+    the C compiler appends a matching underscore character to any C references
+    to the same subprogram names, which will allow the linker to correctly
+    resolve such references across the C <-> FORTRAN interface at link time.
+
+3)  Run the command:
+
+	$FC -c `./getdefflags_F.sh` modv*.F moda*.F `ls -1 *.F *.f | grep -v "mod[av]_"`
+
+    This command first calls the "getdefflags_F.sh" script to generate define
+    flags for the FORTRAN compiler.  These are returned as standard output and
+    then passed directly to the FORTRAN compiler in order to compile all of the
+    FORTRAN files within this same directory.  Note that the command ensures
+    that all of the FORTRAN module variable files are compiled first, followed
+    by all of the FORTRAN module array files, and finally by all remaining
+    FORTRAN source files.
+
+    Note also that it may be necessary to include the additional compiler option
+    "-fno-second-underscore" in the above command, particularly whenever $FC
+    points to the GNU g77 or gfortran compilers.
+
+4)  Once compilation has been successfully completed, it is then recommended to
+    assemble all of the compiled object files into a single archive library via:
+
+        ar crv $BUFRLIB *.o
+
+    where $BUFRLIB points to the desired pathname for the BUFRLIB archive
+    library on the local machine.  This archive library can then be easily
+    linked whenever the user's application program is subsequently compiled on
+    the same local system.
