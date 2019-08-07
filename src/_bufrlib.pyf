@@ -12,6 +12,14 @@ function adn30(idn,l30) ! in adn30.f
     character*(*) :: adn30
     common /hrdwrd/ nbytw,nbitw,iord
 end function adn30
+function isetprm(cprmnm, ipval)
+    character*(*), intent(in) :: cprmnm
+    integer, intent(in) :: ipval
+end function isetprm
+function igetprm(cprmnm)
+    character*(*), intent(in) :: cprmnm
+    integer, intent(out) :: igetprm
+end function igetprm
 subroutine atrcpt(msgin,lmsgot,msgot) ! in atrcpt.f
     integer dimension(*) :: msgin
     integer :: lmsgot
