@@ -17,7 +17,8 @@ flags `config_fc --fcompiler=<compiler name>` when setup.py is run
 
 *Probably will not work on Windows!*
 
-see test/test.py for example usage.
+see test/test.py for example usage. Note that `git-lfs` must be installed and initialized
+to checkout test data in test/data.
 
 utils/prepbufr2nc is a utility to convert [NCEP prepbufr](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/document.htm) files to netcdf format.
 
