@@ -1,4 +1,4 @@
-export FC="gcc -O2 -fPIC -DDYNAMIC_ALLOCATION"
+export FC="gcc -O2 -fPIC"
 export CC="gfortran -O2 -fPIC -DUNDERSCORE"
 /bin/rm -f *.o *.a *.mod
 $CC -c `./getdefflags_C.sh` *.c

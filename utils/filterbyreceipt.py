@@ -1,27 +1,44 @@
-import ncepbufr, sys, os
+"""filterbyreceipt.py - read in a bufr file, copy a subset of bufr data
+with receipt time later than specified time to a new file.
+
+version 1.0: Jeff Whitaker 20190811
+"""
+from __future__ import print_function
+import ncepbufr, sys, os, argparse
 import numpy as np
-filename = sys.argv[1]
-filenameref = sys.argv[2]
-filenameo = sys.argv[3]
-try:
+
+# Parse command line args
+ap = argparse.ArgumentParser()
+ap.add_argument("input_bufr", help="path to input BUFR file")
+ap.add_argument("output_bufr", help="output BUFR file")
+msg="""
+threshold receipt time (YYYYMMDDHHMM). If not specifed,
+use maximum value in input_bufr."""
+ap.add_argument("--receipt_time", '-rt', help=msg)
+
+MyArgs = ap.parse_args()
+
+filename_in = MyArgs.input_bufr
+filename_out = MyArgs.output_bufr
+receipt_time_cutoff = int(MyArgs.receipt_time)
+
+if filename_out == filename_in:
+    msg="output file must not have same name as input file"
+    raise SystemExit(msg)
+
+if receipt_time_cutoff is None:  # no receipt time specified
     # if filenameref is a file, determine receipt_time_cutoff
     # by looking for newest receipt time in the file.
-    bufr = ncepbufr.open(filenameref)
+    bufr = ncepbufr.open(filename_in)
     receipt_time_cutoff = -1
     while bufr.advance() == 0: # loop over messages.
         if bufr.receipt_time > receipt_time_cutoff:
             receipt_time_cutoff=bufr.receipt_time
     bufr.close()
-except IOError:
-    # if filenameref is not a file, assume it's a specified
-    # receipt time cutoff.
-    receipt_time_cutoff = int(filenameref)
 print('receipt time cutoff = %s' % receipt_time_cutoff)
-if filenameo == filename or filenameo == filenameref:
-    msg="output file must not have same name as input file"
-    raise SystemExit(msg)
-bufr = ncepbufr.open(filename)
-bufrout = ncepbufr.open(filenameo,'w',bufr)
+
+bufr = ncepbufr.open(filename_in)
+bufrout = ncepbufr.open(filename_out,'w',bufr)
 nmsg=0; nmsgo=0
 receipt_times=[]
 while bufr.advance() == 0: # loop over messages.
