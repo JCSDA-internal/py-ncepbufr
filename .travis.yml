@@ -1,0 +1,30 @@
+language: python
+dist: xenial
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - gfortran
+
+env:
+  global:
+    - DEPENDS="numpy"
+
+python:
+  - "2.7"
+  - "3.6"
+  - "3.7"
+
+notifications:
+  email: false
+
+before_install:
+  - pip install $DEPENDS
+
+install:
+  - python setup.py build
+  - python setup.py install
+
+script:
+  - cd test; python test.py
