@@ -27,4 +27,7 @@ install:
   - python setup.py install
 
 script:
-  - cd test; python test.py
+  - cd test
+  - python test.py
+  - python test_write.py
+  - cmp data/prepbufr2 data/prepbufr2.ref
