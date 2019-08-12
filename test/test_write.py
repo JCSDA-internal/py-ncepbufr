@@ -127,7 +127,7 @@ bufr.close()
 # read prepbufr file back in.
 
 bufr = ncepbufr.open('data/prepbufr2')
-bufr.print_table() # print embedded table
+#bufr.print_table() # print embedded table
 while bufr.advance() == 0: # loop over messages.
     print(bufr.msg_counter, bufr.msg_type, bufr.msg_date)
     while bufr.load_subset() == 0: # loop over subsets in message.
