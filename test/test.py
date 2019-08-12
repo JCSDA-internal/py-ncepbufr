@@ -164,6 +164,7 @@ while bufr.advance() == 0:
         oer = bufr.read_subset(oestr)
         qcf = bufr.read_subset(qcstr)
         if nmsg == 10:
+            obs_save = obs.copy(); oer_save = oer.copy(); qcf_save = qcf.copy()
             str1 =\
             'station_id=%s, lon=%7.2f, lat=%7.2f, time=%6.3f, station_type=%s, levels=%s' %\
             (station_id.rstrip(),hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
@@ -174,12 +175,15 @@ bufr.restore()
 bufr.load_subset()
 hdr = bufr.read_subset(hdstr).squeeze()
 station_id = hdr[0].tostring()
-obs = bufr.read_subset(obstr)
-nlevs = obs.shape[-1]
-oer = bufr.read_subset(oestr)
-qcf = bufr.read_subset(qcstr)
+obs2 = bufr.read_subset(obstr)
+nlevs = obs2.shape[-1]
+oer2 = bufr.read_subset(oestr)
+qcf2 = bufr.read_subset(qcstr)
 str2 =\
 'station_id=%s, lon=%7.2f, lat=%7.2f, time=%6.3f, station_type=%s, levels=%s' %\
 (station_id.rstrip(),hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
 assert str1 == str2
+np.testing.assert_array_almost_equal(obs_save.filled(), obs2.filled())
+np.testing.assert_array_almost_equal(oer_save.filled(), oer2.filled())
+np.testing.assert_array_almost_equal(qcf_save.filled(), qcf2.filled())
 bufr.close()
