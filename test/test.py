@@ -147,3 +147,39 @@ np.testing.assert_almost_equal(qm,2.0) # quality mark
 np.testing.assert_almost_equal(obdata[3],10.0) # speed
 np.testing.assert_almost_equal(obdata[2],62.0) # direction
 bufr.close()
+
+# test checkpointing.
+hdstr='SID XOB YOB DHR TYP ELV SAID T29'
+obstr='POB QOB TOB ZOB UOB VOB PWO MXGS HOVI CAT PRSS TDO PMO'
+qcstr='PQM QQM TQM ZQM WQM NUL PWQ PMQ'
+oestr='POE QOE TOE NUL WOE NUL PWE     '
+bufr = ncepbufr.open('data/prepbufr')
+nmsg = 0
+while bufr.advance() == 0:
+    while bufr.load_subset() == 0:
+        hdr = bufr.read_subset(hdstr).squeeze()
+        station_id = hdr[0].tostring()
+        obs = bufr.read_subset(obstr)
+        nlevs = obs.shape[-1]
+        oer = bufr.read_subset(oestr)
+        qcf = bufr.read_subset(qcstr)
+        if nmsg == 10:
+            str1 =\
+            'station_id=%s, lon=%7.2f, lat=%7.2f, time=%6.3f, station_type=%s, levels=%s' %\
+            (station_id.rstrip(),hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
+            bufr.checkpoint()
+    if nmsg == 15: break
+    nmsg += 1
+bufr.restore()
+bufr.load_subset()
+hdr = bufr.read_subset(hdstr).squeeze()
+station_id = hdr[0].tostring()
+obs = bufr.read_subset(obstr)
+nlevs = obs.shape[-1]
+oer = bufr.read_subset(oestr)
+qcf = bufr.read_subset(qcstr)
+str2 =\
+'station_id=%s, lon=%7.2f, lat=%7.2f, time=%6.3f, station_type=%s, levels=%s' %\
+(station_id.rstrip(),hdr[1],hdr[2],hdr[3],int(hdr[4]),nlevs)
+assert str1 == str2
+bufr.close()
