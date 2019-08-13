@@ -216,7 +216,7 @@ class open:
         self.msg_date = None
         '''reference date for bufr message'''
         self.receipt_time = None
-        '''tank recipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
+        '''tank receipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
         self.subsets = None
         '''number of subsets in the bufr message'''
         # missing value in decoded data.
@@ -227,7 +227,7 @@ class open:
         """
         return 'tank' receipt time (`YYYYMMDDHHMM`).
 
-        returns -1 if there is no tank recipt time for this message.
+        returns -1 if there is no tank receipt time for this message.
         """
         iyr,imon,iday,ihr,imin,iret = _bufrlib.rtrcpt(self.lunit)
         if iret == 0:
