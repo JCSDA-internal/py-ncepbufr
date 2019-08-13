@@ -1,3 +1,10 @@
+since version 1.1.1 release
+==========================
+* make set_missing_value, get_missing_value and set_datelength module
+  functions (since the parameter values are global data in the fortran
+  code anyway).
+  Remove set_missing_value and set_datelength bufrlib.open methods.
+
 version 1.1.1
 =============
 * add copy_message method.
