@@ -78,10 +78,10 @@ def set_param(key, value):
                WITHIN AN OUTPUT BUFR MESSAGE
 
     'MXBTM'  = MAXIMUM NUMBER OF BITMAPS THAT CAN BE
-                STORED INTERNALLY FOR A BUFR SUBSET
+               STORED INTERNALLY FOR A BUFR SUBSET
 
-    'MXBTMSE' = MAXIMUM NUMBER OF ENTRIES THAT CAN BE
-                SET WITHIN A BITMAP
+   'MXBTMSE' = MAXIMUM NUMBER OF ENTRIES THAT CAN BE
+               SET WITHIN A BITMAP
 
     'MXTAMC' = MAXIMUM NUMBER OF TABLE A MNEMONICS IN THE
                INTERNAL JUMP/LINK TABLE WHICH CONTAIN AT
@@ -105,6 +105,26 @@ def get_param(key):
     see 'set_param' docstring for allowable parameter names."""
     return _bufrlib.igetprm(key)
 
+def set_missing_value(missing_value):
+    """
+    set bufr missing value.
+    """
+    _bufrlib.setbmiss(missing_value)
+
+def get_missing_value():
+    """
+    get bufr missing value.
+    """
+    return _bufrlib.getbmiss()
+
+def set_datelength(charlen):
+    """
+    set number of digits for date specification (10 gives `YYYYMMDDHH`)
+    """
+    _bufrlib.datelen(charlen)
+
+set_datelength(10) # set default date length to 10 (YYYYMDDHH)
+
 class open:
     """
     bufr file object.
@@ -113,7 +133,7 @@ class open:
 
     `ncepbufr.open.advance` method can be used step through bufr messages.
     """
-    def __init__(self,filename,mode='r',table=None,datelen=10):
+    def __init__(self,filename,mode='r',table=None):
         """
         bufr object constructor
 
@@ -127,9 +147,6 @@ class open:
         If table is an existing ncepbufr.open instance, the table
         will be shared. If not, it is assumed to be the filename of a bufr table.
         For `mode='r'`, bufr table embedded in file will be used if not specified.
-
-        `datelen`:  number of digits for date specification (default 10, gives
-        `YYYYMMDDHH`).
         """
         # randomly choose available fortran unit number
         self.lunit = random.choice(_funits)
@@ -191,8 +208,6 @@ class open:
                 msg='error opening %s' % filename
                 raise IOError(msg)
             _bufrlib.openbf(self.lunit,self._ioflag,self.lundx)
-        # set date length (default 10 means YYYYMMDDHH)
-        self.set_datelength()
         # initialized message number counter
         self.msg_counter = 0
         '''current bufr message number'''
@@ -201,29 +216,18 @@ class open:
         self.msg_date = None
         '''reference date for bufr message'''
         self.receipt_time = None
-        '''tank recipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
+        '''tank receipt time for bufr message (`YYYYMMDDHHMM`), -1 if missing'''
         self.subsets = None
         '''number of subsets in the bufr message'''
         # missing value in decoded data.
         # (if equal to self.missing_value, data is masked)
-        self.missing_value = _bufrlib.getbmiss()
+        self.missing_value = get_missing_value()
         '''bufr missing value'''
-    def set_missing_value(self,missing_value):
-        """
-        reset bufr missing value.
-        """
-        _bufrlib.setbmiss(missing_value)
-        self.missing_value = missing_value
-    def set_datelength(self,charlen=10):
-        """
-        reset number of digits for date specification (10 gives `YYYYMMDDHH`)
-        """
-        _bufrlib.datelen(charlen)
     def _receipt_time(self):
         """
         return 'tank' receipt time (`YYYYMMDDHHMM`).
 
-        returns -1 if there is no tank recipt time for this message.
+        returns -1 if there is no tank receipt time for this message.
         """
         iyr,imon,iday,ihr,imin,iret = _bufrlib.rtrcpt(self.lunit)
         if iret == 0:
@@ -421,7 +425,7 @@ class open:
 
         `msg_date`: reference date (e.g. `YYYYMMDDHH`) for message. The
         number of digits in the reference date is controlled by
-        `ncepbufr.open.set_datelength`, and is 10 by default.
+        module function `set_datelength`, and is 10 by default.
 
         `msg_receipt_time` bufr tank receipt time YYYYMMDDHHMM (optional).
         """

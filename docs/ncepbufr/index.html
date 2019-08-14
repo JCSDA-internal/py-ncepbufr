@@ -1052,7 +1052,10 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
+    <li class="mono"><a href="#ncepbufr.get_missing_value">get_missing_value</a></li>
     <li class="mono"><a href="#ncepbufr.get_param">get_param</a></li>
+    <li class="mono"><a href="#ncepbufr.set_datelength">set_datelength</a></li>
+    <li class="mono"><a href="#ncepbufr.set_missing_value">set_missing_value</a></li>
     <li class="mono"><a href="#ncepbufr.set_param">set_param</a></li>
   </ul>
 
@@ -1084,8 +1087,6 @@ table {
     <li class="mono"><a href="#ncepbufr.open.read_subset">read_subset</a></li>
     <li class="mono"><a href="#ncepbufr.open.restore">restore</a></li>
     <li class="mono"><a href="#ncepbufr.open.rewind">rewind</a></li>
-    <li class="mono"><a href="#ncepbufr.open.set_datelength">set_datelength</a></li>
-    <li class="mono"><a href="#ncepbufr.open.set_missing_value">set_missing_value</a></li>
     <li class="mono"><a href="#ncepbufr.open.write_subset">write_subset</a></li>
   </ul>
 
@@ -1137,6 +1138,21 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
+    <div class="name def" id="ncepbufr.get_missing_value">
+    <p>def <span class="ident">get_missing_value</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>get bufr missing value.</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      
+  <div class="item">
     <div class="name def" id="ncepbufr.get_param">
     <p>def <span class="ident">get_param</span>(</p><p>key)</p>
     </div>
@@ -1153,6 +1169,36 @@ see 'set_param' docstring for allowable parameter names.</p></div>
   
       
   <div class="item">
+    <div class="name def" id="ncepbufr.set_datelength">
+    <p>def <span class="ident">set_datelength</span>(</p><p>charlen)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>set number of digits for date specification (10 gives <code>YYYYMMDDHH</code>)</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="ncepbufr.set_missing_value">
+    <p>def <span class="ident">set_missing_value</span>(</p><p>missing_value)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>set bufr missing value.</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      
+  <div class="item">
     <div class="name def" id="ncepbufr.set_param">
     <p>def <span class="ident">set_param</span>(</p><p>key, value)</p>
     </div>
@@ -1161,58 +1207,58 @@ see 'set_param' docstring for allowable parameter names.</p></div>
     
   
     <div class="desc"><p>set BUFRLIB internal parameters controlling size limits.
-Must be done prior to opening a bufr file.  Valid parameters are:</p>
+ Must be done prior to opening a bufr file.  Valid parameters are:</p>
 <p>'MXMSGL' = MAXIMUM LENGTH (IN BYTES) OF A BUFR               MESSAGE</p>
 <p>'MAXSS'  = MAXIMUM NUMBER OF DATA VALUES IN AN
-           UNCOMPRESSED BUFR SUBSET</p>
+            UNCOMPRESSED BUFR SUBSET</p>
 <p>'MXCDV'  = MAXIMUM NUMBER OF DATA VALUES THAT CAN BE
-           WRITTEN INTO A COMPRESSED BUFR SUBSET</p>
+            WRITTEN INTO A COMPRESSED BUFR SUBSET</p>
 <p>'MXLCC'  = MAXIMUM LENGTH (IN BYTES) OF A CHARACTER
-           STRING THAT CAN BE WRITTEN INTO A
-           COMPRESSED BUFR SUBSET</p>
+            STRING THAT CAN BE WRITTEN INTO A
+            COMPRESSED BUFR SUBSET</p>
 <p>'MXCSB'  = MAXIMUM NUMBER OF SUBSETS THAT CAN BE
-           WRITTEN INTO A COMPRESSED BUFR MESSAGE</p>
+            WRITTEN INTO A COMPRESSED BUFR MESSAGE</p>
 <p>'NFILES' = MAXIMUM NUMBER OF BUFR FILES THAT CAN BE
-           ACCESSED FOR READING OR WRITING AT ANY
-           ONE TIME</p>
+            ACCESSED FOR READING OR WRITING AT ANY
+            ONE TIME</p>
 <p>'MAXTBA' = MAXIMUM NUMBER OF ENTRIES IN INTERNAL BUFR
-           TABLE A PER BUFR FILE</p>
+            TABLE A PER BUFR FILE</p>
 <p>'MAXTBB' = MAXIMUM NUMBER OF ENTRIES IN INTERNAL BUFR
-           TABLE B PER BUFR FILE</p>
+            TABLE B PER BUFR FILE</p>
 <p>'MAXTBD' = MAXIMUM NUMBER OF ENTRIES IN INTERNAL BUFR
-           TABLE D PER BUFR FILE</p>
+            TABLE D PER BUFR FILE</p>
 <p>'MAXMEM' = MAXIMUM NUMBER OF BYTES THAT CAN BE USED
-           TO STORE BUFR MESSAGES IN INTERNAL MEMORY</p>
+            TO STORE BUFR MESSAGES IN INTERNAL MEMORY</p>
 <p>'MAXMSG' = MAXIMUM NUMBER OF BUFR MESSAGES THAT CAN
-           BE STORED IN INTERNAL MEMORY</p>
+            BE STORED IN INTERNAL MEMORY</p>
 <p>'MXDXTS' = MAXIMUM NUMBER OF DICTIONARY TABLES THAT
-           CAN BE STORED FOR USE WITH BUFR MESSAGES
-           IN INTERNAL MEMORY</p>
+            CAN BE STORED FOR USE WITH BUFR MESSAGES
+            IN INTERNAL MEMORY</p>
 <p>'MXMTBB' = MAXIMUM NUMBER OF MASTER TABLE B ENTRIES</p>
 <p>'MXMTBD' = MAXIMUM NUMBER OF MASTER TABLE D ENTRIES</p>
 <p>'MXMTBF' = MAXIMUM NUMBER OF MASTER CODE/FLAG ENTRIES</p>
 <p>'MAXCD'  = MAXIMUM NUMBER OF CHILD DESCRIPTORS IN A
-           TABLE D DESCRIPTOR SEQUENCE DEFINITION</p>
+            TABLE D DESCRIPTOR SEQUENCE DEFINITION</p>
 <p>'MAXJL'  = MAXIMUM NUMBER OF ENTRIES IN THE INTERNAL
-           JUMP/LINK TABLE</p>
+            JUMP/LINK TABLE</p>
 <p>'MXS01V' = MAXIMUM NUMBER OF DEFAULT SECTION 0 OR
-           SECTION 1 VALUES THAT CAN BE OVERWRITTEN
-           WITHIN AN OUTPUT BUFR MESSAGE</p>
+            SECTION 1 VALUES THAT CAN BE OVERWRITTEN
+            WITHIN AN OUTPUT BUFR MESSAGE</p>
 <p>'MXBTM'  = MAXIMUM NUMBER OF BITMAPS THAT CAN BE
             STORED INTERNALLY FOR A BUFR SUBSET</p>
 <p>'MXBTMSE' = MAXIMUM NUMBER OF ENTRIES THAT CAN BE
             SET WITHIN A BITMAP</p>
 <p>'MXTAMC' = MAXIMUM NUMBER OF TABLE A MNEMONICS IN THE
-           INTERNAL JUMP/LINK TABLE WHICH CONTAIN AT
-           LEAST ONE TABLE C OPERATOR WITH X&gt;=21 IN
-           THEIR SUBSET DEFINITION</p>
+            INTERNAL JUMP/LINK TABLE WHICH CONTAIN AT
+            LEAST ONE TABLE C OPERATOR WITH X&gt;=21 IN
+            THEIR SUBSET DEFINITION</p>
 <p>'MXTCO'  = MAXIMUM NUMBER OF TABLE C OPERATORS (WITH
-           X&gt;=21) IN THE SUBSET DEFINITION OF A
-           TABLE A MNEMONIC</p>
+            X&gt;=21) IN THE SUBSET DEFINITION OF A
+            TABLE A MNEMONIC</p>
 <p>'MXNRV'  = MAXIMUM NUMBER OF 2-03 REFERENCE VALUES
-           IN THE INTERNAL JUMP/LINK TABLE</p>
+            IN THE INTERNAL JUMP/LINK TABLE</p>
 <p>The 'get_param' function can be used to obtain the current value of these
-parameters.</p></div>
+ parameters.</p></div>
   <div class="source_cont">
 </div>
 
@@ -1242,7 +1288,7 @@ parameters.</p></div>
             
   <div class="item">
     <div class="name def" id="ncepbufr.open.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, filename, mode=&#39;r&#39;, table=None, datelen=10)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, filename, mode=&#39;r&#39;, table=None)</p>
     </div>
     
 
@@ -1256,9 +1302,7 @@ parameters.</p></div>
 Must be specified for <code>mode='w'</code>, optional for <code>mode='r'</code>.
 If table is an existing ncepbufr.open instance, the table
 will be shared. If not, it is assumed to be the filename of a bufr table.
-For <code>mode='r'</code>, bufr table embedded in file will be used if not specified.</p>
-<p><code>datelen</code>:  number of digits for date specification (default 10, gives
-<code>YYYYMMDDHH</code>).</p></div>
+For <code>mode='r'</code>, bufr table embedded in file will be used if not specified.</p></div>
   <div class="source_cont">
 </div>
 
@@ -1500,7 +1544,7 @@ all subsets in each message:</p>
 <p><code>msg_type</code>: string describing type of message.</p>
 <p><code>msg_date</code>: reference date (e.g. <code>YYYYMMDDHH</code>) for message. The
 number of digits in the reference date is controlled by
-<a href="#ncepbufr.open.set_datelength"><code>set_datelength</code></a>, and is 10 by default.</p>
+module function <code>set_datelength</code>, and is 10 by default.</p>
 <p><code>msg_receipt_time</code> bufr tank receipt time YYYYMMDDHHMM (optional).</p></div>
   <div class="source_cont">
 </div>
@@ -1615,36 +1659,6 @@ to <a href="#ncepbufr.open.checkpoint"><code>checkpoint</code></a>.</p></div>
   
             
   <div class="item">
-    <div class="name def" id="ncepbufr.open.set_datelength">
-    <p>def <span class="ident">set_datelength</span>(</p><p>self, charlen=10)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>reset number of digits for date specification (10 gives <code>YYYYMMDDHH</code>)</p></div>
-  <div class="source_cont">
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="ncepbufr.open.set_missing_value">
-    <p>def <span class="ident">set_missing_value</span>(</p><p>self, missing_value)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>reset bufr missing value.</p></div>
-  <div class="source_cont">
-</div>
-
-  </div>
-  
-            
-  <div class="item">
     <div class="name def" id="ncepbufr.open.write_subset">
     <p>def <span class="ident">write_subset</span>(</p><p>self, data, mnemonics, rep=False, seq=False, events=False, end=False)</p>
     </div>
@@ -1747,7 +1761,7 @@ to the bufr file (default <code>False</code>).</p></div>
 
             
   
-    <div class="desc"><p>tank recipt time for bufr message (<code>YYYYMMDDHHMM</code>), -1 if missing</p></div>
+    <div class="desc"><p>tank receipt time for bufr message (<code>YYYYMMDDHHMM</code>), -1 if missing</p></div>
   <div class="source_cont">
 </div>
 
