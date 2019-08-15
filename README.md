@@ -17,9 +17,9 @@ flags `config_fc --fcompiler=<compiler name>` when setup.py is run
 
 *Probably will not work on Windows!*
 
-to test, run test/test.py. Note that `git-lfs` must be installed and initialized
+to test, run `test/test.py`. Note that `git-lfs` must be installed and initialized
 to checkout test data in test/data. If no errors are raised, the tests pass.
 
-a Jupyter notebook from the 2018 [NOAA Modelling Fair](https://nbviewer.jupyter.org/urls/polar.ncep.noaa.gov/ngmmf_python/Python_tutorial_bufr.ipynb) is available at test/Python_tutorial_bufr.ipynb.
+a Jupyter notebook from the 2018 [NOAA Modelling Fair](https://nbviewer.jupyter.org/urls/polar.ncep.noaa.gov/ngmmf_python/Python_tutorial_bufr.ipynb) is available at `test/Python_tutorial_bufr.ipynb`.
 
-full API documentation in docs/ncepbufr/index.html.
+full API documentation in `docs/ncepbufr/index.html`.
