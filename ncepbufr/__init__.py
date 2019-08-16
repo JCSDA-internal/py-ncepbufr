@@ -445,7 +445,10 @@ class open:
         """
         copy the currently loaded message from the specified bufr file object
         and write to the file"""
-        _bufrlib.copymg(bufrin.lunit, self.lunit)
+        errstr = np.zeros(1,dtype='S80')
+        ierr = _bufrlib.copymg(bufrin.lunit, self.lunit, errstr)
+        if ierr:
+            raise RuntimeError(errstr.tostring().rstrip().decode())
     def close_message(self):
         """
         close bufr message

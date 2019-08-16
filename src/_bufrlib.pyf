@@ -318,9 +318,11 @@ subroutine copybf(lunin,lunot) ! in copybf.f
     real*8 :: bmiss
     common /bufrbmiss/ bmiss
 end subroutine copybf
-subroutine copymg(lunin,lunot) ! in copymg.f
+subroutine copymg(lunin,lunot,ierr,errstr) ! in copymg.f
     integer :: lunin
     integer :: lunot
+    integer, intent(out) :: ierr
+    character*(*), intent(inout) :: errstr
     integer dimension(32) :: nmsg
     integer dimension(32) :: nsub
     integer dimension(32) :: msub
