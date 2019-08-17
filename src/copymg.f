@@ -78,26 +78,14 @@ C  CHECK THE FILE STATUSES
 C  -----------------------
 
       CALL STATUS(LUNIN,LIN,IL,IM)
-      IF(IL.EQ.0) then
-         ierr = 1; GOTO 900
-      ENDIF    
-      IF(IL.GT.0) then
-         ierr = 1; GOTO 901
-      ENDIF    
-      IF(IM.EQ.0) then
-         ierr = 1; GOTO 902
-      ENDIF    
+      IF(IL.EQ.0) GOTO 900
+      IF(IL.GT.0) GOTO 901
+      IF(IM.EQ.0) GOTO 902
 
       CALL STATUS(LUNOT,LOT,IL,IM)
-      IF(IL.EQ.0) then
-         ierr = 1; GOTO 903
-      ENDIF    
-      IF(IL.LT.0) then
-         ierr = 1; GOTO 904
-      ENDIF    
-      IF(IM.NE.0) then
-         ierr = 1; GOTO 905
-      ENDIF    
+      IF(IL.EQ.0) GOTO 903
+      IF(IL.LT.0) GOTO 904
+      IF(IM.NE.0) GOTO 905
 
 C  MAKE SURE BOTH FILES HAVE THE SAME TABLES
 C  -----------------------------------------
@@ -106,9 +94,7 @@ C  -----------------------------------------
 c  .... Given SUBSET, returns MTYP,MSBT,INOD
       CALL NEMTBA(LOT,SUBSET,MTYP,MSBT,INOD)
       IF(INODE(LIN).NE.INOD) THEN
-        IF(IOK2CPY(LIN,LOT).NE.1) then
-        ierr=1; GOTO 906
-        endif
+        IF(IOK2CPY(LIN,LOT).NE.1) GOTO 906
       ENDIF
 
 C  EVERYTHING OKAY, COPY A MESSAGE
@@ -131,29 +117,51 @@ C  -----
 
       RETURN
 900   continue
+      ierr = 1
       errstr='BUFRLIB: COPYMG - INPUT BUFR FILE IS CLOSED, IT MUST'//
      . ' BE OPEN FOR INPUT'
 !900   CALL BORT('BUFRLIB: COPYMG - INPUT BUFR FILE IS CLOSED, IT MUST'//
 !     . ' BE OPEN FOR INPUT')
       return
-901   CALL BORT('BUFRLIB: COPYMG - INPUT BUFR FILE IS OPEN FOR '//
-     . 'OUTPUT, IT MUST BE OPEN FOR INPUT')
+901   continue
+      ierr = 1
+      errstr='BUFRLIB: COPYMG - INPUT BUFR FILE IS OPEN FOR '//
+     . 'OUTPUT, IT MUST BE OPEN FOR INPUT'
+!901   CALL BORT('BUFRLIB: COPYMG - INPUT BUFR FILE IS OPEN FOR '//
+!     . 'OUTPUT, IT MUST BE OPEN FOR INPUT')
       return
-902   CALL BORT('BUFRLIB: COPYMG - A MESSAGE MUST BE OPEN IN INPUT '//
-     . 'BUFR FILE, NONE ARE')
+902   continue
+      ierr = 99
+      errstr='BUFRLIB: COPYMG - A MESSAGE MUST BE OPEN IN INPUT '//
+     . 'BUFR FILE, NONE ARE'
+!902   CALL BORT('BUFRLIB: COPYMG - A MESSAGE MUST BE OPEN IN INPUT '//
+!     . 'BUFR FILE, NONE ARE')
       return
 903   continue
+      ierr = 1
       errstr='BUFRLIB: COPYMG - OUTPUT BUFR FILE IS CLOSED, IT '//
      . 'MUST BE OPEN FOR OUTPUT'
 !903   CALL BORT('BUFRLIB: COPYMG - OUTPUT BUFR FILE IS CLOSED, IT '//
 !     . 'MUST BE OPEN FOR OUTPUT')
       return
-904   CALL BORT('BUFRLIB: COPYMG - OUTPUT BUFR FILE IS OPEN FOR '//
-     . 'INPUT, IT MUST BE OPEN FOR OUTPUT')
+904   continue
+      ierr = 1
+      errstr='BUFRLIB: COPYMG - OUTPUT BUFR FILE IS OPEN FOR '//
+     . 'INPUT, IT MUST BE OPEN FOR OUTPUT'
+!904   CALL BORT('BUFRLIB: COPYMG - OUTPUT BUFR FILE IS OPEN FOR '//
+!     . 'INPUT, IT MUST BE OPEN FOR OUTPUT')
       return
-905   CALL BORT('BUFRLIB: COPYMG - ALL MESSAGES MUST BE CLOSED IN '//
-     . 'OUTPUT BUFR FILE, A MESSAGE IS OPEN')
+905   continue
+      ierr = 99
+      errstr='BUFRLIB: COPYMG - ALL MESSAGES MUST BE CLOSED IN '//
+     . 'OUTPUT BUFR FILE, A MESSAGE IS OPEN'
+!905   CALL BORT('BUFRLIB: COPYMG - ALL MESSAGES MUST BE CLOSED IN '//
+!     . 'OUTPUT BUFR FILE, A MESSAGE IS OPEN')
       return
-906   CALL BORT('BUFRLIB: COPYMG - INPUT AND OUTPUT BUFR FILES MUST '//
-     . 'HAVE THE SAME INTERNAL TABLES, THEY ARE DIFFERENT HERE')
+906   continue
+      ierr = 2
+      errstr='BUFRLIB: COPYMG - INPUT AND OUTPUT BUFR FILES MUST '//
+     . 'HAVE THE SAME INTERNAL TABLES, THEY ARE DIFFERENT HERE'
+!906   CALL BORT('BUFRLIB: COPYMG - INPUT AND OUTPUT BUFR FILES MUST '//
+!     . 'HAVE THE SAME INTERNAL TABLES, THEY ARE DIFFERENT HERE')
       END
