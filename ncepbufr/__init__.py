@@ -9,6 +9,7 @@ __version__ = "1.1.1"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
 _exceptions = dict()
 _exceptions[1]=OSError
+_exceptions[2]=ValueError
 def _check_retcode(ierr,errstr):
     # check return code, raise exception with error msg
     if ierr:
