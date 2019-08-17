@@ -7,6 +7,16 @@ import os
 
 __version__ = "1.1.1"
 __bufrlib_version__ = _bufrlib.bvers().rstrip()
+_exceptions = dict()
+_exceptions[1]=OSError
+def _check_retcode(ierr,errstr):
+    # check return code, raise exception with error msg
+    if ierr:
+        msg = errstr.tostring().rstrip().decode()
+        if ierr in _exceptions:
+            raise _exceptions[ierr](msg)
+        else:
+            raise RuntimeError(msg)
 
 # create list of allowed fortran unit numbers
 _funits = list(range(1,100))
@@ -447,8 +457,7 @@ class open:
         and write to the file"""
         errstr = np.zeros(1,dtype='S80')
         ierr = _bufrlib.copymg(bufrin.lunit, self.lunit, errstr)
-        if ierr:
-            raise RuntimeError(errstr.tostring().rstrip().decode())
+        _check_retcode(ierr, errstr)
     def close_message(self):
         """
         close bufr message
