@@ -1,4 +1,4 @@
-      SUBROUTINE COPYMG(LUNIN,LUNOT,IERR,errstr)
+      SUBROUTINE COPYMG(LUNIN,LUNOT,ierr,errstr)
 
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
@@ -66,7 +66,7 @@ C$$$
       INCLUDE 'bufrlib.prm'
 
       CHARACTER*8  SUBSET
-      character*(*), intent(out) :: errstr
+      character*(*), intent(inout) :: errstr
       integer, intent(out) :: ierr
 
 C-----------------------------------------------------------------------
