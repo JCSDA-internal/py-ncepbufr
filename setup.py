@@ -7,7 +7,7 @@ if bufrdir:
     bufrlibdir = os.path.join(bufrdir,'lib')
     bufrincdir = os.path.join(bufrdir,'include')
     ext_bufrlib = Extension(name  = '_bufrlib',
-                    sources = ['src/_bufrlib.pyf','src/fortran_open.f','src/fortran_close.f',],
+                    sources = ['src/_bufrlib.pyf','src/fortran_open.f','src/fortran_close.f'],
                     libraries     = ['bufr'],
                     include_dirs  = [bufrincdir],
                     library_dirs  = [bufrlibdir])
