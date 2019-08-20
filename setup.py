@@ -11,14 +11,15 @@ if bufrdir:
                     libraries     = ['bufr'],
                     include_dirs  = [bufrincdir],
                     library_dirs  = [bufrlibdir])
-elif not os.path.isfile('src/libbufr.a'):
-    strg = 'cd src; sh makebufrlib.sh'
-    sys.stdout.write('executing "%s"\n' % strg)
-    subprocess.call(strg,shell=True)
+else:
     ext_bufrlib = Extension(name  = '_bufrlib',
                     sources       = ['src/_bufrlib.pyf'],
                     libraries     = ['bufr'],
                     library_dirs  = ['src'])
+if not os.path.isfile('src/libbufr.a'):
+    strg = 'cd src; sh makebufrlib.sh'
+    sys.stdout.write('executing "%s"\n' % strg)
+    subprocess.call(strg,shell=True)
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
