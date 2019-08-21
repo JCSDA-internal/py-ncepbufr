@@ -12,7 +12,7 @@ is set up to use [gfortran](https://gcc.gnu.org/wiki/GFortran) by default.  You 
 edit `src/makebufrlib.sh` and run it manually if this step fails.
 If you change the fortran compiler, you may have to add the 
 flags `config_fc --fcompiler=<compiler name>` when setup.py is run
-(see docs for [numpy.distutils](http://docs.scipy.org/doc/numpy-dev/f2py/distutils.html)).
+(see docs for [numpy.distutils](https://docs.scipy.org/doc/numpy/f2py/distutils.html)).
 If you have built and installed the bufr library from https://github.com/JCSDA/BUFRLIB, 
 you can set the `BUFRLIB_ROOT` environment variable to point to where you installed it, and
 setup.py should use this one instead of building the library from the included source.
