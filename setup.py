@@ -2,7 +2,9 @@ from numpy.distutils.core  import setup, Extension
 import os, sys, subprocess
 
 # build fortran library if it does not yet exist.
-bufrdir = os.environ.get('BUFRDIR')
+bufrdir = os.environ.get('BUFRLIB_ROOT') # check BUFRLIB_ROOT first
+if not bufrdir:
+    bufrdir = os.environ.get('BUFRLIB_PATH') # fall back on BUFRLIB_PATH
 if bufrdir:
     bufrlibdir = os.path.join(bufrdir,'lib')
     bufrincdir = os.path.join(bufrdir,'include')
