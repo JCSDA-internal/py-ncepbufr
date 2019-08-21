@@ -20,7 +20,7 @@ However, you have to make sure that cmake (when building bufrlib) and numpy.dist
 the python extension) are using the same fortran compiler.  Since numpy.distutils uses gfortran by
 default, one way to do this is to set FC=gfortran before building bufrlib. The other option is to
 specify the fortran compiler for python to use via `python setup.py build config_fc --fcompiler=<compiler name>`
-(`python setup.py build --help-fcompiler` lists the names of availale compilers).
+(`python setup.py build --help-fcompiler` lists the names of available compilers).
 * python setup.py install
 
 *Probably will not work on Windows!*
