@@ -2,16 +2,26 @@ from numpy.distutils.core  import setup, Extension
 import os, sys, subprocess
 
 # build fortran library if it does not yet exist.
-if not os.path.isfile('src/libbufr.a'):
-    strg = 'cd src; sh makebufrlib.sh'
-    sys.stdout.write('executing "%s"\n' % strg)
-    subprocess.call(strg,shell=True)
-
-# interface for NCEP bufrlib.
-ext_bufrlib = Extension(name  = '_bufrlib',
-                sources       = ['src/_bufrlib.pyf'],
-                libraries     = ['bufr'],
-                library_dirs  = ['src'])
+bufrdir = os.environ.get('BUFRLIB_ROOT') # check BUFRLIB_ROOT first
+if not bufrdir:
+    bufrdir = os.environ.get('BUFRLIB_PATH') # fall back on BUFRLIB_PATH
+if bufrdir:
+    bufrlibdir = os.path.join(bufrdir,'lib')
+    bufrincdir = os.path.join(bufrdir,'include')
+    ext_bufrlib = Extension(name  = '_bufrlib',
+                    sources = ['src/_bufrlib.pyf','src/fortran_open.f','src/fortran_close.f'],
+                    libraries     = ['bufr'],
+                    include_dirs  = [bufrincdir],
+                    library_dirs  = [bufrlibdir])
+else:
+    ext_bufrlib = Extension(name  = '_bufrlib',
+                    sources       = ['src/_bufrlib.pyf'],
+                    libraries     = ['bufr'],
+                    library_dirs  = ['src'])
+    if not os.path.isfile('src/libbufr.a'):
+        strg = 'cd src; sh makebufrlib.sh'
+        sys.stdout.write('executing "%s"\n' % strg)
+        subprocess.call(strg,shell=True)
 
 if __name__ == "__main__":
     setup(name = 'py-ncepbufr',
