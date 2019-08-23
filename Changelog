@@ -4,6 +4,8 @@ since version 1.1.1 release
   functions (since the parameter values are global data in the fortran
   code anyway).
   Remove set_missing_value and set_datelength bufrlib.open methods.
+* BUFRLIB_PATH env var can now be used to point to a pre-built bufrlib
+  (as provided by https://github.com/JCSDA/BUFRLIB).
 
 version 1.1.1
 =============
