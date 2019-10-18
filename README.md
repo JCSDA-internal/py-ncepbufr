@@ -14,7 +14,7 @@ If you change the fortran compiler, you may have to add the
 flags `config_fc --fcompiler=<compiler name>` when setup.py is run
 (see docs for [numpy.distutils](https://docs.scipy.org/doc/numpy/f2py/distutils.html)).
 If you have built and installed the bufr library from https://github.com/JCSDA/BUFRLIB, 
-you can set the `BUFRLIB_ROOT` environment variable to point to where you installed it, and
+you can set the `bufrlib_ROOT` environment variable to point to where you installed it, and
 setup.py should use this one instead of building the library from the included source.
 However, you have to make sure that cmake (when building bufrlib) and numpy.distutils (when building 
 the python extension) are using the same fortran compiler.  Since numpy.distutils uses gfortran by
