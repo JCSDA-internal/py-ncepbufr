@@ -1,7 +1,7 @@
 """bufrdif.py - read in two bufr files, write out a third containing data
 that is unique in the 2nd file
 
-version 0.2: Jeff Whitaker 20190807
+version 0.1: Jeff Whitaker 20190227
 """
 from __future__ import print_function
 import ncepbufr, sys, os, tempfile, hashlib, argparse
@@ -22,7 +22,7 @@ filename_in2 = MyArgs.input_bufr2
 filename_out = MyArgs.output_bufr
 bufr_type = MyArgs.bufr_type
 verbose=MyArgs.verbose
-print("""input_bufr1=%s
+print("""input_bufr1=%s 
 input_bufr2=%s
 output_bufr=%s
 bufr_type=%s""" % (filename_in1,filename_in2,filename_out,bufr_type))
@@ -42,10 +42,14 @@ elif bufr_type == 'satwnd':
     obstr = 'EHAM HAMD PRLC WDIR WSPD'
     qcstr = 'OGCE GNAP PCCF'
 elif bufr_type == 'goesfv':
-    hdstr = 'CLON CLAT ELEV SOEL BEARAZ SOLAZI SAID DINU YEAR MNTH DAYS HOUR MINU SECO ACAV'
+    hdstr = 'CLON CLAT ELEV SOEL BEARAZ SOLAZI SAID DINU YEAR MNTH DAYS HOUR MINU SECO ACAV' 
     obstr = 'TMBR'
+elif bufr_type == 'ascatw':
+    hdstr = 'YEAR MNTH DAYS HOUR MINU SECO CLAT CLON CTCN'
+    obstr = 'WC10 WS10'
+    qcstr = 'WVCQ'
 else:
-    msg="unrecognized bufr_type, must be one of 'prep','satwnd' or 'goesfv'"
+    msg="unrecognized bufr_type, must be one of 'prep','satwnd','goesfv','ascatw', got '%s'" % bufr_type
     raise SystemExit(msg)
 
 def splitdate(yyyymmddhh):
@@ -65,7 +69,7 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
     bufr_dict = {}
     ndup = 0
     delta = timedelta(seconds=1)
-    while bufr.advance() == 0:
+    while bufr.advance() == 0: 
         nsubset = 0
         if bufr_type == 'prep':
             yyyy,mm,dd,hh = splitdate(bufr.msg_date)
@@ -84,6 +88,9 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
             else:
                 qchash = hash(bufr.read_subset(qcstr).tostring())
                 key = '%s %s %s %s' % (bufr.msg_type,hdrhash,obshash,qchash)
+            # human readable header string
+            #if bufr_type == 'prep':
+            #    hdrstr = '%8s %8.3f %7.3f %14s %3i %5i %3i' % (hdr[0].tostring(),hdr[1],hdr[2],int(hdr[3]),int(hdr[4]),int(hdr[5]),int(hdr[6])))
             nsubset += 1
             if key in bufr_dict:
                 ndup += 1
@@ -92,7 +99,7 @@ def get_bufr_dict(bufr,verbose=False,bufr_type='prep'):
                 bufr_dict[key] = bufr.msg_counter,nsubset
     return bufr_dict,ndup
 
-# create dictionaries with md5 hashes for each message as keys,
+# create dictionaries with md5 hashes for each message as keys, 
 # (msg number,subset number) tuple as values.
 bufr = ncepbufr.open(filename_in1)
 bufr_dict1,ndup = get_bufr_dict(bufr,verbose=verbose,bufr_type=bufr_type)
@@ -123,12 +130,12 @@ print('%s unique message subsets (out of %s) in %s' % (ncount,len(bufr_dict2),fi
 print('creating %s' % filename_out)
 bufr.rewind()
 bufrout = ncepbufr.open(filename_out,'w',bufr)
-while bufr.advance() == 0:
+while bufr.advance() == 0: 
     if bufr.msg_counter in uniq_messages: # this message has a unique subset
         bufrout.open_message(bufr.msg_type,bufr.msg_date) # open output message
         nsubset = 0
         while bufr.load_subset() == 0: # loop over subsets in message.
-            nsubset += 1
+            nsubset += 1 
             if nsubset in uniq_messages[bufr.msg_counter]: # write unique subsets
                 bufrout.copy_subset(bufr)
         bufrout.close_message() # close message

@@ -37,11 +37,10 @@ try:
     # if filenameref is a file, determine receipt_time_cutoff
     # by looking for newest receipt time in the file.
     bufr = ncepbufr.open(filenameref)
-    print(filenameref)
     receipt_times = get_receipt_times(bufr)
     bufr.close()
     receipt_time_cutoff = receipt_times.max()
-except IOError:
+except:
     # if filenameref is not a file, assume it's a specified
     # receipt time cutoff.
     receipt_time_cutoff = int(filenameref)
@@ -66,6 +65,7 @@ while bufr.advance() == 0: # loop over messages.
             rsrd = int(hdr[0]); exprsrd = int(hdr[1])
         except:
             rsrd = 0; exprsrd = 0
+        #print(nsubs,receipt_times[nsubs],receipt_time_cutoff)
         if receipt_times[nsubs] > receipt_time_cutoff:    
             rs_bitstring =  "{0:b}".format(rsrd)
             # skip restricted data with no expiration time
