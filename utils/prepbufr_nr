@@ -38,13 +38,13 @@ bufrout = ncepbufr.open(prepbufr_out,'w',bufrin)
 # mnemonic to extract data from subset headers.
 hdstr='RSRD EXPRSRD TYP'
 
-nmsg = 0
-nskip = 0
+nmsg = 0; nsubs = 0; nskip = 0
 while bufrin.advance() == 0: # loop over messages.
     nmsg += 1
     bufrout.open_message(bufrin.msg_type,bufrin.msg_date) # open message
     #print(nmsg,bufrin.msg_type,bufrin.msg_date)
     while bufrin.load_subset() == 0: # loop over subsets in message.
+        nsubs += 1
         # read subset header from bufrin
         hdr = (bufrin.read_subset(hdstr).squeeze()).filled(0)
         try:
@@ -73,5 +73,5 @@ while bufrin.advance() == 0: # loop over messages.
     bufrout.close_message() # close message
 
 # close files.
-if nskip > 0: print('%s skipped %s subsets' % (bufrin.msg_date,nskip))
+if nskip > 0: print('skipped %s subsets out of %s' % (nskip,nsubs))
 bufrin.close(); bufrout.close()
