@@ -58,7 +58,7 @@ while bufrin.advance() == 0: # loop over messages.
 # 4th bit: can redistribute to any US educational institution
 # 5th bit: can redistribute within NOAA
 # exprsrd - expiration of restriction (hours)
-        rs_bitstring =  "{0:b}".format(rsrd)
+        rs_bitstring =  "{:09b}".format(rsrd)
         # skip restricted data with no expiration time
         if rsrd != 0 and exprsrd == 0 : 
             nskip += 1
