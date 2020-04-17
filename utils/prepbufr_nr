@@ -47,7 +47,10 @@ while bufrin.advance() == 0: # loop over messages.
     while bufrin.load_subset() == 0: # loop over subsets in message.
         # read subset header from bufrin
         hdr = (bufrin.read_subset(hdstr).squeeze()).filled(0)
-        rsrd = int(hdr[0]); exprsrd = int(hdr[1]); typ = int(hdr[2])
+        try:
+            rsrd = int(hdr[0]); exprsrd = int(hdr[1]); typ = int(hdr[2])
+        except:
+            rsrd = 0; exprsrd = 0
 # rs_bitstring - see https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data/mesonet/
 # if the first bit is 1 - no redistribution
 # 2nd bit: can redistribute to any US govt agency
@@ -60,7 +63,10 @@ while bufrin.advance() == 0: # loop over messages.
         if rsrd != 0 and exprsrd == 0 : 
             nskip += 1
             if verbose:
-                print('skipping ob of type %s with restricted data flags %s' % (typ,rs_bitstring[0:5]))
+                if typ !=0: # prepbufr has ob type code
+                   print('skipping subset of type %s with restricted data flags %s' % (typ,rs_bitstring[0:5]))
+                else:
+                   print('skipping subset with restricted data flags %s' % rs_bitstring[0:5])
             continue
         # copy entire subset from bufrin to bufrout and write to message.
         bufrout.copy_subset(bufrin)
