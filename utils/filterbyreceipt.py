@@ -68,6 +68,7 @@ except ValueError:
     bufr = ncepbufr.open(filenameref)
     if 'adpupa' in filenameref or 'sfcshp' in filenameref or \
        'adpsfc' in filenameref or 'aircar' in filenameref or \
+       'saphir' in filenameref or 'gpsipw' in filenameref or \
        'aircft' in filenameref or 'gpsro' in filename:
         receipt_times_bymsg, receipt_times = get_receipt_times(bufr,check_subsets=True)
     else:
@@ -87,7 +88,8 @@ nsubs=0; nsubso=0; nskip=0; nskip2=0; nmsg=0; nmsgo = 0; nskip1=0
 print(filename)
 if 'adpupa' in filename or 'sfcshp' in filename or \
    'adpsfc' in filename or 'aircar' in filename or \
-   'aircft' in filenameref or 'gpsro' in filename:
+   'saphir' in filename or 'gpsipw' in filename or \
+   'aircft' in filename or 'gpsro'  in filename:
     receipt_times_bymsg, receipt_times = get_receipt_times(bufr,check_subsets=True)
 else:
     receipt_times_bymsg, receipt_times = get_receipt_times(bufr,check_subsets=False)
