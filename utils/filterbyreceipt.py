@@ -82,8 +82,6 @@ if filenameo == filename or filenameo == filenameref:
     raise SystemExit(msg)
 
 bufr = ncepbufr.open(filename)
-bufrout = ncepbufr.open(filenameo,'w',bufr)
-
 nsubs=0; nsubso=0; nskip=0; nskip2=0; nmsg=0; nmsgo = 0; nskip1=0
 print(filename)
 if 'adpupa' in filename or 'sfcshp' in filename or \
@@ -93,7 +91,10 @@ if 'adpupa' in filename or 'sfcshp' in filename or \
     receipt_times_bymsg, receipt_times = get_receipt_times(bufr,check_subsets=True)
 else:
     receipt_times_bymsg, receipt_times = get_receipt_times(bufr,check_subsets=False)
-bufr.rewind()
+
+bufr.close()
+bufr = ncepbufr.open(filename)
+bufrout = ncepbufr.open(filenameo,'w',bufr)
 while bufr.advance() == 0: # loop over messages.
     msg_receipt_time,no_restricted_data = receipt_times_bymsg[nmsg]
     if msg_receipt_time > 0 and no_restricted_data:
