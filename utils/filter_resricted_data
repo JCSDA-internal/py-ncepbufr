@@ -7,7 +7,7 @@ with no expiration time.
 see https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data
 and https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data/mesonet
 
-python bufr_nr <input bufr> <output bufr>
+filter_restricted_data <input bufr> <output bufr>
 """
 from __future__ import print_function
 import ncepbufr, argparse, os
