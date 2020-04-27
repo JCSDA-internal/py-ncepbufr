@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 """
 rewrite bufr file, skipping message subsets with restricted data
-with no expiration time.
+that have no expiration period specified.
 
 see https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data
 and https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data/mesonet
