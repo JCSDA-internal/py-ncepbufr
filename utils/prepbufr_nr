@@ -10,7 +10,7 @@ and https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data/mesonet
 python prepbufr_nr <input bufr> <output bufr>
 """
 from __future__ import print_function
-import ncepbufr, argparse
+import ncepbufr, argparse, os
 
 
 # Parse command line args
@@ -38,7 +38,7 @@ bufrout = ncepbufr.open(prepbufr_out,'w',bufrin)
 # mnemonic to extract data from subset headers.
 hdstr='RSRD EXPRSRD TYP'
 
-nmsg = 0; nsubs = 0; nskip = 0
+nmsg = 0; nsubs = 0; nskip = 0; nout=0
 while bufrin.advance() == 0: # loop over messages.
     nmsg += 1
     bufrout.open_message(bufrin.msg_type,bufrin.msg_date) # open message
@@ -69,9 +69,13 @@ while bufrin.advance() == 0: # loop over messages.
                    print('skipping subset with restricted data flags %s' % rs_bitstring[0:5])
             continue
         # copy entire subset from bufrin to bufrout and write to message.
+        nout+=1
         bufrout.copy_subset(bufrin)
     bufrout.close_message() # close message
 
 # close files.
-if nskip > 0: print('skipped %s subsets out of %s' % (nskip,nsubs))
+if nskip > 0: print('skipped %s subsets out of %s, %s subsets written' % (nskip,nsubs,nout))
 bufrin.close(); bufrout.close()
+if not nout:
+    print('no output written!')
+    os.remove(prepbufr_out)
