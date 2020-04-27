@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 """
-rewrite prepbufr file, skipping message subsets with restricted data
+rewrite bufr file, skipping message subsets with restricted data
 with no expiration time.
 
 see https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data
 and https://www.nco.ncep.noaa.gov/pmb/docs/restricted_data/mesonet
 
-python prepbufr_nr <input bufr> <output bufr>
+python bufr_nr <input bufr> <output bufr>
 """
 from __future__ import print_function
 import ncepbufr, argparse, os
@@ -15,25 +15,25 @@ import ncepbufr, argparse, os
 
 # Parse command line args
 ap = argparse.ArgumentParser()
-ap.add_argument("prepbufr_in", help="path to first input BUFR file")
-ap.add_argument("prepbufr_out", help="output BUFR containing data in BUFR 2 that is not in BUFR 1")
+ap.add_argument("bufr_in", help="input BUFR file")
+ap.add_argument("bufr_out", help="output BUFR file without restricted data")
 ap.add_argument('--verbose', '-v', action='store_true')
 
 MyArgs = ap.parse_args()
 
-prepbufr_in = MyArgs.prepbufr_in
-prepbufr_out = MyArgs.prepbufr_out
+bufr_in = MyArgs.bufr_in
+bufr_out = MyArgs.bufr_out
 verbose = MyArgs.verbose
 
 # input and output file names from command line args.
-if prepbufr_in == prepbufr_out:
-    raise IOError('cannot overwrite input prepbufr file')
+if bufr_in == bufr_out:
+    raise IOError('cannot overwrite input bufr file')
 
 # open bufr input file.
-bufrin = ncepbufr.open(prepbufr_in)
+bufrin = ncepbufr.open(bufr_in)
 
-# open output bufr file using same prepbufr table.
-bufrout = ncepbufr.open(prepbufr_out,'w',bufrin)
+# open output bufr file using same bufr table.
+bufrout = ncepbufr.open(bufr_out,'w',bufrin)
 
 # mnemonic to extract data from subset headers.
 hdstr='RSRD EXPRSRD TYP'
@@ -63,7 +63,7 @@ while bufrin.advance() == 0: # loop over messages.
         if rsrd != 0 and exprsrd == 0 : 
             nskip += 1
             if verbose:
-                if typ !=0: # prepbufr has ob type code
+                if typ !=0: # bufr has ob type code
                    print('skipping subset of type %s with restricted data flags %s' % (typ,rs_bitstring[0:5]))
                 else:
                    print('skipping subset with restricted data flags %s' % rs_bitstring[0:5])
@@ -78,4 +78,4 @@ if nskip > 0: print('skipped %s subsets out of %s, %s subsets written' % (nskip,
 bufrin.close(); bufrout.close()
 if not nout:
     print('no output written!')
-    os.remove(prepbufr_out)
+    os.remove(bufr_out)
