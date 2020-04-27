@@ -11,28 +11,22 @@ filter_restricted_data <input bufr> <output bufr>
 from __future__ import print_function
 import ncepbufr, argparse, os
 
-
 # Parse command line args
 ap = argparse.ArgumentParser()
 ap.add_argument("bufr_in", help="input BUFR file")
 ap.add_argument("bufr_out", help="output BUFR file without restricted data")
 ap.add_argument('--verbose', '-v', action='store_true')
-
 MyArgs = ap.parse_args()
 
-bufr_in = MyArgs.bufr_in
-bufr_out = MyArgs.bufr_out
-verbose = MyArgs.verbose
-
 # input and output file names from command line args.
-if bufr_in == bufr_out:
+if MyArgs.bufr_in == MyArgs.bufr_out:
     raise IOError('cannot overwrite input bufr file')
 
 # open bufr input file.
-bufrin = ncepbufr.open(bufr_in)
+bufrin = ncepbufr.open(MyArgs.bufr_in)
 
 # open output bufr file using same bufr table.
-bufrout = ncepbufr.open(bufr_out,'w',bufrin)
+bufrout = ncepbufr.open(MyArgs.bufr_out,'w',bufrin)
 
 # mnemonic to extract data from subset headers.
 hdstr='RSRD EXPRSRD TYP'
@@ -61,8 +55,8 @@ while bufrin.advance() == 0: # loop over messages.
         # skip restricted data with no expiration time
         if rsrd != 0 and exprsrd == 0 : 
             nskip += 1
-            if verbose:
-                if typ !=0: # bufr has ob type code
+            if MyArgs.verbose:
+                if typ !=0: # bufr has ob type code (prepbufr)
                    print('skipping subset of type %s with restricted data flags %s' % (typ,rs_bitstring[0:5]))
                 else:
                    print('skipping subset with restricted data flags %s' % rs_bitstring[0:5])
@@ -72,9 +66,8 @@ while bufrin.advance() == 0: # loop over messages.
         bufrout.copy_subset(bufrin)
     bufrout.close_message() # close message
 
-# close files.
 if nskip > 0: print('skipped %s subsets out of %s, %s subsets written' % (nskip,nsubs,nout))
-bufrin.close(); bufrout.close()
-if not nout:
+bufrin.close(); bufrout.close() # close files.
+if not nout: # remove file if no data written to it.
+    os.remove(MyArgs.bufr_out)
     print('no output written!')
-    os.remove(bufr_out)
